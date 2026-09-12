@@ -89,22 +89,24 @@ Every metric is collected without requiring root (`sudo`) privileges:
 - **Sources**: `/proc/diskstats`, `os.statvfs`, and `/proc/<pid>/io`.
 - **Mechanism**:
   1. `/proc/diskstats` tracks cumulative sectors read and written for primary block devices (`nvme0n1`, `sda`). Multiplied by 512 bytes and divided by delta time to determine MB/s throughput.
-  2. **Mount Deduplication**: When `/` and `/home` share the same physical filesystem partition (e.g. Btrfs subvolumes on the same block device), checking `os.stat(mount).st_dev` detects identical device numbers and merges them into a single entry (`Root & Home (/)`).
-  3. **Top Disk I/O Consumers**: Samples `/proc/<pid>/io` across running user processes, computes read and write MB/s deltas, and aggregates by binary name to present the top 3 disk bandwidth consumers.
+  2. **Mount Deduplication & Filtering**: When `/` and `/home` share the same physical filesystem partition (e.g. Btrfs subvolumes or unified root), checking `os.stat(mount).st_dev` detects identical device numbers and merges them into a single entry (`Root & Home (/)`). Boot partitions under 5 GB (such as `/boot` and `/boot/efi`) are intentionally pruned to eliminate clutter and prioritize active user storage pools (`/`, `/home`, `/mnt/*`, `/media/*`).
+  3. **Top Lifetime Disk I/O Consumers**: Samples `/proc/<pid>/io` across running user processes, aggregates by binary name, and presents the top 3 disk consumers labeled explicitly as cumulative lifetime read and write I/O.
   4. **PSI Status Formatter**: Evaluates `psi_io` averages to classify disk pipeline status into `OPTIMAL`, `ELEVATED`, or `STALLED`.
-- **Rationale**: Eliminates duplicate identical capacity bars for subvolumes and provides actionable insight into which process is driving disk write spikes.
+- **Rationale**: Eliminates non-actionable boot partition bars and gives clear distinction between instantaneous throughput and lifetime process I/O.
 
 ### 2.6 Systemd Health, Timers, Vitals & Thermals
-- **Sources**: `systemctl is-system-running`, `systemctl --failed`, `systemctl list-timers --output=json`, `/proc/uptime`, `/proc/loadavg`, `/proc/vmstat`, and `/sys/class/hwmon/*/temp*_input`.
+- **Sources**: `systemctl is-system-running`, `systemctl --failed`, `systemctl list-timers --output=json`, `/proc/uptime`, `/proc/loadavg`, `os.cpu_count()`, `/proc/vmstat`, and `/sys/class/hwmon/*/temp*_input`.
 - **Mechanism**:
   1. **Systemd Services**: Queries `systemctl --failed` for broken units and exposes failed unit counts and names.
-  2. **Scheduled Timers**: Parses `systemctl list-timers --output=json` to retrieve the next 4 upcoming timers, time remaining (`left_str`), and activated services.
-  3. **System Vitals**:
-     - Host uptime parsed from `/proc/uptime` and formatted into days/hours/minutes.
+  2. **Scheduled Timers with Microsecond Countdown**:
+     In systemd's JSON output, the `next` attribute represents a 64-bit microsecond UNIX timestamp (`next_us`). The daemon dynamically calculates the exact countdown via `diff_sec = (next_us / 1_000_000.0) - time.time()`, formatted into a compact countdown string (`_format_countdown`: e.g. `4h 46m`, `21h 45m`, `1d 4h`). A legendless plain-text parser serves as a robust fallback.
+  3. **System Vitals & CPU Thread Context**:
+     - Host uptime parsed from `/proc/uptime`.
      - 1m, 5m, 15m load averages parsed from `/proc/loadavg`.
+     - `os.cpu_count()` provides the authoritative logical thread count (e.g. 16 threads). This enables the frontend to render an intuitive capacity ratio (`(load1m / cpu_cores) * 100`) and color-coded threshold gauge.
      - Recent OOM terminations counted from `oom_kill` in `/proc/vmstat`.
-  4. **Thermals**: Reads temperature millidegrees Celsius from `/sys/class/hwmon` and formats them into a compact grid with warnings at >= 75 °C.
-- **Rationale**: Fills previous dead space in the Daemons view with vital administrative metrics that give instant visibility into scheduled maintenance and kernel health.
+  4. **Thermals**: Reads temperature millidegrees Celsius from `/sys/class/hwmon` and formats them into a compact grid with warnings at >= 65 °C (warm) and >= 80 °C (critical).
+- **Rationale**: Solves false-negative timer readings caused by timestamp type mismatch and contextualizes raw load averages against actual logical core capacity.
 
 ---
 
@@ -137,11 +139,12 @@ Every metric is collected without requiring root (`sudo`) privileges:
      `Qt.rgba(0.04, 0.04, 0.05, 0.70)` lets the desktop wallpaper softly show through with 70% opacity.
   3. **Frosted Glass Cards (`bgCard`)**:
      `Qt.rgba(1.0, 1.0, 1.0, 0.04)` creates elevated surfaces with delicate translucent borders (`Qt.rgba(1.0, 1.0, 1.0, 0.12)`).
-  4. **High-Contrast Monochromatic Typography & Accents**:
+  4. **High-Contrast Monochromatic Typography & Functional Accents**:
      - Primary text (`#ffffff`): high-contrast labels and headings.
      - Secondary text (`#d1d5db`): clear, readable silver-grey metrics.
      - Muted text (`#9ca3af`): subheadings and auxiliary units with strong contrast against dark glass.
-     - Pure white accents (`#ffffff`): upload rates, progress indicators, active tab indicator.
+     - Functional warning amber (`#f59e0b` / `theme.accentWarn`): budget overflow indicators and elevated load.
+     - Functional alert red (`#ef4444` / `theme.accentAlert`): failed systemd units and thermal thresholds.
   5. **Desktop Placement & Dynamic Sizing**:
      - Collapsed Capsule: `530x44px` pill with real-time status and a `[v] Expandir` button.
      - Expanded Dashboard: `720x560px` 4-page stack with an `[^] Contraer` button.
@@ -149,11 +152,11 @@ Every metric is collected without requiring root (`sudo`) privileges:
 
 ### 4.3 Modular UI Component Library
 Recurring visual patterns are encapsulated into reusable components under `plasmoid/contents/ui/components/`:
-- `ProcessRow.qml`: Standardized process ranking row displaying ordinal rank, process name, instance count pill (`xN`), secondary text (e.g. RAM or Read MB), and highlighted metric badge.
+- `ProcessRow.qml`: Standardized process ranking row with fixed tabular alignment. Process name and instance pill (`xN`) expand flexibly on the left, while secondary metrics (`detailText`) and highlight badges (`badge`) are rigidly right-anchored.
 - `StatusBadge.qml`: Status pill with a colored status indicator dot, high-contrast title, and muted explanatory description (used for PSI bottlenecks and system health).
 - `MetricCard.qml`: Frosted glass container with translucent borders, uppercase header label, and slot for auxiliary controls.
 - `Sparkline.qml`: Zero-jank Canvas renderer drawing continuous 30-to-60 point telemetry histories with translucent filled gradients.
-- `BudgetSlider.qml`: Horizontal quota track with milestone markers, filled progress gradient, and draggable limit thumb.
+- `BudgetSlider.qml`: Compact horizontal quota track supporting overflow states. When daily quota is exceeded (`total_bytes > cap_bytes`), the track and knob dynamically highlight in warning amber with an explicit `+X GB over budget` tag.
 - `DonutChart.qml`: Split circular arc visualization for download versus upload ratios.
 
 ---
