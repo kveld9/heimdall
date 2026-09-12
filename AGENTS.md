@@ -66,7 +66,7 @@ Heimdall consists of two decoupled components:
    - Card Highlight: `Qt.rgba(1.0, 1.0, 1.0, 0.08)` (Hover and elevated glass)
    - Input/Rail Inset: `Qt.rgba(0.0, 0.0, 0.0, 0.45)`
    - Borders: `Qt.rgba(1.0, 1.0, 1.0, 0.12)` (Crisp translucent border), `Qt.rgba(1.0, 1.0, 1.0, 0.06)` (Subtle divider)
-   - Accent White: `#ffffff` (Primary highlights, upload speed, budget knob, active tabs)
+   - Accent White: `#ffffff` (Primary highlights, upload speed, traffic track, active tabs)
    - Accent Silver / Grey: `#9ca3af` (Secondary highlights, download speed, pill badges)
    - Accent Dark Slate: `#374151` (Doughnut secondary arc, capacity track)
    - Text Primary: `#ffffff` (High-contrast pure white)
@@ -79,6 +79,10 @@ Heimdall consists of two decoupled components:
    - When collapsed: Compact floating capsule (~530x44px).
    - When expanded: Complete 4-page dashboard (720x560px).
    - `implicitWidth` and `implicitHeight` in `main.qml` must track the `isCollapsed` state to prevent empty layout borders on the desktop.
+
+4. **Strict Monochromatic Palette Invariant & Mandatory Confirmation Protocol**:
+   - **Zero Chromatic Drift Invariant**: The UI must strictly adhere to a translucent monochromatic palette (pure white `#ffffff`, silver `#d1d5db`, slate `#374151`, muted grey `#9ca3af`, and smoked/frosted glass). Under no circumstance shall any chromatic accent (yellow, amber, green, cyan, blue, purple, magenta, red, or orange) be introduced into UI components, status pills, badges, graphs, or text.
+   - **Mandatory User Confirmation Protocol**: Even if the user explicitly requests in chat to implement or test any chromatic color (e.g., "ponele color amarillo", "hacelo verde", "usá rojo"), the agent or contributor MUST NOT execute the change immediately. The agent is strictly required to pause, cite this invariant, and ask the user for explicit re-confirmation (asking whether they genuinely intend to break the repository strict monochromatic design rule). Only after receiving a second, unambiguous affirmative confirmation from the user may a chromatic change be processed.
 
 ---
 

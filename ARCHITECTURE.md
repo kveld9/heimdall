@@ -142,8 +142,8 @@ Every metric is collected without requiring root (`sudo`) privileges:
   4. **High-Contrast Monochromatic Typography & Functional Accents**:
      - Primary text (`#ffffff`): high-contrast labels and headings.
      - Secondary text (`#d1d5db`): clear, readable silver-grey metrics.
-     - Muted text (`#9ca3af`): subheadings and auxiliary units with strong contrast against dark glass.
-     - Monochromatic baseline & subtle functional accents: crisp white tracks and frosted elevated glass (`Qt.rgba(1.0, 1.0, 1.0, 0.16)`) with muted crimson (`#e06c75`) and warm amber (`#d19a66`) reserved strictly for hardware conditions (>=65C warm, >=80C hot thermals, PSI stalls).
+     - Text Muted (`#9ca3af`): subheadings and auxiliary units with strong contrast against dark glass.
+     - Monochromatic baseline: crisp white tracks and frosted elevated glass (`Qt.rgba(1.0, 1.0, 1.0, 0.16)`). Strict repository invariant prohibits chromatic drift; any user request to introduce arbitrary colors requires mandatory secondary confirmation. Hardware thermal levels and PSI stalls retain subdued functional alerts only where strictly necessary.
   5. **Desktop Placement & Dynamic Sizing**:
      - Collapsed Capsule: `530x44px` pill with real-time status and a `[v] Expandir` button.
      - Expanded Dashboard: `720x560px` 4-page stack with an `[^] Contraer` button.
