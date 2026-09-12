@@ -75,7 +75,7 @@ Item {
                     Repeater {
                         model: page.failedUnits
                         Text {
-                            text: "✕ " + modelData
+                            text: "[x] " + modelData
                             font.family: theme.monoFont
                             font.pixelSize: 11
                             color: theme.accentPink
