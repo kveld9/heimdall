@@ -4,14 +4,14 @@ set -eo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${REPO_DIR}"
 
-echo "=== [WatchCat] Running Quality & Modularity Verification Pipeline ==="
+echo "=== [Heimdall] Running Quality & Modularity Verification Pipeline ==="
 
 # 1. Python Syntax & Compilation Gate
 echo "[*] Step 1/4: Compiling Python modules..."
 python3 -m py_compile \
     daemon/*.py \
-    daemon/watchcat/*.py \
-    daemon/watchcat/collectors/*.py
+    daemon/heimdall/*.py \
+    daemon/heimdall/collectors/*.py
 echo "[+] Python compilation successful."
 
 # 2. Collector Smoke Test Gate
@@ -19,10 +19,10 @@ echo "[*] Step 2/4: Running collector smoke test..."
 python3 -c "
 import sys
 sys.path.insert(0, '${REPO_DIR}/daemon')
-from watchcat.collectors.network import NetworkCollector
-from watchcat.collectors.compute import ComputeCollector
-from watchcat.collectors.storage import StorageCollector
-from watchcat.collectors.health import HealthCollector
+from heimdall.collectors.network import NetworkCollector
+from heimdall.collectors.compute import ComputeCollector
+from heimdall.collectors.storage import StorageCollector
+from heimdall.collectors.health import HealthCollector
 
 net = NetworkCollector().collect()
 assert isinstance(net, dict) and 'down_rate_kb' in net, 'NetworkCollector failed'
@@ -88,8 +88,8 @@ python3 -c "
 import json
 with open('plasmoid/metadata.json', 'r', encoding='utf-8') as f:
     meta = json.load(f)
-assert meta.get('KPlugin', {}).get('Id') == 'org.kde.plasma.watchcat'
+assert meta.get('KPlugin', {}).get('Id') == 'org.kde.plasma.heimdall'
 print('[+] Plasmoid metadata verified.')
 "
 
-echo "=== [WatchCat] Verification Pipeline PASSED: Clean, Modular, and Ready! ==="
+echo "=== [Heimdall] Verification Pipeline PASSED: Clean, Modular, and Ready! ==="
