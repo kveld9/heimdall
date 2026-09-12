@@ -13,11 +13,11 @@ Item {
     readonly property var weeklyList: telemetry ? telemetry.weekly : []
     readonly property var procList: telemetry && telemetry.net && telemetry.net.top_processes ? telemetry.net.top_processes : []
     readonly property var netData: telemetry ? telemetry.net : null
-    readonly property real colDayWidth: 72
-    readonly property real colDateWidth: 52
-    readonly property real colDownWidth: 76
-    readonly property real colUpWidth: 76
-    readonly property real colTotalWidth: 104
+    readonly property real colDayWidth: 70
+    readonly property real colDateWidth: 50
+    readonly property real colDownWidth: 75
+    readonly property real colUpWidth: 75
+    readonly property real colTotalWidth: 100
     readonly property real maxWeekBytes: {
         var m = 1048576;
         if (weeklyList) {
@@ -158,56 +158,73 @@ Item {
                     spacing: 4
 
                     // Table Header with high contrast
-                    RowLayout {
+                    Item {
                         Layout.fillWidth: true
-                        Layout.leftMargin: 6
-                        Layout.rightMargin: 6
-                        spacing: 8
+                        implicitHeight: 18
 
                         Text {
+                            id: hDay
+                            x: 6
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: page.colDayWidth
                             text: "DAY"
                             font.family: theme.mainFont
                             font.pixelSize: 10
                             font.bold: true
                             color: theme.textSecondary
-                            Layout.preferredWidth: page.colDayWidth
                         }
+
                         Text {
+                            id: hDate
+                            x: hDay.x + page.colDayWidth + 6
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: page.colDateWidth
                             text: "DATE"
                             font.family: theme.mainFont
                             font.pixelSize: 10
                             font.bold: true
                             color: theme.textSecondary
-                            Layout.preferredWidth: page.colDateWidth
                         }
 
-                        Item { Layout.fillWidth: true }
-
                         Text {
-                            text: "DOWN"
-                            font.family: theme.mainFont
-                            font.pixelSize: 10
-                            font.bold: true
-                            color: theme.textSecondary
-                            Layout.preferredWidth: page.colDownWidth
-                            horizontalAlignment: Text.AlignRight
-                        }
-                        Text {
-                            text: "UP"
-                            font.family: theme.mainFont
-                            font.pixelSize: 10
-                            font.bold: true
-                            color: theme.textSecondary
-                            Layout.preferredWidth: page.colUpWidth
-                            horizontalAlignment: Text.AlignRight
-                        }
-                        Text {
+                            id: hTotal
+                            anchors.right: parent.right
+                            anchors.rightMargin: 6
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: page.colTotalWidth
                             text: "TOTAL"
                             font.family: theme.mainFont
                             font.pixelSize: 10
                             font.bold: true
                             color: theme.textSecondary
-                            Layout.preferredWidth: page.colTotalWidth
+                            horizontalAlignment: Text.AlignRight
+                        }
+
+                        Text {
+                            id: hUp
+                            anchors.right: hTotal.left
+                            anchors.rightMargin: 8
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: page.colUpWidth
+                            text: "^ UP"
+                            font.family: theme.mainFont
+                            font.pixelSize: 10
+                            font.bold: true
+                            color: theme.textSecondary
+                            horizontalAlignment: Text.AlignRight
+                        }
+
+                        Text {
+                            id: hDown
+                            anchors.right: hUp.left
+                            anchors.rightMargin: 8
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: page.colDownWidth
+                            text: "v DOWN"
+                            font.family: theme.mainFont
+                            font.pixelSize: 10
+                            font.bold: true
+                            color: theme.textSecondary
                             horizontalAlignment: Text.AlignRight
                         }
                     }
@@ -233,81 +250,93 @@ Item {
                             radius: 4
                             color: modelData.is_today ? theme.bgCardHighlight : "transparent"
 
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 6
+                            Text {
+                                id: dDay
+                                x: 6
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: page.colDayWidth
+                                text: modelData.day
+                                font.family: theme.mainFont
+                                font.pixelSize: 11
+                                font.bold: modelData.is_today
+                                color: modelData.is_today ? theme.textPrimary : theme.textSecondary
+                            }
+
+                            Text {
+                                id: dDate
+                                x: dDay.x + page.colDayWidth + 6
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: page.colDateWidth
+                                text: modelData.date
+                                font.family: theme.mainFont
+                                font.pixelSize: 10
+                                color: theme.textMuted
+                            }
+
+                            Item {
+                                id: dTotal
+                                anchors.right: parent.right
                                 anchors.rightMargin: 6
-                                spacing: 8
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: page.colTotalWidth
+                                height: parent.height
 
                                 Text {
-                                    text: modelData.day
-                                    font.family: theme.mainFont
+                                    anchors.right: miniBar.left
+                                    anchors.rightMargin: 6
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    text: theme.formatBytes(modelData.total_bytes)
+                                    font.family: theme.monoFont
                                     font.pixelSize: 11
                                     font.bold: modelData.is_today
-                                    color: modelData.is_today ? theme.textPrimary : theme.textSecondary
-                                    Layout.preferredWidth: page.colDayWidth
-                                }
-
-                                Text {
-                                    text: modelData.date
-                                    font.family: theme.mainFont
-                                    font.pixelSize: 10
-                                    color: theme.textMuted
-                                    Layout.preferredWidth: page.colDateWidth
-                                }
-
-                                Item { Layout.fillWidth: true }
-
-                                Text {
-                                    text: theme.formatBytes(modelData.down_bytes)
-                                    font.family: theme.monoFont
-                                    font.pixelSize: 11
-                                    color: theme.textSecondary
-                                    Layout.preferredWidth: page.colDownWidth
+                                    color: modelData.is_today ? theme.accentWhite : theme.textSecondary
                                     horizontalAlignment: Text.AlignRight
                                 }
 
-                                Text {
-                                    text: theme.formatBytes(modelData.up_bytes)
-                                    font.family: theme.monoFont
-                                    font.pixelSize: 11
-                                    color: theme.textSecondary
-                                    Layout.preferredWidth: page.colUpWidth
-                                    horizontalAlignment: Text.AlignRight
-                                }
+                                Rectangle {
+                                    id: miniBar
+                                    anchors.right: parent.right
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    width: 28
+                                    height: 4
+                                    radius: 2
+                                    color: theme.bgInput
 
-                                RowLayout {
-                                    Layout.preferredWidth: page.colTotalWidth
-                                    spacing: 6
-
-                                    Text {
-                                        text: theme.formatBytes(modelData.total_bytes)
-                                        font.family: theme.monoFont
-                                        font.pixelSize: 11
-                                        font.bold: modelData.is_today
-                                        color: modelData.is_today ? theme.accentWhite : theme.textSecondary
-                                        horizontalAlignment: Text.AlignRight
-                                        Layout.fillWidth: true
-                                    }
-
-                                    // Mini bar indicator
                                     Rectangle {
-                                        width: 28
-                                        height: 4
+                                        anchors.left: parent.left
+                                        anchors.top: parent.top
+                                        anchors.bottom: parent.bottom
+                                        width: Math.min(parent.width, Math.max(2, parent.width * (modelData.total_bytes / page.maxWeekBytes)))
                                         radius: 2
-                                        color: theme.bgInput
-                                        Layout.alignment: Qt.AlignVCenter
-
-                                        Rectangle {
-                                            anchors.left: parent.left
-                                            anchors.top: parent.top
-                                            anchors.bottom: parent.bottom
-                                            width: Math.min(parent.width, Math.max(2, parent.width * (modelData.total_bytes / page.maxWeekBytes)))
-                                            radius: 2
-                                            color: modelData.is_today ? theme.accentWhite : theme.accentGrey
-                                        }
+                                        color: modelData.is_today ? theme.accentWhite : theme.accentGrey
                                     }
                                 }
+                            }
+
+                            Text {
+                                id: dUp
+                                anchors.right: dTotal.left
+                                anchors.rightMargin: 8
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: page.colUpWidth
+                                text: theme.formatBytes(modelData.up_bytes)
+                                font.family: theme.monoFont
+                                font.pixelSize: 11
+                                color: theme.textSecondary
+                                horizontalAlignment: Text.AlignRight
+                            }
+
+                            Text {
+                                id: dDown
+                                anchors.right: dUp.left
+                                anchors.rightMargin: 8
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: page.colDownWidth
+                                text: theme.formatBytes(modelData.down_bytes)
+                                font.family: theme.monoFont
+                                font.pixelSize: 11
+                                color: theme.textSecondary
+                                horizontalAlignment: Text.AlignRight
                             }
                         }
                     }
