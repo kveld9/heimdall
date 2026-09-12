@@ -192,7 +192,7 @@ Item {
 
                                 ColumnLayout {
                                     Layout.fillWidth: true
-                                    spacing: 2
+                                    spacing: 4
 
                                     RowLayout {
                                         spacing: 6
@@ -218,9 +218,9 @@ Item {
                                     }
 
                                     Text {
-                                        text: "   -> " + modelData.activates
+                                        text: "   • " + modelData.activates
                                         font.family: theme.monoFont
-                                        font.pixelSize: 9
+                                        font.pixelSize: 10
                                         color: theme.textMuted
                                         elide: Text.ElideRight
                                         Layout.fillWidth: true
@@ -229,10 +229,11 @@ Item {
 
                                 Rectangle {
                                     height: 22
-                                    width: timeText.implicitWidth + 14
+                                    Layout.preferredWidth: 68
                                     radius: 4
                                     color: theme.bgInput
                                     border.color: theme.border
+                                    Layout.alignment: Qt.AlignRight
 
                                     Text {
                                         id: timeText
