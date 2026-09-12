@@ -145,13 +145,12 @@ Item {
                         }
                     }
 
-                    // PSI Memory Stall Pill
+                    // PSI Memory Stall Row
                     RowLayout {
                         Layout.fillWidth: true
-                        spacing: 8
 
                         Text {
-                            text: "PSI MEMORY STALL (10s):"
+                            text: "PSI MEMORY STALL"
                             font.family: theme.mainFont
                             font.pixelSize: 9
                             font.bold: true
@@ -160,22 +159,12 @@ Item {
 
                         Item { Layout.fillWidth: true }
 
-                        Rectangle {
-                            height: 18
-                            width: psiMemText.implicitWidth + 12
-                            radius: 3
-                            color: theme.bgInput
-                            border.color: theme.borderSubtle
-
-                            Text {
-                                id: psiMemText
-                                anchors.centerIn: parent
-                                text: psiMem ? ("some " + psiMem.some_avg10.toFixed(2) + "  |  full " + psiMem.full_avg10.toFixed(2)) : "some 0.00  |  full 0.00"
-                                font.family: theme.monoFont
-                                font.pixelSize: 10
-                                font.bold: true
-                                color: (psiMem && psiMem.full_avg10 > 0.1) ? theme.accentWarn : theme.textSecondary
-                            }
+                        Text {
+                            text: psiMem ? ("SOME: " + psiMem.some_avg10.toFixed(2) + "%   FULL: " + psiMem.full_avg10.toFixed(2) + "%") : "SOME: 0.00%   FULL: 0.00%"
+                            font.family: theme.monoFont
+                            font.pixelSize: 10
+                            font.bold: true
+                            color: (psiMem && psiMem.full_avg10 > 0.1) ? "#e06c75" : theme.textSecondary
                         }
                     }
                 }
@@ -344,7 +333,9 @@ Item {
                             instances: modelData.instances
                             detailText: modelData.rss_mb.toFixed(0) + " MB"
                             badgeText: modelData.cpu_pct.toFixed(1) + "%"
-                            badgeWidth: 54
+                            detailWidth: 70
+                            badgeWidth: 64
+                            rightMarginVal: 16
                         }
                     }
 
@@ -383,9 +374,11 @@ Item {
                             rank: index + 1
                             name: modelData.name
                             instances: modelData.instances
-                            detailText: modelData.cpu_pct.toFixed(1) + "% CPU"
+                            detailText: modelData.cpu_pct.toFixed(1) + "%"
                             badgeText: modelData.rss_mb >= 1024 ? (modelData.rss_mb / 1024.0).toFixed(1) + " GB" : modelData.rss_mb.toFixed(0) + " MB"
+                            detailWidth: 70
                             badgeWidth: 64
+                            rightMarginVal: 16
                         }
                     }
 

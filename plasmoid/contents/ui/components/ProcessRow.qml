@@ -10,7 +10,9 @@ Rectangle {
     property int instances: 1
     property string detailText: ""
     property string badgeText: ""
+    property real detailWidth: 70
     property real badgeWidth: 64
+    property real rightMarginVal: 16
 
     Layout.fillWidth: true
     Layout.fillHeight: true
@@ -21,7 +23,7 @@ Rectangle {
     RowLayout {
         anchors.fill: parent
         anchors.leftMargin: 10
-        anchors.rightMargin: 10
+        anchors.rightMargin: root.rightMarginVal
         spacing: 8
 
         // Rank number
@@ -31,7 +33,7 @@ Rectangle {
             font.pixelSize: 11
             font.bold: true
             color: theme ? theme.textMuted : "#9ca3af"
-            Layout.preferredWidth: 16
+            Layout.preferredWidth: 18
         }
 
         // Process comm name + optional multi-instance badge
@@ -46,7 +48,7 @@ Rectangle {
                 font.bold: true
                 color: theme ? theme.textPrimary : "#ffffff"
                 elide: Text.ElideRight
-                Layout.maximumWidth: 150
+                Layout.fillWidth: true
             }
 
             Rectangle {
@@ -67,26 +69,26 @@ Rectangle {
             }
         }
 
-        Item { Layout.fillWidth: true }
-
-        // Secondary detail text (e.g. RAM, CPU % or Read MB)
+        // Secondary detail text (e.g. RAM RSS or Read MB) - STRICT TABULAR COLUMN
         Text {
             visible: root.detailText.length > 0
             text: root.detailText
             font.family: theme ? theme.monoFont : "monospace"
             font.pixelSize: 10
             color: theme ? theme.textSecondary : "#d1d5db"
-            Layout.preferredWidth: 85
+            Layout.preferredWidth: root.detailWidth
             horizontalAlignment: Text.AlignRight
+            Layout.alignment: Qt.AlignRight
         }
 
-        // Primary metric badge
+        // Primary metric badge (e.g. CPU % or Write MB) - STRICT TABULAR COLUMN
         Rectangle {
             height: 20
-            Layout.preferredWidth: Math.max(root.badgeWidth, badgeVal.implicitWidth + 14)
+            Layout.preferredWidth: root.badgeWidth
             radius: 4
             color: Qt.rgba(1.0, 1.0, 1.0, 0.08)
             border.color: theme ? theme.border : Qt.rgba(1.0, 1.0, 1.0, 0.12)
+            Layout.alignment: Qt.AlignRight
 
             Text {
                 id: badgeVal

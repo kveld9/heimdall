@@ -11,20 +11,15 @@ Item {
     implicitWidth: 600
     implicitHeight: 115
 
-    readonly property bool isOverBudget: budget ? ((budget.total_bytes || 0) > (budget.cap_bytes || 1073741824)) : false
-    readonly property real overBytes: isOverBudget ? ((budget.total_bytes || 0) - (budget.cap_bytes || 1073741824)) : 0
-    readonly property string overStr: isOverBudget ? ("+" + (theme ? theme.formatBytes(overBytes) : "0 MB") + " over budget") : ""
+    readonly property real totalBytes: budget ? (budget.total_bytes || 0) : 0
+    readonly property real downBytes: budget ? (budget.down_bytes || 0) : 0
+    readonly property real upBytes: budget ? (budget.up_bytes || 0) : 0
+    readonly property real downRatio: totalBytes > 0 ? (downBytes / totalBytes) : 0.5
 
-    readonly property real ratio: budget ? Math.min(1.0, Math.max(0.0, budget.ratio_used || 0.0)) : 0.08
-    readonly property string totalStr: budget ? theme.formatBytes(budget.total_bytes) : "0 MB"
-    readonly property string capStr: budget ? theme.formatBytes(budget.cap_bytes) : "1.00 GB"
-    readonly property string leftStr: isOverBudget ? root.overStr : (budget ? theme.formatBytes(budget.remaining_bytes) : "0 MB")
-    readonly property string warnStr: budget ? theme.formatBytes(budget.warn_bytes) : "512 MB"
-    readonly property string downTodayStr: budget ? theme.formatBytes(budget.down_bytes) : "0 MB"
-    readonly property string upTodayStr: budget ? theme.formatBytes(budget.up_bytes) : "0 MB"
+    readonly property string totalStr: budget ? theme.formatBytes(totalBytes) : "0 MB"
+    readonly property string downTodayStr: budget ? theme.formatBytes(downBytes) : "0 MB"
+    readonly property string upTodayStr: budget ? theme.formatBytes(upBytes) : "0 MB"
     readonly property string peakStr: budget ? theme.formatSpeed((budget.peak_rate_bps || 0) / 1024) : "0 KB/s"
-
-    readonly property color barColor: isOverBudget ? (theme ? theme.accentWarn : "#f59e0b") : (theme ? theme.accentWhite : "#ffffff")
 
     ColumnLayout {
         anchors.fill: parent
@@ -40,55 +35,33 @@ Item {
                 font.family: theme ? theme.monoFont : "monospace"
                 font.pixelSize: 26
                 font.bold: true
-                color: root.isOverBudget ? root.barColor : (theme ? theme.textPrimary : "#ffffff")
+                color: theme ? theme.textPrimary : "#ffffff"
             }
 
             Text {
-                text: "of " + root.capStr + " cap"
+                text: "transferred today (down + up)"
                 font.family: theme ? theme.mainFont : "sans-serif"
                 font.pixelSize: 12
                 color: theme ? theme.textSecondary : "#d1d5db"
                 Layout.alignment: Qt.AlignBaseline
             }
 
-            // Warning Pill if Over Budget
-            Rectangle {
-                visible: root.isOverBudget
-                height: 18
-                width: warnTag.implicitWidth + 12
-                radius: 4
-                color: Qt.rgba(0.96, 0.62, 0.04, 0.18)
-                border.color: root.barColor
-                Layout.alignment: Qt.AlignVCenter
-
-                Text {
-                    id: warnTag
-                    anchors.centerIn: parent
-                    text: "[!] " + root.overStr.toUpperCase()
-                    font.family: theme ? theme.monoFont : "monospace"
-                    font.pixelSize: 9
-                    font.bold: true
-                    color: root.barColor
-                }
-            }
-
             Item { Layout.fillWidth: true }
 
             Text {
-                text: root.isOverBudget ? root.overStr : ("left " + root.leftStr)
+                text: "peak rate " + root.peakStr
                 font.family: theme ? theme.monoFont : "monospace"
                 font.pixelSize: 11
-                font.bold: root.isOverBudget
-                color: root.isOverBudget ? root.barColor : (theme ? theme.textMuted : "#9ca3af")
+                color: theme ? theme.textMuted : "#9ca3af"
                 Layout.alignment: Qt.AlignBaseline
             }
         }
 
-        // Custom Slider Track
+        // Proportional Traffic Ratio Track (Down vs Up)
         Item {
             id: trackContainer
             Layout.fillWidth: true
-            implicitHeight: 18
+            implicitHeight: 14
 
             // Background Rail
             Rectangle {
@@ -96,49 +69,39 @@ Item {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
-                height: 4
-                radius: 2
+                height: 6
+                radius: 3
                 color: theme ? theme.bgInput : Qt.rgba(0.0, 0.0, 0.0, 0.45)
             }
 
-            // Filled Progress
+            // Down portion (White)
             Rectangle {
                 anchors.left: rail.left
                 anchors.top: rail.top
                 anchors.bottom: rail.bottom
-                width: rail.width * (root.isOverBudget ? 1.0 : root.ratio)
-                radius: 2
-                color: root.barColor
+                width: rail.width * root.downRatio
+                radius: 3
+                color: theme ? theme.accentWhite : "#ffffff"
             }
 
-            // Knob at current position
+            // Up portion (Dark Slate)
             Rectangle {
-                x: rail.x + (rail.width * (root.isOverBudget ? 1.0 : root.ratio)) - width / 2
-                anchors.verticalCenter: rail.verticalCenter
-                width: 12
-                height: 12
-                radius: 6
-                color: theme ? theme.bgCard : Qt.rgba(0.04, 0.04, 0.05, 0.70)
-                border.color: root.barColor
-                border.width: 2.5
-
-                Rectangle {
-                    anchors.centerIn: parent
-                    width: 4
-                    height: 4
-                    radius: 2
-                    color: root.barColor
-                }
+                x: rail.x + (rail.width * root.downRatio)
+                anchors.top: rail.top
+                anchors.bottom: rail.bottom
+                anchors.right: rail.right
+                radius: 3
+                color: theme ? theme.accentDarkGrey : "#374151"
             }
         }
 
-        // Sublabels row: used X MB | warn at Y MB | limit Z GB
+        // Sublabels row: download vs upload breakdown
         RowLayout {
             Layout.fillWidth: true
 
             Text {
-                text: "used " + root.totalStr
-                font.family: theme ? theme.mainFont : "sans-serif"
+                text: "v down " + root.downTodayStr + " (" + Math.round(root.downRatio * 100) + "%)"
+                font.family: theme ? theme.monoFont : "monospace"
                 font.pixelSize: 10
                 color: theme ? theme.textSecondary : "#d1d5db"
             }
@@ -146,17 +109,8 @@ Item {
             Item { Layout.fillWidth: true }
 
             Text {
-                text: "warn at " + root.warnStr
-                font.family: theme ? theme.mainFont : "sans-serif"
-                font.pixelSize: 10
-                color: theme ? theme.textMuted : "#9ca3af"
-            }
-
-            Item { Layout.fillWidth: true }
-
-            Text {
-                text: "limit " + root.capStr
-                font.family: theme ? theme.mainFont : "sans-serif"
+                text: "^ up " + root.upTodayStr + " (" + Math.round((1.0 - root.downRatio) * 100) + "%)"
+                font.family: theme ? theme.monoFont : "monospace"
                 font.pixelSize: 10
                 color: theme ? theme.textMuted : "#9ca3af"
             }

@@ -8,7 +8,7 @@
             }
         ],
         "Category": "System Information",
-        "Description": "Heimdall - Aesthetic Zero-Jank System Monitor & Network Budget Plasmoid",
+        "Description": "Heimdall - Aesthetic Zero-Jank System Monitor & Network Telemetry Plasmoid",
         "Icon": "network-workgroup",
         "Id": "org.kde.plasma.heimdall",
         "License": "GPL-3.0+",

@@ -27,8 +27,8 @@ QtObject {
     readonly property color accentPink: "#9ca3af"                                // Crisp silver-grey for secondary/downloads
     readonly property color accentViolet: "#ffffff"                              // Pure white
     readonly property color accentLavender: "#e5e7eb"                            // Bright silver
-    readonly property color accentWarn: "#f59e0b"                                // Functional amber for budget overflow & warnings
-    readonly property color accentAlert: "#ef4444"                               // Functional red for critical states
+    readonly property color accentWarn: "#ffffff"                                // High-contrast pure white for warnings in monochrome
+    readonly property color accentAlert: "#ffffff"                               // High-contrast pure white for critical states
 
     // High-Contrast Text hierarchy
     readonly property color textPrimary: "#ffffff"                              // High-contrast pure white

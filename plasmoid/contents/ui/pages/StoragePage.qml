@@ -224,7 +224,9 @@ Item {
                             instances: modelData.instances
                             detailText: "R: " + (modelData.read_mb >= 1024 ? (modelData.read_mb / 1024.0).toFixed(1) + " GB" : modelData.read_mb.toFixed(0) + " MB")
                             badgeText: "W: " + (modelData.write_mb >= 1024 ? (modelData.write_mb / 1024.0).toFixed(1) + " GB" : modelData.write_mb.toFixed(0) + " MB")
-                            badgeWidth: 76
+                            detailWidth: 78
+                            badgeWidth: 78
+                            rightMarginVal: 16
                         }
                     }
 

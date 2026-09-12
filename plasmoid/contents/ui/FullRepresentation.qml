@@ -98,9 +98,9 @@ Rectangle {
                 color: theme.borderSubtle
             }
 
-            // Today Budget
+            // Today Transferred
             Text {
-                text: (telemetry && telemetry.budget) ? (theme.formatBytes(telemetry.budget.total_bytes) + " / " + theme.formatBytes(telemetry.budget.cap_bytes)) : "0 MB / 1.0 GB"
+                text: (telemetry && telemetry.budget) ? ("Today: " + theme.formatBytes(telemetry.budget.total_bytes)) : "Today: 0 MB"
                 font.family: theme.monoFont
                 font.pixelSize: 11
                 color: theme.textSecondary

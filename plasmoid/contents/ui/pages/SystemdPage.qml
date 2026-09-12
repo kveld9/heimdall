@@ -22,7 +22,7 @@ Item {
     // Loadavg ratio relative to logical CPU threads
     readonly property real load1m: parseFloat(loadavg[0]) || 0.0
     readonly property real loadRatio: cpuCores > 0 ? (load1m / cpuCores) : 0.0
-    readonly property color loadColor: loadRatio >= 1.0 ? (theme ? theme.accentAlert : "#ef4444") : (loadRatio >= 0.75 ? (theme ? theme.accentWarn : "#f59e0b") : (theme ? theme.accentWhite : "#ffffff"))
+    readonly property color loadColor: theme ? theme.accentWhite : "#ffffff"
 
     RowLayout {
         anchors.fill: parent
@@ -190,31 +190,40 @@ Item {
                                 anchors.rightMargin: 10
                                 spacing: 8
 
-                                Rectangle {
-                                    width: 6
-                                    height: 6
-                                    radius: 3
-                                    color: theme.accentWhite
-                                }
-
                                 ColumnLayout {
                                     Layout.fillWidth: true
-                                    spacing: 1
+                                    spacing: 2
+
+                                    RowLayout {
+                                        spacing: 6
+                                        Layout.fillWidth: true
+
+                                        Rectangle {
+                                            width: 6
+                                            height: 6
+                                            radius: 3
+                                            color: theme.accentWhite
+                                            Layout.alignment: Qt.AlignVCenter
+                                        }
+
+                                        Text {
+                                            text: modelData.unit.endsWith(".timer") ? modelData.unit : (modelData.unit + ".timer")
+                                            font.family: theme.monoFont
+                                            font.pixelSize: 11
+                                            font.bold: true
+                                            color: theme.textPrimary
+                                            elide: Text.ElideRight
+                                            Layout.fillWidth: true
+                                        }
+                                    }
 
                                     Text {
-                                        text: modelData.unit
-                                        font.family: theme.monoFont
-                                        font.pixelSize: 11
-                                        font.bold: true
-                                        color: theme.textPrimary
-                                        elide: Text.ElideRight
-                                    }
-                                    Text {
-                                        text: "-> " + modelData.activates
+                                        text: "   -> " + modelData.activates
                                         font.family: theme.monoFont
                                         font.pixelSize: 9
                                         color: theme.textMuted
                                         elide: Text.ElideRight
+                                        Layout.fillWidth: true
                                     }
                                 }
 
@@ -284,8 +293,8 @@ Item {
                             width: 80
                             height: 54
                             radius: 6
-                            color: page.failedCount === 0 ? theme.bgCardHighlight : Qt.rgba(0.94, 0.27, 0.27, 0.18)
-                            border.color: page.failedCount === 0 ? theme.border : theme.accentAlert
+                            color: page.failedCount === 0 ? theme.bgCardHighlight : Qt.rgba(1.0, 1.0, 1.0, 0.16)
+                            border.color: page.failedCount === 0 ? theme.border : (theme ? theme.accentWhite : "#ffffff")
 
                             ColumnLayout {
                                 anchors.centerIn: parent
@@ -392,7 +401,7 @@ Item {
                             Layout.fillHeight: true
                             radius: 6
                             color: theme.bgCardHighlight
-                            border.color: modelData.celsius >= 80 ? theme.accentAlert : (modelData.celsius >= 65 ? theme.accentWarn : theme.borderSubtle)
+                            border.color: modelData.celsius >= 80 ? "#e06c75" : (modelData.celsius >= 65 ? "#d19a66" : theme.borderSubtle)
 
                             ColumnLayout {
                                 anchors.fill: parent
@@ -416,7 +425,7 @@ Item {
                                             font.family: theme.mainFont
                                             font.pixelSize: 9
                                             font.bold: true
-                                            color: modelData.celsius >= 80 ? theme.accentAlert : (modelData.celsius >= 65 ? theme.accentWarn : theme.textMuted)
+                                            color: modelData.celsius >= 80 ? "#e06c75" : (modelData.celsius >= 65 ? "#d19a66" : theme.textMuted)
                                         }
                                     }
 
@@ -426,8 +435,8 @@ Item {
                                         height: 22
                                         width: 58
                                         radius: 4
-                                        color: modelData.celsius >= 80 ? Qt.rgba(0.94, 0.27, 0.27, 0.2) : theme.bgInput
-                                        border.color: modelData.celsius >= 80 ? theme.accentAlert : theme.border
+                                        color: modelData.celsius >= 80 ? Qt.rgba(0.88, 0.42, 0.46, 0.16) : (modelData.celsius >= 65 ? Qt.rgba(0.82, 0.60, 0.40, 0.16) : theme.bgInput)
+                                        border.color: modelData.celsius >= 80 ? "#e06c75" : (modelData.celsius >= 65 ? "#d19a66" : theme.border)
 
                                         Text {
                                             anchors.centerIn: parent
@@ -435,7 +444,7 @@ Item {
                                             font.family: theme.monoFont
                                             font.pixelSize: 10
                                             font.bold: true
-                                            color: modelData.celsius >= 80 ? theme.accentAlert : theme.accentWhite
+                                            color: modelData.celsius >= 80 ? "#e06c75" : (modelData.celsius >= 65 ? "#d19a66" : theme.accentWhite)
                                         }
                                     }
                                 }
@@ -453,7 +462,7 @@ Item {
                                         anchors.bottom: parent.bottom
                                         width: parent.width * Math.min(1.0, Math.max(0.05, modelData.celsius / 100.0))
                                         radius: 2
-                                        color: modelData.celsius >= 80 ? theme.accentAlert : (modelData.celsius >= 65 ? theme.accentWarn : theme.accentWhite)
+                                        color: modelData.celsius >= 80 ? "#e06c75" : (modelData.celsius >= 65 ? "#d19a66" : theme.accentWhite)
                                     }
                                 }
                             }

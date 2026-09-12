@@ -13,18 +13,27 @@ Item {
     readonly property var weeklyList: telemetry ? telemetry.weekly : []
     readonly property var procList: telemetry && telemetry.net && telemetry.net.top_processes ? telemetry.net.top_processes : []
     readonly property var netData: telemetry ? telemetry.net : null
+    readonly property real maxWeekBytes: {
+        var m = 1048576;
+        if (weeklyList) {
+            for (var i = 0; i < weeklyList.length; i++) {
+                if (weeklyList[i].total_bytes > m) m = weeklyList[i].total_bytes;
+            }
+        }
+        return m;
+    }
 
     ColumnLayout {
         anchors.fill: parent
         spacing: 10
 
-        // DAY BUDGET Card (Main identity of Heimdall)
+        // TODAY NETWORK TRAFFIC Card (Session and daily throughput)
         MetricCard {
             Layout.fillWidth: true
             Layout.preferredHeight: 125
             cardBg: theme.bgCard
             cardBorder: theme.border
-            title: "DAY BUDGET"
+            title: "TODAY NETWORK TRAFFIC"
 
             BudgetSlider {
                 anchors.fill: parent
@@ -280,7 +289,7 @@ Item {
                                             anchors.left: parent.left
                                             anchors.top: parent.top
                                             anchors.bottom: parent.bottom
-                                            width: Math.min(parent.width, Math.max(2, parent.width * (modelData.total_bytes / (page.budget ? page.budget.cap_bytes : 1073741824))))
+                                            width: Math.min(parent.width, Math.max(2, parent.width * (modelData.total_bytes / page.maxWeekBytes)))
                                             radius: 2
                                             color: modelData.is_today ? theme.accentWhite : theme.accentGrey
                                         }
@@ -314,7 +323,7 @@ Item {
         // TOP NETWORK APPLICATIONS (Grouped by binary name)
         MetricCard {
             Layout.fillWidth: true
-            Layout.preferredHeight: 74
+            Layout.preferredHeight: 76
             Layout.fillHeight: false
             cardBg: theme.bgCard
             cardBorder: theme.border
@@ -329,52 +338,49 @@ Item {
                 spacing: 8
 
                 delegate: Rectangle {
-                    width: 155
-                    height: procListView.height
+                    height: Math.min(28, procListView.height)
+                    anchors.verticalCenter: parent ? parent.verticalCenter : undefined
+                    width: pillRow.implicitWidth + 20
                     radius: 6
-                    color: theme.bgCardHighlight
-                    border.color: theme.borderSubtle
+                    color: theme ? theme.bgCardHighlight : Qt.rgba(1.0, 1.0, 1.0, 0.08)
+                    border.color: theme ? theme.border : Qt.rgba(1.0, 1.0, 1.0, 0.12)
 
-                    ColumnLayout {
-                        anchors.fill: parent
-                        anchors.margins: 6
-                        spacing: 2
+                    RowLayout {
+                        id: pillRow
+                        anchors.centerIn: parent
+                        spacing: 8
 
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Text {
-                                text: modelData.name
-                                font.family: theme.monoFont
-                                font.pixelSize: 11
-                                font.bold: true
-                                color: theme.textPrimary
-                                elide: Text.ElideRight
-                                Layout.fillWidth: true
-                            }
-                            Text {
-                                text: modelData.instances > 1 ? ("(x" + modelData.instances + ")") : ""
-                                font.family: theme.monoFont
-                                font.pixelSize: 9
-                                color: theme.textMuted
-                            }
+                        Text {
+                            text: modelData.name
+                            font.family: theme.monoFont
+                            font.pixelSize: 11
+                            font.bold: true
+                            color: "#ffffff"
                         }
 
-                        Item { Layout.fillHeight: true }
+                        Text {
+                            visible: modelData.instances > 1
+                            text: "(x" + modelData.instances + ")"
+                            font.family: theme.monoFont
+                            font.pixelSize: 9
+                            color: "#9ca3af"
+                        }
 
-                        RowLayout {
-                            Layout.fillWidth: true
+                        Rectangle {
+                            height: 18
+                            width: rateText.implicitWidth + 10
+                            radius: 4
+                            color: theme ? theme.bgInput : Qt.rgba(0.0, 0.0, 0.0, 0.45)
+                            border.color: theme ? theme.borderSubtle : Qt.rgba(1.0, 1.0, 1.0, 0.06)
+
                             Text {
-                                text: "R: " + (modelData.read_mb >= 1024 ? (modelData.read_mb / 1024.0).toFixed(1) + " GB" : modelData.read_mb.toFixed(0) + " MB")
+                                id: rateText
+                                anchors.centerIn: parent
+                                text: modelData.rate_str ? modelData.rate_str : (modelData.total_io_mb > 0 ? (modelData.total_io_mb + " MB") : "0 KB/s")
                                 font.family: theme.monoFont
                                 font.pixelSize: 10
-                                color: theme.textSecondary
-                            }
-                            Item { Layout.fillWidth: true }
-                            Text {
-                                text: "W: " + (modelData.write_mb >= 1024 ? (modelData.write_mb / 1024.0).toFixed(1) + " GB" : modelData.write_mb.toFixed(0) + " MB")
-                                font.family: theme.monoFont
-                                font.pixelSize: 10
-                                color: theme.accentWhite
+                                font.bold: true
+                                color: "#ffffff"
                             }
                         }
                     }
