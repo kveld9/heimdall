@@ -51,10 +51,11 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: "∿"
+                    text: "~"
+                    font.family: theme.monoFont
                     font.pixelSize: 12
                     font.bold: true
-                    color: theme.accentViolet
+                    color: theme.accentWhite
                 }
             }
 
@@ -71,24 +72,24 @@ Rectangle {
                 width: 6
                 height: 6
                 radius: 3
-                color: theme.accentViolet
+                color: theme.accentWhite
             }
 
             // Live Rates
             Text {
-                text: "↓ " + ((telemetry && telemetry.net) ? theme.formatSpeed(telemetry.net.down_rate_kb) : "0 KB/s")
+                text: "v " + ((telemetry && telemetry.net) ? theme.formatSpeed(telemetry.net.down_rate_kb) : "0 KB/s")
                 font.family: theme.monoFont
                 font.pixelSize: 11
                 font.bold: true
-                color: theme.accentLavender
+                color: theme.accentSilver
             }
 
             Text {
-                text: "↑ " + ((telemetry && telemetry.net) ? theme.formatSpeed(telemetry.net.up_rate_kb) : "0 KB/s")
+                text: "^ " + ((telemetry && telemetry.net) ? theme.formatSpeed(telemetry.net.up_rate_kb) : "0 KB/s")
                 font.family: theme.monoFont
                 font.pixelSize: 11
                 font.bold: true
-                color: theme.accentViolet
+                color: theme.accentWhite
             }
 
             Rectangle {
@@ -119,16 +120,18 @@ Rectangle {
                     anchors.centerIn: parent
                     spacing: 4
                     Text {
-                        text: "▾"
-                        font.pixelSize: 10
-                        color: theme.accentViolet
+                        text: "v"
+                        font.family: theme.monoFont
+                        font.pixelSize: 11
+                        font.bold: true
+                        color: theme.textSecondary
                     }
                     Text {
                         text: "Expandir"
                         font.family: theme.mainFont
                         font.pixelSize: 11
                         font.bold: true
-                        color: theme.accentViolet
+                        color: theme.textSecondary
                     }
                 }
 

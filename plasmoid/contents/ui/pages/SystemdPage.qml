@@ -13,143 +13,365 @@ Item {
     readonly property int failedCount: health ? health.failed_units_count : 0
     readonly property var failedUnits: health ? health.failed_units : []
     readonly property var sensors: health ? health.thermal_sensors : []
+    readonly property var timers: health && health.timers ? health.timers : []
+    readonly property var loadavg: health && health.loadavg ? health.loadavg : ["0.00", "0.00", "0.00"]
+    readonly property string uptimeStr: health && health.uptime_str ? health.uptime_str : "0m"
+    readonly property int oomCount: health && health.oom_count !== undefined ? health.oom_count : 0
 
     ColumnLayout {
         anchors.fill: parent
-        spacing: 14
+        spacing: 10
 
-        // Systemd Health Overview Card
-        MetricCard {
+        // Row 1: System Vitals & Systemd Overview
+        RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 140
-            cardBg: theme.bgCard
-            cardBorder: theme.border
-            title: "SYSTEMD SERVICE STATE (org.freedesktop.systemd1)"
+            Layout.preferredHeight: 125
+            Layout.fillHeight: false
+            spacing: 10
 
-            RowLayout {
-                anchors.fill: parent
-                spacing: 20
+            // System Vitals Card (Uptime, Loadavg, OOM Kills)
+            MetricCard {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                cardBg: theme.bgCard
+                cardBorder: theme.border
+                title: "SYSTEM VITALS & KERNEL HEALTH"
 
-                // State Badge
-                Rectangle {
-                    width: 130
-                    height: 80
-                    radius: 8
-                    color: page.failedCount === 0 ? theme.bgCardHighlight : Qt.rgba(1.0, 1.0, 1.0, 0.10)
-                    border.color: page.failedCount === 0 ? theme.border : theme.accentWhite
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 14
 
+                    // Uptime
                     ColumnLayout {
-                        anchors.centerIn: parent
                         spacing: 2
                         Text {
-                            text: page.failedCount === 0 ? "OPTIMAL" : "DEGRADED"
+                            text: "UPTIME"
                             font.family: theme.mainFont
-                            font.pixelSize: 11
+                            font.pixelSize: 9
                             font.bold: true
-                            color: page.failedCount === 0 ? theme.accentSilver : theme.accentWhite
-                            Layout.alignment: Qt.AlignHCenter
+                            color: theme.textMuted
                         }
                         Text {
-                            text: page.failedCount + " FAILED"
+                            text: page.uptimeStr
                             font.family: theme.monoFont
-                            font.pixelSize: 16
+                            font.pixelSize: 20
                             font.bold: true
                             color: theme.textPrimary
-                            Layout.alignment: Qt.AlignHCenter
+                        }
+                        Text {
+                            text: "Continuous host run"
+                            font.family: theme.mainFont
+                            font.pixelSize: 9
+                            color: theme.textMuted
+                        }
+                    }
+
+                    Rectangle { width: 1; height: 40; color: theme.borderSubtle }
+
+                    // Load Average
+                    ColumnLayout {
+                        spacing: 2
+                        Layout.fillWidth: true
+                        Text {
+                            text: "LOAD AVERAGE (1m / 5m / 15m)"
+                            font.family: theme.mainFont
+                            font.pixelSize: 9
+                            font.bold: true
+                            color: theme.textMuted
+                        }
+                        Text {
+                            text: page.loadavg[0] + " · " + page.loadavg[1] + " · " + page.loadavg[2]
+                            font.family: theme.monoFont
+                            font.pixelSize: 18
+                            font.bold: true
+                            color: theme.accentWhite
+                        }
+                        Text {
+                            text: "Kernel runqueue pressure"
+                            font.family: theme.mainFont
+                            font.pixelSize: 9
+                            color: theme.textMuted
+                        }
+                    }
+
+                    Rectangle { width: 1; height: 40; color: theme.borderSubtle }
+
+                    // OOM Kills
+                    ColumnLayout {
+                        spacing: 2
+                        Text {
+                            text: "OOM KILLS"
+                            font.family: theme.mainFont
+                            font.pixelSize: 9
+                            font.bold: true
+                            color: theme.textMuted
+                        }
+                        Text {
+                            text: page.oomCount.toString()
+                            font.family: theme.monoFont
+                            font.pixelSize: 20
+                            font.bold: true
+                            color: page.oomCount > 0 ? theme.accentWhite : theme.textSecondary
+                        }
+                        Text {
+                            text: page.oomCount === 0 ? "Zero memory terminations" : "Process killed by OOM"
+                            font.family: theme.mainFont
+                            font.pixelSize: 9
+                            color: theme.textMuted
                         }
                     }
                 }
+            }
 
-                // Details
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 6
+            // Systemd Service State
+            MetricCard {
+                Layout.preferredWidth: 260
+                Layout.fillHeight: true
+                cardBg: theme.bgCard
+                cardBorder: theme.border
+                title: "SYSTEMD SERVICE STATE"
 
-                    Text {
-                        text: page.failedCount === 0 ? "All system and user background daemons operating without failures." : "Detected failed units requiring inspection:"
-                        font.family: theme.mainFont
-                        font.pixelSize: 12
-                        color: theme.textSecondary
-                    }
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 12
 
-                    Repeater {
-                        model: page.failedUnits
-                        Text {
-                            text: "[x] " + modelData
-                            font.family: theme.monoFont
-                            font.pixelSize: 11
-                            color: theme.accentPink
+                    // Status Badge
+                    Rectangle {
+                        width: 80
+                        height: 60
+                        radius: 6
+                        color: page.failedCount === 0 ? theme.bgCardHighlight : Qt.rgba(1.0, 1.0, 1.0, 0.16)
+                        border.color: page.failedCount === 0 ? theme.border : theme.accentWhite
+
+                        ColumnLayout {
+                            anchors.centerIn: parent
+                            spacing: 2
+                            Text {
+                                text: page.failedCount === 0 ? "OPTIMAL" : "FAILED"
+                                font.family: theme.mainFont
+                                font.pixelSize: 10
+                                font.bold: true
+                                color: theme.textPrimary
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                            Text {
+                                text: page.failedCount.toString()
+                                font.family: theme.monoFont
+                                font.pixelSize: 18
+                                font.bold: true
+                                color: theme.accentWhite
+                                Layout.alignment: Qt.AlignHCenter
+                            }
                         }
                     }
 
-                    Text {
-                        text: "System state: " + (page.health ? page.health.system_state : "running")
-                        font.family: theme.monoFont
-                        font.pixelSize: 11
-                        color: theme.textMuted
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 2
+
+                        Text {
+                            text: page.failedCount === 0 ? "All daemons normal" : "Failed services:"
+                            font.family: theme.mainFont
+                            font.pixelSize: 11
+                            font.bold: true
+                            color: theme.textPrimary
+                        }
+
+                        Repeater {
+                            model: page.failedUnits
+                            Text {
+                                text: "[x] " + modelData
+                                font.family: theme.monoFont
+                                font.pixelSize: 10
+                                color: theme.accentWhite
+                                elide: Text.ElideRight
+                                Layout.maximumWidth: 150
+                            }
+                        }
+
+                        Text {
+                            visible: page.failedCount === 0
+                            text: "State: " + (page.health ? page.health.system_state : "running")
+                            font.family: theme.monoFont
+                            font.pixelSize: 10
+                            color: theme.textMuted
+                        }
                     }
                 }
             }
         }
 
-        // Thermal Sensors Card
-        MetricCard {
+        // Row 2: Scheduled Timers & Thermal Sensor Grid
+        RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            cardBg: theme.bgCard
-            cardBorder: theme.border
-            title: "HARDWARE THERMAL SENSORS (/sys/class/hwmon)"
+            spacing: 10
 
-            ColumnLayout {
-                anchors.fill: parent
-                spacing: 10
+            // Scheduled Timers Card
+            MetricCard {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                cardBg: theme.bgCard
+                cardBorder: theme.border
+                title: "SCHEDULED SYSTEMD TIMERS (NEXT RUN)"
 
-                Repeater {
-                    model: page.sensors
+                ColumnLayout {
+                    anchors.fill: parent
+                    spacing: 6
 
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 44
-                        radius: 8
-                        color: theme.bgCardHighlight
-                        border.color: theme.borderSubtle
+                    Repeater {
+                        model: page.timers.slice(0, 4)
 
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.leftMargin: 12
-                            anchors.rightMargin: 12
-                            spacing: 12
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            radius: 6
+                            color: theme.bgCardHighlight
+                            border.color: theme.borderSubtle
 
-                            Text {
-                                text: modelData.label
-                                font.family: theme.monoFont
-                                font.pixelSize: 12
-                                font.bold: true
-                                color: theme.textPrimary
-                                Layout.fillWidth: true
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
+                                anchors.rightMargin: 10
+                                spacing: 8
+
+                                // Indicator dot
+                                Rectangle {
+                                    width: 6
+                                    height: 6
+                                    radius: 3
+                                    color: theme.accentWhite
+                                }
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 1
+
+                                    Text {
+                                        text: modelData.unit
+                                        font.family: theme.monoFont
+                                        font.pixelSize: 11
+                                        font.bold: true
+                                        color: theme.textPrimary
+                                        elide: Text.ElideRight
+                                    }
+                                    Text {
+                                        text: "-> " + modelData.activates
+                                        font.family: theme.monoFont
+                                        font.pixelSize: 9
+                                        color: theme.textMuted
+                                        elide: Text.ElideRight
+                                    }
+                                }
+
+                                // Countdown badge
+                                Rectangle {
+                                    height: 22
+                                    width: timeText.implicitWidth + 14
+                                    radius: 4
+                                    color: theme.bgInput
+                                    border.color: theme.border
+
+                                    Text {
+                                        id: timeText
+                                        anchors.centerIn: parent
+                                        text: modelData.left_str
+                                        font.family: theme.monoFont
+                                        font.pixelSize: 10
+                                        font.bold: true
+                                        color: theme.accentWhite
+                                    }
+                                }
                             }
+                        }
+                    }
 
-                            Rectangle {
-                                width: 70
-                                height: 26
-                                radius: 5
-                                color: modelData.celsius > 75 ? Qt.rgba(1.0, 1.0, 1.0, 0.12) : theme.bgInput
-                                border.color: modelData.celsius > 75 ? theme.accentWhite : theme.border
+                    Item {
+                        visible: page.timers.length === 0
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        Text {
+                            anchors.centerIn: parent
+                            text: "No active system timers"
+                            font.family: theme.monoFont
+                            font.pixelSize: 11
+                            color: theme.textMuted
+                        }
+                    }
+                }
+            }
 
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: modelData.celsius.toFixed(1) + " °C"
-                                    font.family: theme.monoFont
-                                    font.pixelSize: 12
-                                    font.bold: true
-                                    color: modelData.celsius > 75 ? theme.accentWhite : theme.accentSilver
+            // Compact Thermal Grid
+            MetricCard {
+                Layout.preferredWidth: 320
+                Layout.fillHeight: true
+                cardBg: theme.bgCard
+                cardBorder: theme.border
+                title: "HARDWARE THERMALS (/sys/class/hwmon)"
+
+                GridLayout {
+                    anchors.fill: parent
+                    columns: 2
+                    rowSpacing: 6
+                    columnSpacing: 6
+
+                    Repeater {
+                        model: page.sensors
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            radius: 6
+                            color: theme.bgCardHighlight
+                            border.color: modelData.celsius >= 75 ? theme.accentWhite : theme.borderSubtle
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 8
+                                anchors.rightMargin: 8
+                                spacing: 6
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 1
+
+                                    Text {
+                                        text: modelData.label
+                                        font.family: theme.monoFont
+                                        font.pixelSize: 10
+                                        font.bold: true
+                                        color: theme.textPrimary
+                                        elide: Text.ElideRight
+                                    }
+                                    Text {
+                                        text: modelData.celsius >= 75 ? "ELEVATED" : "NORMAL"
+                                        font.family: theme.mainFont
+                                        font.pixelSize: 8
+                                        font.bold: true
+                                        color: modelData.celsius >= 75 ? theme.accentWhite : theme.textMuted
+                                    }
+                                }
+
+                                Rectangle {
+                                    height: 22
+                                    width: 54
+                                    radius: 4
+                                    color: modelData.celsius >= 75 ? Qt.rgba(1.0, 1.0, 1.0, 0.16) : theme.bgInput
+                                    border.color: modelData.celsius >= 75 ? theme.accentWhite : theme.border
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: modelData.celsius.toFixed(0) + " °C"
+                                        font.family: theme.monoFont
+                                        font.pixelSize: 10
+                                        font.bold: true
+                                        color: theme.accentWhite
+                                    }
                                 }
                             }
                         }
                     }
                 }
-
-                Item { Layout.fillHeight: true }
             }
         }
     }

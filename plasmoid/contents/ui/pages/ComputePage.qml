@@ -13,18 +13,21 @@ Item {
     readonly property var zram: compute ? compute.zram : null
     readonly property var psiCpu: compute ? compute.psi_cpu : null
     readonly property var psiMem: compute ? compute.psi_mem : null
+    readonly property var topCpu: compute && compute.top_cpu ? compute.top_cpu : []
+    readonly property var topMem: compute && compute.top_mem ? compute.top_mem : []
 
     ColumnLayout {
         anchors.fill: parent
-        spacing: 14
+        spacing: 10
 
-        // Top Row: CPU & RAM Gauges
+        // Row 1: CPU & RAM Gauges
         RowLayout {
             Layout.fillWidth: true
-            spacing: 14
-            implicitHeight: 180
+            Layout.preferredHeight: 170
+            Layout.fillHeight: false
+            spacing: 10
 
-            // CPU Load Card
+            // CPU Load Card with full-width bottom sparkline
             MetricCard {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -34,7 +37,7 @@ Item {
 
                 ColumnLayout {
                     anchors.fill: parent
-                    spacing: 8
+                    spacing: 6
 
                     RowLayout {
                         Layout.fillWidth: true
@@ -43,45 +46,41 @@ Item {
                         Text {
                             text: (compute ? compute.cpu_pct.toFixed(1) : "0.0") + "%"
                             font.family: theme.monoFont
-                            font.pixelSize: 34
+                            font.pixelSize: 28
                             font.bold: true
-                            color: theme.accentGreen
+                            color: theme.textPrimary
                         }
 
                         Item { Layout.fillWidth: true }
 
-                        Sparkline {
-                            Layout.preferredWidth: 160
-                            Layout.fillHeight: true
-                            values: compute ? compute.sparkline_cpu : []
-                            strokeColor: theme.accentGreen
-                            maxVal: 100
-                            lineWidth: 2.0
+                        ColumnLayout {
+                            spacing: 1
+                            Text {
+                                text: "PSI (avg10 / 60 / 300)"
+                                font.family: theme.mainFont
+                                font.pixelSize: 9
+                                font.bold: true
+                                color: theme.textMuted
+                                Layout.alignment: Qt.AlignRight
+                            }
+                            Text {
+                                text: psiCpu ? (psiCpu.some_avg10.toFixed(2) + " / " + psiCpu.some_avg60.toFixed(2) + " / " + psiCpu.some_avg300.toFixed(2)) : "0.00 / 0.00 / 0.00"
+                                font.family: theme.monoFont
+                                font.pixelSize: 10
+                                color: theme.textSecondary
+                                Layout.alignment: Qt.AlignRight
+                            }
                         }
                     }
 
-                    // Pressure Stall Info (CPU)
-                    Rectangle {
+                    // Full-width Sparkline across card
+                    Sparkline {
                         Layout.fillWidth: true
-                        height: 1
-                        color: theme.borderSubtle
-                    }
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Text {
-                            text: "PSI (Pressure avg10/60/300):"
-                            font.family: theme.mainFont
-                            font.pixelSize: 10
-                            color: theme.textMuted
-                        }
-                        Item { Layout.fillWidth: true }
-                        Text {
-                            text: (psiCpu ? (psiCpu.some_avg10 + " / " + psiCpu.some_avg60 + " / " + psiCpu.some_avg300) : "0.00 / 0.00 / 0.00")
-                            font.family: theme.monoFont
-                            font.pixelSize: 11
-                            color: theme.textSecondary
-                        }
+                        Layout.fillHeight: true
+                        values: compute ? compute.sparkline_cpu : []
+                        strokeColor: theme.accentWhite
+                        maxVal: 100
+                        lineWidth: 1.8
                     }
                 }
             }
@@ -103,7 +102,7 @@ Item {
                         Text {
                             text: (compute ? compute.ram_pct.toFixed(1) : "0.0") + "%"
                             font.family: theme.monoFont
-                            font.pixelSize: 34
+                            font.pixelSize: 28
                             font.bold: true
                             color: theme.textPrimary
                         }
@@ -113,7 +112,7 @@ Item {
                             Text {
                                 text: compute ? (theme.formatBytes(compute.ram_used_bytes) + " / " + theme.formatBytes(compute.ram_total_bytes)) : "0 GB / 0 GB"
                                 font.family: theme.monoFont
-                                font.pixelSize: 12
+                                font.pixelSize: 11
                                 font.bold: true
                                 color: theme.textSecondary
                                 Layout.alignment: Qt.AlignRight
@@ -121,7 +120,7 @@ Item {
                             Text {
                                 text: "used / total"
                                 font.family: theme.mainFont
-                                font.pixelSize: 10
+                                font.pixelSize: 9
                                 color: theme.textMuted
                                 Layout.alignment: Qt.AlignRight
                             }
@@ -139,137 +138,252 @@ Item {
                             anchors.left: parent.left
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
-                            width: parent.width * ((compute ? compute.ram_pct : 0) / 100.0)
+                            width: parent.width * Math.min(1.0, ((compute ? compute.ram_pct : 0) / 100.0))
                             radius: 3
-                            color: (compute && compute.ram_pct > 85) ? theme.accentPink : theme.accentGreen
+                            color: theme.accentWhite
                         }
                     }
 
-                    // Memory PSI
                     RowLayout {
                         Layout.fillWidth: true
                         Text {
-                            text: "PSI Mem Full (avg10/60):"
+                            text: "PSI Memory Stall:"
                             font.family: theme.mainFont
                             font.pixelSize: 10
                             color: theme.textMuted
                         }
                         Item { Layout.fillWidth: true }
                         Text {
-                            text: (psiMem ? (psiMem.full_avg10 + " / " + psiMem.full_avg60) : "0.00 / 0.00")
+                            text: psiMem ? ("some " + psiMem.some_avg10.toFixed(2) + " · full " + psiMem.full_avg10.toFixed(2)) : "some 0.00 · full 0.00"
                             font.family: theme.monoFont
-                            font.pixelSize: 11
-                            color: (psiMem && psiMem.full_avg10 > 0.5) ? theme.accentPink : theme.textSecondary
+                            font.pixelSize: 10
+                            font.bold: true
+                            color: (psiMem && psiMem.full_avg10 > 0.5) ? theme.accentWhite : theme.textSecondary
                         }
                     }
                 }
             }
         }
 
-        // ZRAM Compression Card
+        // Row 2: ZRAM Compression Card with Capacity Bar
         MetricCard {
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            Layout.preferredHeight: 106
+            Layout.fillHeight: false
             cardBg: theme.bgCard
             cardBorder: theme.border
-            title: "ZRAM COMPRESSION TELEMETRY (/sys/block/zram0)"
+            title: "ZRAM COMPRESSION ENGINE (/sys/block/zram0)"
 
             ColumnLayout {
                 anchors.fill: parent
-                spacing: 12
+                spacing: 8
 
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: 20
+                    spacing: 16
 
-                    // Compression ratio
                     ColumnLayout {
-                        spacing: 2
+                        spacing: 1
                         Text {
-                            text: "COMPRESSION RATIO"
+                            text: "RATIO"
                             font.family: theme.mainFont
-                            font.pixelSize: 10
+                            font.pixelSize: 9
                             font.bold: true
                             color: theme.textMuted
                         }
                         Text {
-                            text: zram ? (zram.ratio.toFixed(2) + ":1") : "1.00:1"
+                            text: zram && zram.ratio > 0 ? (zram.ratio.toFixed(2) + ":1") : "1.00:1"
                             font.family: theme.monoFont
-                            font.pixelSize: 22
+                            font.pixelSize: 16
                             font.bold: true
-                            color: theme.accentGreen
+                            color: theme.accentWhite
                         }
                     }
 
-                    // Memory saved
+                    Rectangle { width: 1; height: 26; color: theme.borderSubtle }
+
                     ColumnLayout {
-                        spacing: 2
+                        spacing: 1
                         Text {
-                            text: "SAVED MEMORY"
+                            text: "SAVED RAM"
                             font.family: theme.mainFont
-                            font.pixelSize: 10
+                            font.pixelSize: 9
                             font.bold: true
                             color: theme.textMuted
                         }
                         Text {
                             text: zram ? (zram.savings_mb.toFixed(1) + " MB") : "0.0 MB"
                             font.family: theme.monoFont
-                            font.pixelSize: 22
+                            font.pixelSize: 16
                             font.bold: true
                             color: theme.textPrimary
                         }
                     }
 
-                    // Original data size
+                    Rectangle { width: 1; height: 26; color: theme.borderSubtle }
+
                     ColumnLayout {
-                        spacing: 2
+                        spacing: 1
                         Text {
-                            text: "ORIGINAL DATA"
+                            text: "ORIGINAL / IN RAM"
                             font.family: theme.mainFont
-                            font.pixelSize: 10
+                            font.pixelSize: 9
                             font.bold: true
                             color: theme.textMuted
                         }
                         Text {
-                            text: zram ? theme.formatBytes(zram.orig_size_bytes) : "0 MB"
+                            text: zram ? (theme.formatBytes(zram.orig_size_bytes) + " -> " + theme.formatBytes(zram.compr_size_bytes)) : "0 B -> 0 B"
                             font.family: theme.monoFont
-                            font.pixelSize: 22
+                            font.pixelSize: 12
                             font.bold: true
                             color: theme.textSecondary
                         }
                     }
 
-                    // Compressed data size
+                    Item { Layout.fillWidth: true }
+
                     ColumnLayout {
-                        spacing: 2
+                        spacing: 1
                         Text {
-                            text: "COMPRESSED IN RAM"
+                            text: "POOL ALLOCATION"
                             font.family: theme.mainFont
-                            font.pixelSize: 10
+                            font.pixelSize: 9
                             font.bold: true
                             color: theme.textMuted
+                            Layout.alignment: Qt.AlignRight
                         }
                         Text {
-                            text: zram ? theme.formatBytes(zram.compr_size_bytes) : "0 MB"
+                            text: zram ? (theme.formatBytes(zram.compr_size_bytes) + " of " + theme.formatBytes(zram.capacity_bytes)) : "0 B / 0 B"
                             font.family: theme.monoFont
-                            font.pixelSize: 22
+                            font.pixelSize: 12
                             font.bold: true
-                            color: theme.accentPink
+                            color: theme.textSecondary
+                            Layout.alignment: Qt.AlignRight
                         }
                     }
                 }
 
+                // ZRAM Capacity Fill Bar
                 Rectangle {
                     Layout.fillWidth: true
-                    height: 1
-                    color: theme.borderSubtle
+                    height: 6
+                    radius: 3
+                    color: theme.bgInput
+
+                    Rectangle {
+                        anchors.left: parent.left
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        width: parent.width * Math.min(1.0, ((zram && zram.usage_pct) ? (zram.usage_pct / 100.0) : 0.001))
+                        radius: 3
+                        color: theme.accentWhite
+                    }
                 }
 
-                Text {
-                    text: zram && zram.has_zram ? "● ZRAM kernel driver active · hardware swap compression operating normally" : "○ ZRAM not active"
-                    font.family: theme.mainFont
-                    font.pixelSize: 11
-                    color: theme.textSecondary
+                RowLayout {
+                    Layout.fillWidth: true
+                    Text {
+                        text: zram && zram.has_zram ? "[*] Hardware compression active: " + zram.usage_pct.toFixed(2) + "% of total device capacity utilized" : "[!] ZRAM device uninitialized"
+                        font.family: theme.monoFont
+                        font.pixelSize: 10
+                        color: theme.textMuted
+                    }
+                    Item { Layout.fillWidth: true }
+                    Text {
+                        text: "Mem used: " + (zram ? theme.formatBytes(zram.mem_used_bytes) : "0 B")
+                        font.family: theme.monoFont
+                        font.pixelSize: 10
+                        color: theme.textMuted
+                    }
+                }
+            }
+        }
+
+        // Row 3: Top CPU & Top RAM Processes
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            spacing: 10
+
+            // Top CPU Processes Card
+            MetricCard {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                cardBg: theme.bgCard
+                cardBorder: theme.border
+                title: "TOP PROCESSES BY CPU"
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    spacing: 6
+
+                    Repeater {
+                        model: page.topCpu
+
+                        ProcessRow {
+                            theme: page.theme
+                            rank: index + 1
+                            name: modelData.name
+                            instances: modelData.instances
+                            detailText: modelData.rss_mb.toFixed(0) + " MB"
+                            badgeText: modelData.cpu_pct.toFixed(1) + "%"
+                            badgeWidth: 54
+                        }
+                    }
+
+                    Item {
+                        visible: page.topCpu.length === 0
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Scanning processes..."
+                            font.family: theme.monoFont
+                            font.pixelSize: 11
+                            color: theme.textMuted
+                        }
+                    }
+                }
+            }
+
+            // Top RAM Processes Card
+            MetricCard {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                cardBg: theme.bgCard
+                cardBorder: theme.border
+                title: "TOP PROCESSES BY RAM (RSS)"
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    spacing: 6
+
+                    Repeater {
+                        model: page.topMem
+
+                        ProcessRow {
+                            theme: page.theme
+                            rank: index + 1
+                            name: modelData.name
+                            instances: modelData.instances
+                            detailText: modelData.cpu_pct.toFixed(1) + "% CPU"
+                            badgeText: modelData.rss_mb >= 1024 ? (modelData.rss_mb / 1024.0).toFixed(1) + " GB" : modelData.rss_mb.toFixed(0) + " MB"
+                            badgeWidth: 64
+                        }
+                    }
+
+                    Item {
+                        visible: page.topMem.length === 0
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Scanning processes..."
+                            font.family: theme.monoFont
+                            font.pixelSize: 11
+                            color: theme.textMuted
+                        }
+                    }
                 }
             }
         }

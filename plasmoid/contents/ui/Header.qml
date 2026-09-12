@@ -181,9 +181,11 @@ Item {
                     anchors.centerIn: parent
                     spacing: 4
                     Text {
-                        text: "▴"
-                        font.pixelSize: 10
-                        color: theme.accentViolet
+                        text: "^"
+                        font.family: theme.monoFont
+                        font.pixelSize: 11
+                        font.bold: true
+                        color: theme.textSecondary
                     }
                     Text {
                         text: "Contraer"

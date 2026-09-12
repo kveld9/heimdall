@@ -28,10 +28,11 @@ QtObject {
     readonly property color accentViolet: "#ffffff"                              // Pure white
     readonly property color accentLavender: "#e5e7eb"                            // Bright silver
 
-    // Text hierarchy
+    // High-Contrast Text hierarchy
     readonly property color textPrimary: "#ffffff"                              // High-contrast pure white
-    readonly property color textSecondary: "#9ca3af"                            // Clean readable silver
-    readonly property color textMuted: "#52525b"                                // Dim grey
+    readonly property color textSecondary: "#d1d5db"                            // Crisp readable light silver
+    readonly property color textMuted: "#9ca3af"                                // Clear readable medium grey
+    readonly property color textDim: "#6b7280"                                  // Dim label grey
 
     // Typography
     readonly property string monoFont: "Monospace"

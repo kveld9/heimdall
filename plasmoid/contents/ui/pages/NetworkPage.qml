@@ -16,100 +16,12 @@ Item {
 
     ColumnLayout {
         anchors.fill: parent
-        spacing: 14
+        spacing: 10
 
-        // Top Row: Live Sparklines (Down & Up)
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 12
-            implicitHeight: 70
-
-            // Down Sparkline Card
-            MetricCard {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
-
-                RowLayout {
-                    anchors.fill: parent
-                    spacing: 10
-
-                    ColumnLayout {
-                        spacing: 2
-                        Text {
-                            text: "DOWN RATE"
-                            font.family: theme.mainFont
-                            font.pixelSize: 9
-                            font.bold: true
-                            color: theme.accentPink
-                        }
-                        Text {
-                            text: netData ? theme.formatSpeed(netData.down_rate_kb) : "0 KB/s"
-                            font.family: theme.monoFont
-                            font.pixelSize: 18
-                            font.bold: true
-                            color: theme.textPrimary
-                        }
-                    }
-
-                    Item { Layout.fillWidth: true }
-
-                    Sparkline {
-                        Layout.preferredWidth: 120
-                        Layout.fillHeight: true
-                        values: netData ? netData.sparkline_down : []
-                        strokeColor: theme.accentPink
-                        lineWidth: 2.0
-                    }
-                }
-            }
-
-            // Up Sparkline Card
-            MetricCard {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
-
-                RowLayout {
-                    anchors.fill: parent
-                    spacing: 10
-
-                    ColumnLayout {
-                        spacing: 2
-                        Text {
-                            text: "UP RATE"
-                            font.family: theme.mainFont
-                            font.pixelSize: 9
-                            font.bold: true
-                            color: theme.accentGreen
-                        }
-                        Text {
-                            text: netData ? theme.formatSpeed(netData.up_rate_kb) : "0 KB/s"
-                            font.family: theme.monoFont
-                            font.pixelSize: 18
-                            font.bold: true
-                            color: theme.textPrimary
-                        }
-                    }
-
-                    Item { Layout.fillWidth: true }
-
-                    Sparkline {
-                        Layout.preferredWidth: 120
-                        Layout.fillHeight: true
-                        values: netData ? netData.sparkline_up : []
-                        strokeColor: theme.accentGreen
-                        lineWidth: 2.0
-                    }
-                }
-            }
-        }
-
-        // DAY BUDGET Card
+        // DAY BUDGET Card (Main identity of WatchCat)
         MetricCard {
             Layout.fillWidth: true
+            Layout.preferredHeight: 180
             cardBg: theme.bgCard
             cardBorder: theme.border
             title: "DAY BUDGET"
@@ -122,26 +34,25 @@ Item {
             }
         }
 
-        // Bottom Row: THIS WEEK — BY DAY & TODAY SPLIT
+        // Middle Row: THIS WEEK — BY DAY & TODAY SPLIT
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: 14
+            spacing: 10
 
             // THIS WEEK — BY DAY Card
             MetricCard {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                Layout.preferredWidth: 380
                 cardBg: theme.bgCard
                 cardBorder: theme.border
-                title: "THIS WEEK — BY DAY"
+                title: "THIS WEEK - BY DAY"
 
                 ColumnLayout {
                     anchors.fill: parent
                     spacing: 4
 
-                    // Table Header
+                    // Table Header with high contrast
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 8
@@ -151,7 +62,7 @@ Item {
                             font.family: theme.mainFont
                             font.pixelSize: 10
                             font.bold: true
-                            color: theme.textMuted
+                            color: theme.textSecondary
                             Layout.preferredWidth: 70
                         }
                         Text {
@@ -159,16 +70,16 @@ Item {
                             font.family: theme.mainFont
                             font.pixelSize: 10
                             font.bold: true
-                            color: theme.textMuted
-                            Layout.preferredWidth: 50
+                            color: theme.textSecondary
+                            Layout.preferredWidth: 55
                         }
                         Text {
                             text: "DOWN"
                             font.family: theme.mainFont
                             font.pixelSize: 10
                             font.bold: true
-                            color: theme.textMuted
-                            Layout.preferredWidth: 60
+                            color: theme.textSecondary
+                            Layout.preferredWidth: 65
                             horizontalAlignment: Text.AlignRight
                         }
                         Text {
@@ -176,8 +87,8 @@ Item {
                             font.family: theme.mainFont
                             font.pixelSize: 10
                             font.bold: true
-                            color: theme.textMuted
-                            Layout.preferredWidth: 60
+                            color: theme.textSecondary
+                            Layout.preferredWidth: 65
                             horizontalAlignment: Text.AlignRight
                         }
                         Text {
@@ -185,7 +96,7 @@ Item {
                             font.family: theme.mainFont
                             font.pixelSize: 10
                             font.bold: true
-                            color: theme.textMuted
+                            color: theme.textSecondary
                             Layout.fillWidth: true
                             horizontalAlignment: Text.AlignRight
                         }
@@ -204,11 +115,11 @@ Item {
                         Layout.fillHeight: true
                         clip: true
                         model: page.weeklyList
-                        spacing: 3
+                        spacing: 2
 
                         delegate: Rectangle {
                             width: weekListView.width
-                            height: 22
+                            height: 20
                             radius: 4
                             color: modelData.is_today ? theme.bgCardHighlight : "transparent"
 
@@ -232,7 +143,7 @@ Item {
                                     font.family: theme.mainFont
                                     font.pixelSize: 10
                                     color: theme.textMuted
-                                    Layout.preferredWidth: 50
+                                    Layout.preferredWidth: 55
                                 }
 
                                 Text {
@@ -240,7 +151,7 @@ Item {
                                     font.family: theme.monoFont
                                     font.pixelSize: 11
                                     color: theme.textSecondary
-                                    Layout.preferredWidth: 60
+                                    Layout.preferredWidth: 65
                                     horizontalAlignment: Text.AlignRight
                                 }
 
@@ -249,7 +160,7 @@ Item {
                                     font.family: theme.monoFont
                                     font.pixelSize: 11
                                     color: theme.textSecondary
-                                    Layout.preferredWidth: 60
+                                    Layout.preferredWidth: 65
                                     horizontalAlignment: Text.AlignRight
                                 }
 
@@ -263,15 +174,15 @@ Item {
                                         font.family: theme.monoFont
                                         font.pixelSize: 11
                                         font.bold: modelData.is_today
-                                        color: modelData.is_today ? theme.accentGreen : theme.textPrimary
+                                        color: modelData.is_today ? theme.accentWhite : theme.textSecondary
                                         horizontalAlignment: Text.AlignRight
                                     }
 
                                     // Mini bar indicator
                                     Rectangle {
-                                        width: 32
-                                        height: 5
-                                        radius: 2.5
+                                        width: 28
+                                        height: 4
+                                        radius: 2
                                         color: theme.bgInput
 
                                         Rectangle {
@@ -279,8 +190,8 @@ Item {
                                             anchors.top: parent.top
                                             anchors.bottom: parent.bottom
                                             width: Math.min(parent.width, Math.max(2, parent.width * (modelData.total_bytes / (page.budget ? page.budget.cap_bytes : 1073741824))))
-                                            radius: 2.5
-                                            color: modelData.is_today ? theme.accentPink : theme.accentMuted
+                                            radius: 2
+                                            color: modelData.is_today ? theme.accentWhite : theme.accentGrey
                                         }
                                     }
                                 }
@@ -303,19 +214,19 @@ Item {
                     theme: page.theme
                     downPct: page.budget ? page.budget.down_pct : 55
                     upPct: page.budget ? page.budget.up_pct : 45
-                    downBytesStr: page.budget ? theme.formatBytes(page.budget.down_bytes) : "45 MB"
-                    upBytesStr: page.budget ? theme.formatBytes(page.budget.up_bytes) : "38 MB"
+                    downBytesStr: page.budget ? theme.formatBytes(page.budget.down_bytes) : "0 MB"
+                    upBytesStr: page.budget ? theme.formatBytes(page.budget.up_bytes) : "0 MB"
                 }
             }
         }
 
-        // HEAVIEST PROCESSES Card (Collapsible / Bottom row)
+        // TOP NETWORK APPLICATIONS (Grouped by binary name)
         MetricCard {
             Layout.fillWidth: true
-            Layout.preferredHeight: 110
+            Layout.preferredHeight: 74
             cardBg: theme.bgCard
             cardBorder: theme.border
-            title: "HEAVIEST PROCESSES"
+            title: "TOP NETWORK APPLICATIONS"
 
             ListView {
                 id: procListView
@@ -323,33 +234,33 @@ Item {
                 orientation: ListView.Horizontal
                 clip: true
                 model: page.procList
-                spacing: 10
+                spacing: 8
 
                 delegate: Rectangle {
-                    width: 170
+                    width: 155
                     height: procListView.height
-                    radius: 8
+                    radius: 6
                     color: theme.bgCardHighlight
                     border.color: theme.borderSubtle
 
                     ColumnLayout {
                         anchors.fill: parent
-                        anchors.margins: 8
+                        anchors.margins: 6
                         spacing: 2
 
                         RowLayout {
                             Layout.fillWidth: true
                             Text {
-                                text: (index + 1) + ". " + modelData.name
+                                text: modelData.name
                                 font.family: theme.monoFont
-                                font.pixelSize: 12
+                                font.pixelSize: 11
                                 font.bold: true
                                 color: theme.textPrimary
                                 elide: Text.ElideRight
                                 Layout.fillWidth: true
                             }
                             Text {
-                                text: "pid " + modelData.pid
+                                text: modelData.instances > 1 ? ("(" + modelData.instances + ")") : ""
                                 font.family: theme.monoFont
                                 font.pixelSize: 9
                                 color: theme.textMuted
@@ -361,17 +272,17 @@ Item {
                         RowLayout {
                             Layout.fillWidth: true
                             Text {
-                                text: "↓ " + modelData.down_rate_kb + " KB/s"
+                                text: "v " + modelData.down_rate_kb + " K/s"
                                 font.family: theme.monoFont
                                 font.pixelSize: 10
-                                color: theme.accentPink
+                                color: theme.textSecondary
                             }
                             Item { Layout.fillWidth: true }
                             Text {
-                                text: "↑ " + modelData.up_rate_kb + " KB/s"
+                                text: "^ " + modelData.up_rate_kb + " K/s"
                                 font.family: theme.monoFont
                                 font.pixelSize: 10
-                                color: theme.accentGreen
+                                color: theme.accentWhite
                             }
                         }
                     }
