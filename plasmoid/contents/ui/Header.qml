@@ -9,6 +9,7 @@ Item {
     property var telemetry: null
     property int currentPage: 0
     signal pageSelected(int pageIndex)
+    signal collapseRequested()
 
     implicitHeight: 52
 
@@ -165,6 +166,39 @@ Item {
                     font.pixelSize: 9
                     color: theme.textMuted
                     Layout.alignment: Qt.AlignRight
+                }
+            }
+
+            // Collapse Button
+            Rectangle {
+                width: 78
+                height: 26
+                radius: 6
+                color: theme.bgCardHighlight
+                border.color: theme.border
+
+                RowLayout {
+                    anchors.centerIn: parent
+                    spacing: 4
+                    Text {
+                        text: "▴"
+                        font.pixelSize: 10
+                        color: theme.accentViolet
+                    }
+                    Text {
+                        text: "Contraer"
+                        font.family: theme.mainFont
+                        font.pixelSize: 11
+                        font.bold: true
+                        color: theme.textSecondary
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    hoverEnabled: true
+                    onClicked: root.collapseRequested()
                 }
             }
         }

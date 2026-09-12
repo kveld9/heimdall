@@ -12,6 +12,10 @@ PlasmoidItem {
     property var telemetry: null
     property var theme: appTheme
     property bool daemonConnected: false
+    property bool isCollapsed: false
+
+    implicitWidth: isCollapsed ? 530 : 720
+    implicitHeight: isCollapsed ? 44 : 560
 
     Theme {
         id: appTheme
