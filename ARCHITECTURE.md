@@ -143,8 +143,7 @@ Every metric is collected without requiring root (`sudo`) privileges:
      - Primary text (`#ffffff`): high-contrast labels and headings.
      - Secondary text (`#d1d5db`): clear, readable silver-grey metrics.
      - Muted text (`#9ca3af`): subheadings and auxiliary units with strong contrast against dark glass.
-     - Functional warning amber (`#f59e0b` / `theme.accentWarn`): budget overflow indicators and elevated load.
-     - Functional alert red (`#ef4444` / `theme.accentAlert`): failed systemd units and thermal thresholds.
+     - Monochromatic baseline & subtle functional accents: crisp white tracks and frosted elevated glass (`Qt.rgba(1.0, 1.0, 1.0, 0.16)`) with muted crimson (`#e06c75`) and warm amber (`#d19a66`) reserved strictly for hardware conditions (>=65C warm, >=80C hot thermals, PSI stalls).
   5. **Desktop Placement & Dynamic Sizing**:
      - Collapsed Capsule: `530x44px` pill with real-time status and a `[v] Expandir` button.
      - Expanded Dashboard: `720x560px` 4-page stack with an `[^] Contraer` button.
@@ -152,11 +151,11 @@ Every metric is collected without requiring root (`sudo`) privileges:
 
 ### 4.3 Modular UI Component Library
 Recurring visual patterns are encapsulated into reusable components under `plasmoid/contents/ui/components/`:
-- `ProcessRow.qml`: Standardized process ranking row with fixed tabular alignment. Process name and instance pill (`xN`) expand flexibly on the left, while secondary metrics (`detailText`) and highlight badges (`badge`) are rigidly right-anchored.
-- `StatusBadge.qml`: Status pill with a colored status indicator dot, high-contrast title, and muted explanatory description (used for PSI bottlenecks and system health).
+- `ProcessRow.qml`: Standardized process ranking row with fixed tabular column alignment. Process name and instance pill (`xN`) expand flexibly on the left, while secondary metrics (`detailText`, width: 70px) and highlight badges (`badge`, width: 64px) are rigidly right-anchored (`rightMargin: 16`) for terminal-grade tabular precision.
+- `StatusBadge.qml`: Status pill with an indicator dot, high-contrast title, and muted explanatory description (used for PSI bottlenecks and system health).
 - `MetricCard.qml`: Frosted glass container with translucent borders, uppercase header label, and slot for auxiliary controls.
-- `Sparkline.qml`: Zero-jank Canvas renderer drawing continuous 30-to-60 point telemetry histories with translucent filled gradients.
-- `BudgetSlider.qml`: Compact horizontal quota track supporting overflow states. When daily quota is exceeded (`total_bytes > cap_bytes`), the track and knob dynamically highlight in warning amber with an explicit `+X GB over budget` tag.
+- `Sparkline.qml`: Zero-jank Canvas renderer drawing continuous 30-to-60 point telemetry histories with pre-filled baseline buffers and translucent filled gradients.
+- `BudgetSlider.qml`: Daily network traffic overview component. Visualizes total daily bytes transferred with a proportional dual-segment download vs. upload track, eliminating artificial quota caps and over-budget warnings for home Ethernet/broadband workflows.
 - `DonutChart.qml`: Split circular arc visualization for download versus upload ratios.
 
 ---
