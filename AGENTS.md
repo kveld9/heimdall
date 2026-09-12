@@ -1,4 +1,4 @@
-# AGENTS.md - Developer & Agent Guidelines for WatchCat
+# AGENTS.md - Developer & Agent Guidelines for Heimdall
 
 This document specifies architectural rules, coding standards, and strict operational invariants for any AI agent or human contributor working in this repository.
 
@@ -19,12 +19,12 @@ This document specifies architectural rules, coding standards, and strict operat
 
 ## 2. Project Architecture Overview
 
-WatchCat consists of two decoupled components:
+Heimdall consists of two decoupled components:
 
 1. **Backend Telemetry Daemon (`daemon/`)**:
-   - `daemon/watchcat_daemon.py`: Independent daemon collecting system metrics at 1-second intervals.
-   - `daemon/storage.py`: Handles persistent storage for daily quota tracking and a rolling 7-day breakdown in `~/.local/share/watchcat/history.json`.
-   - `daemon/service/watchcat.service`: Systemd user service unit running under `systemctl --user`.
+   - `daemon/heimdall_daemon.py`: Independent daemon collecting system metrics at 1-second intervals.
+   - `daemon/heimdall/storage.py`: Handles persistent storage for daily quota tracking and a rolling 30-day breakdown in `~/.local/share/heimdall/history.json`.
+   - `daemon/service/heimdall.service`: Systemd user service unit running under `systemctl --user`.
    - Serves instantaneous, zero-overhead JSON snapshots via HTTP on `127.0.0.1:9871` (`/api/telemetry`, `/api/budget`, `/api/week`, `/health`).
 
 2. **Frontend Plasmoid (`plasmoid/`)**:
@@ -70,8 +70,8 @@ WatchCat consists of two decoupled components:
    - Accent Silver / Grey: `#9ca3af` (Secondary highlights, download speed, pill badges)
    - Accent Dark Slate: `#374151` (Doughnut secondary arc, capacity track)
    - Text Primary: `#ffffff` (High-contrast pure white)
-   - Text Secondary: `#9ca3af` (Clean readable silver-grey)
-   - Text Muted: `#52525b` (Dimmed atmospheric grey)
+   - Text Secondary: `#d1d5db` (Clean readable silver-grey)
+   - Text Muted: `#9ca3af` (Dimmed atmospheric grey)
    - Background Hints: `PlasmaCore.Types.NoBackground` to eliminate opaque system frames and let rounded translucent glass reach the edges cleanly.
 
 3. **Desktop Widget Resizing & Collapsing**:
@@ -85,15 +85,16 @@ WatchCat consists of two decoupled components:
 ## 5. Deployment, Packaging & Verification
 
 1. **Scripts Directory (`scripts/`)**:
-   - `scripts/install.sh`: Packages and updates the plasmoid via `kpackagetool6`, sets up and restarts the systemd user service.
-   - `scripts/run_preview.sh`: Starts the daemon and runs `plasmawindowed org.kde.plasma.watchcat` for instant windowed testing.
+   - `scripts/install.sh`: Packages and updates the plasmoid via `kpackagetool6`, sets up and restarts the systemd user service (`heimdall.service`).
+   - `scripts/run_preview.sh`: Starts the daemon and runs `plasmawindowed org.kde.plasma.heimdall` for instant windowed testing.
    - `scripts/uninstall.sh`: Completely removes the applet and disables the systemd service.
+   - `scripts/verify.sh`: Automated multi-gate quality pipeline.
 
 2. **Verification Checklist Before Committing**:
-   - Syntax check daemon scripts: `python3 -m py_compile daemon/*.py`.
+   - Run verification script: `./scripts/verify.sh`.
    - Test daemon telemetry snapshot: `curl -s http://127.0.0.1:9871/api/telemetry | jq .`.
    - Upgrade package: `./scripts/install.sh`.
-   - Test QML rendering without errors: `timeout 4 plasmawindowed org.kde.plasma.watchcat`.
+   - Test QML rendering without errors: `timeout 4 plasmawindowed org.kde.plasma.heimdall`.
    - Check for forbidden emojis: verify zero matches in modified files.
 
 ---
@@ -107,10 +108,9 @@ WatchCat consists of two decoupled components:
 
 2. **Commit Message Standards**:
    - Format: Conventional Commits in English (`feat:`, `fix:`, `style:`, `refactor:`, `docs:`, `perf:`).
-   - Keep messages concise, imperative, and specific (e.g., `refactor(daemon): modularize backend into watchcat package`).
+   - Keep messages concise, imperative, and specific (e.g., `refactor(daemon): modularize backend into heimdall package`).
    - ZERO emojis anywhere in commit titles or descriptions.
    - No `Co-Authored-By` or AI attribution trailers under any circumstance.
-
 
 ---
 
@@ -131,14 +131,14 @@ WatchCat consists of two decoupled components:
 1. **Single Responsibility Principle (SRP)**:
    - Every module, class, and QML component must have exactly one clearly defined responsibility.
    - Telemetry collection logic must never be mixed with HTTP request routing or persistence.
-   - Backend collectors reside exclusively inside `daemon/watchcat/collectors/` and implement `BaseCollector`.
+   - Backend collectors reside exclusively inside `daemon/heimdall/collectors/` and implement `BaseCollector`.
 
 2. **File Size Invariants & Anti-Monolith Policy**:
    - Monolithic files (> 300 LOC) are strictly prohibited.
    - If a collector, page, or component expands beyond 300 lines, it must be decomposed into sub-modules, helper utilities, or dedicated child components.
 
 3. **Backend Architecture & Package Layout**:
-   - `daemon/watchcat/`:
+   - `daemon/heimdall/`:
      - `collectors/base.py`: Base collector interface contract.
      - `collectors/network.py`: Network throughput, interfaces, and socket-owning processes.
      - `collectors/compute.py`: CPU, RAM, ZRAM capacity, and top compute consumers.
@@ -147,7 +147,7 @@ WatchCat consists of two decoupled components:
      - `storage.py`: Quota calculations and rolling JSON persistence.
      - `server.py`: Threaded HTTP server and API endpoint routing.
      - `main.py`: CLI parsing, collector loop orchestration, signal handling.
-   - `daemon/watchcat_daemon.py` and `daemon/storage.py` must remain lightweight compatibility shims.
+   - `daemon/heimdall_daemon.py` and `daemon/storage.py` must remain lightweight compatibility shims.
 
 4. **Frontend Component Reusability**:
    - Recurring UI patterns must never be copy-pasted across pages.
@@ -164,5 +164,3 @@ WatchCat consists of two decoupled components:
      2. Collector smoke test (instant instantiation and assertions).
      3. Strict zero-emoji repository audit.
      4. Plasmoid metadata integrity check.
-
-

@@ -1,12 +1,12 @@
-# WatchCat Technical Architecture & Design Rationale
+# Heimdall Technical Architecture & Design Rationale
 
-This document provides a comprehensive technical breakdown of WatchCat. It documents the exact mechanisms of every subsystem, the data pipeline from kernel to display, and the specific rationale behind each architectural and stylistic decision.
+This document provides a comprehensive technical breakdown of Heimdall. It documents the exact mechanisms of every subsystem, the data pipeline from kernel to display, and the specific rationale behind each architectural and stylistic decision.
 
 ---
 
 ## 1. System Architecture Overview
 
-WatchCat is partitioned into two decoupled tiers:
+Heimdall is partitioned into two decoupled tiers:
 
 1. **Telemetry & Persistence Daemon (`daemon/`)**:
    An independent background process operating entirely in user space. It samples kernel interfaces, calculates rolling rates, manages daily budget limits, groups multi-instance processes, tracks systemd timers, and exposes zero-overhead JSON snapshots over local HTTP (`127.0.0.1:9871`).
@@ -22,10 +22,10 @@ WatchCat is partitioned into two decoupled tiers:
                                      | (Unprivileged 1 Hz polling)
                                      v
 +------------------------------------+------------------------------------+
-|                   WatchCat Telemetry Daemon                             |
+|                   Heimdall Telemetry Daemon                             |
 |  - Engine: Calculates deltas, CPU/IO rates, per-comm process aggregator |
 |  - Systemd: Queries failed units, list-timers JSON, uptime, loadavg     |
-|  - Storage: Circular buffer, daily quota (~/.local/share/watchcat)      |
+|  - Storage: Circular buffer, daily quota (~/.local/share/heimdall)      |
 |  - Server: Threading HTTP server on 127.0.0.1:9871                      |
 +------------------------------------+------------------------------------+
                                      | (Async XMLHttpRequest / JSON)
@@ -111,10 +111,10 @@ Every metric is collected without requiring root (`sudo`) privileges:
 ## 3. Storage & Persistence Architecture
 
 ### 3.1 Design Decisions
-- **Path**: `~/.local/share/watchcat/history.json` and `config.json`.
+- **Path**: `~/.local/share/heimdall/history.json` and `config.json`.
 - **Format**: Structured JSON with 30-day automatic retention pruning.
 - **Why not SQLite?**:
-  WatchCat requires appending simple daily byte increments once per second and retrieving a 7-day chronological slice for display. A structured JSON document eliminates binary database dependencies, prevents database lock contention, and allows transparent user inspection and backups.
+  Heimdall requires appending simple daily byte increments once per second and retrieving a 7-day chronological slice for display. A structured JSON document eliminates binary database dependencies, prevents database lock contention, and allows transparent user inspection and backups.
 - **Quota Accounting**:
   Network card hardware counters reset on reboot. The storage engine tracks *deltas* between consecutive samples (`current_rx - prev_rx`) and accumulates them into the persistent daily record. When the system restarts, historical daily accumulation is preserved intact.
 
@@ -160,13 +160,14 @@ Recurring visual patterns are encapsulated into reusable components under `plasm
 
 ## 5. Modular Backend Package Structure
 
-The daemon is organized as an extensible Python package under `daemon/watchcat/`:
+The daemon is organized as an extensible Python package under `daemon/heimdall/`:
 
 ```
 daemon/
 |-- storage.py                       # Backward-compatibility shim
+|-- heimdall_daemon.py               # Primary CLI execution entrypoint
 |-- watchcat_daemon.py               # Backward-compatibility execution shim
-\-- watchcat/
+\-- heimdall/
     |-- __init__.py                  # Package metadata
     |-- main.py                      # Orchestrator, CLI flags, signal handling
     |-- server.py                    # Threaded HTTP server and endpoint routing
@@ -211,9 +212,8 @@ The pipeline executes 4 verification phases in sub-second execution:
 ## 7. Deployment & System Integration
 
 1. **Packaging**:
-   - `scripts/install.sh`: Invokes `kpackagetool6 -t Plasma/Applet -u plasmoid` (or `-i`), links `~/.local/share/plasma/plasmoids/org.kde.plasma.watchcat`, and writes `~/.config/systemd/user/watchcat.service`.
+   - `scripts/install.sh`: Invokes `kpackagetool6 -t Plasma/Applet -u plasmoid` (or `-i`), links `~/.local/share/plasma/plasmoids/org.kde.plasma.heimdall`, and writes `~/.config/systemd/user/heimdall.service`.
 2. **Preview & Testing**:
-   - `scripts/run_preview.sh`: Ensures daemon is running and invokes `plasmawindowed org.kde.plasma.watchcat` for isolated desktop verification.
+   - `scripts/run_preview.sh`: Ensures daemon is running and invokes `plasmawindowed org.kde.plasma.heimdall` for isolated desktop verification.
 3. **Uninstallation**:
    - `scripts/uninstall.sh`: Disables the user service, deletes unit files, and deregisters package from `kpackagetool6`.
-
