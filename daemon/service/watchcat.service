@@ -1,0 +1,14 @@
+[Unit]
+Description=WatchCat Zero-Jank Telemetry Daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/Documentos/repos/h/daemon/watchcat_daemon.py
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

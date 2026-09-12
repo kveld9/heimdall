@@ -1,0 +1,20 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "kveld@archlinux.local",
+                "Name": "Kveld & Antigravity"
+            }
+        ],
+        "Category": "System Information",
+        "Description": "WatchCat - Aesthetic Zero-Jank System Monitor & Network Budget Plasmoid",
+        "Icon": "network-workgroup",
+        "Id": "org.kde.plasma.watchcat",
+        "License": "GPL-3.0+",
+        "Name": "WatchCat",
+        "Version": "1.0.0",
+        "Website": "https://github.com/kveld/watchcat"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}
