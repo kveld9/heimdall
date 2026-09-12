@@ -15,6 +15,7 @@ Item {
     readonly property var psiMem: compute ? compute.psi_mem : null
     readonly property var topCpu: compute && compute.top_cpu ? compute.top_cpu : []
     readonly property var topMem: compute && compute.top_mem ? compute.top_mem : []
+    readonly property bool isZramIdle: !zram || !zram.has_zram || (zram.orig_size_bytes || 0) < 1048576
 
     ColumnLayout {
         anchors.fill: parent
@@ -190,8 +191,6 @@ Item {
             cardBorder: theme.border
             title: "ZRAM COMPRESSION ENGINE (/sys/block/zram0)"
 
-            readonly property bool isIdle: !zram || !zram.has_zram || zram.orig_size_bytes < 1048576
-
             ColumnLayout {
                 anchors.fill: parent
                 spacing: 8
@@ -210,7 +209,7 @@ Item {
                             color: theme.textMuted
                         }
                         Text {
-                            text: isIdle ? "1.00:1 (Idle)" : (zram && zram.ratio > 0 ? (zram.ratio.toFixed(2) + ":1") : "1.00:1")
+                            text: page.isZramIdle ? "1.00:1 (Idle)" : (zram && zram.ratio > 0 ? (zram.ratio.toFixed(2) + ":1") : "1.00:1")
                             font.family: theme.monoFont
                             font.pixelSize: 15
                             font.bold: true
@@ -292,16 +291,16 @@ Item {
                         anchors.left: parent.left
                         anchors.top: parent.top
                         anchors.bottom: parent.bottom
-                        width: isIdle ? 8 : parent.width * Math.min(1.0, ((zram && zram.usage_pct) ? (zram.usage_pct / 100.0) : 0.005))
+                        width: page.isZramIdle ? 8 : parent.width * Math.min(1.0, ((zram && zram.usage_pct) ? (zram.usage_pct / 100.0) : 0.005))
                         radius: 3
-                        color: isIdle ? theme.accentGrey : theme.accentWhite
+                        color: page.isZramIdle ? theme.accentGrey : theme.accentWhite
                     }
                 }
 
                 RowLayout {
                     Layout.fillWidth: true
                     Text {
-                        text: isIdle ? ("[*] ZRAM Idle (" + (zram ? theme.formatBytes(zram.orig_size_bytes) : "0 B") + " in use · " + (zram ? theme.formatBytes(zram.capacity_bytes) : "0 B") + " headroom)") : ("[*] Hardware compression active: " + zram.usage_pct.toFixed(2) + "% of total device capacity utilized")
+                        text: page.isZramIdle ? ("[*] ZRAM Idle (" + (zram ? theme.formatBytes(zram.orig_size_bytes) : "0 B") + " in use · " + (zram ? theme.formatBytes(zram.capacity_bytes) : "0 B") + " headroom)") : ("[*] Hardware compression active: " + zram.usage_pct.toFixed(2) + "% of total device capacity utilized")
                         font.family: theme.monoFont
                         font.pixelSize: 10
                         color: theme.textMuted
