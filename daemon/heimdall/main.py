@@ -5,6 +5,7 @@ import signal
 import sys
 import threading
 import time
+from datetime import datetime
 from typing import Any, Dict
 
 from .collectors.compute import ComputeCollector
@@ -75,8 +76,11 @@ class HeimdallDaemon:
         )
         budget_data = self.storage.get_today_summary()
 
+        now_dt = datetime.now()
         snapshot = {
             "timestamp": time.time(),
+            "date_display": now_dt.strftime("%a, %-d %b"),
+            "time_display": now_dt.strftime("%H:%M"),
             "net": {
                 "interface": net_data["interface"],
                 "down_rate_kb": net_data["down_rate_kb"],

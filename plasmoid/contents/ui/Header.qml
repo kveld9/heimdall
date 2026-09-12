@@ -16,8 +16,16 @@ Item {
     readonly property string iface: (telemetry && telemetry.net) ? telemetry.net.interface : "enp7s0"
     readonly property string downStr: (telemetry && telemetry.net) ? theme.formatSpeed(telemetry.net.down_rate_kb) : "0 KB/s"
     readonly property string upStr: (telemetry && telemetry.net) ? theme.formatSpeed(telemetry.net.up_rate_kb) : "0 KB/s"
-    readonly property string dateStr: (telemetry && telemetry.date_display) ? telemetry.date_display : "Fri, 11 Sep"
-    readonly property string timeStr: (telemetry && telemetry.time_display) ? telemetry.time_display : "18:51"
+    property var currentDate: new Date()
+    Timer {
+        interval: 1000
+        running: true
+        repeat: true
+        onTriggered: root.currentDate = new Date()
+    }
+
+    readonly property string dateStr: Qt.formatDateTime(root.currentDate, "ddd, d MMM")
+    readonly property string timeStr: Qt.formatDateTime(root.currentDate, "hh:mm")
 
     RowLayout {
         anchors.fill: parent
