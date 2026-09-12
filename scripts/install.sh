@@ -15,13 +15,6 @@ if ! command -v kpackagetool6 &> /dev/null; then
     exit 1
 fi
 
-# Clean up legacy watchcat applet if registered
-if kpackagetool6 -t Plasma/Applet --list | grep -q "org.kde.plasma.watchcat"; then
-    echo "[*] Removing legacy watchcat applet registration..."
-    kpackagetool6 -t Plasma/Applet -r "org.kde.plasma.watchcat" || true
-    rm -rf "$HOME/.local/share/plasma/plasmoids/org.kde.plasma.watchcat" || true
-fi
-
 # Install or Upgrade Plasmoid
 if kpackagetool6 -t Plasma/Applet --list | grep -q "$APPLET_ID"; then
     echo "[*] Upgrading existing Plasmoid package..."
@@ -30,6 +23,34 @@ else
     echo "[*] Installing Plasmoid package..."
     kpackagetool6 -t Plasma/Applet -i "$PLASMOID_DIR"
 fi
+
+# Maintain backward compatibility for existing desktop/panel instances (org.kde.plasma.watchcat)
+COMPAT_WATCHCAT_DIR="$HOME/.local/share/plasma/plasmoids/org.kde.plasma.watchcat"
+echo "[*] Updating backward compatibility wrapper for org.kde.plasma.watchcat..."
+mkdir -p "$COMPAT_WATCHCAT_DIR"
+cat <<EOF > "$COMPAT_WATCHCAT_DIR/metadata.json"
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "kveld@archlinux.local",
+                "Name": "Kveld & Antigravity"
+            }
+        ],
+        "Category": "System Information",
+        "Description": "Heimdall - Aesthetic Zero-Jank System Monitor & Network Budget Plasmoid (Legacy Compatibility)",
+        "Icon": "network-workgroup",
+        "Id": "org.kde.plasma.watchcat",
+        "License": "GPL-3.0+",
+        "Name": "Heimdall",
+        "Version": "1.1.0"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}
+EOF
+rm -rf "$COMPAT_WATCHCAT_DIR/contents"
+cp -r "$PLASMOID_DIR/contents" "$COMPAT_WATCHCAT_DIR/"
 
 # Ensure user directory for Plasmoids is linked
 USER_PLASMOID_DIR="$HOME/.local/share/plasma/plasmoids/$APPLET_ID"

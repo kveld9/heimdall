@@ -214,8 +214,9 @@ The pipeline executes 4 verification phases in sub-second execution:
 
 ## 7. Deployment & System Integration
 
-1. **Packaging**:
+1. **Packaging & Backward Compatibility**:
    - `scripts/install.sh`: Invokes `kpackagetool6 -t Plasma/Applet -u plasmoid` (or `-i`), links `~/.local/share/plasma/plasmoids/org.kde.plasma.heimdall`, and writes `~/.config/systemd/user/heimdall.service`.
+   - **Legacy Compatibility Wrapper**: To prevent existing desktop and panel placements of `org.kde.plasma.watchcat` from displaying "package does not exist" errors, `install.sh` maintains a synchronous compatibility package under `~/.local/share/plasma/plasmoids/org.kde.plasma.watchcat` with its own `metadata.json` and a full copy of the `contents/` tree (as KPackage security restrictions in KDE Plasma 6 prohibit symlinks pointing outside the package root).
 2. **Preview & Testing**:
    - `scripts/run_preview.sh`: Ensures daemon is running and invokes `plasmawindowed org.kde.plasma.heimdall` for isolated desktop verification.
 3. **Uninstallation**:
