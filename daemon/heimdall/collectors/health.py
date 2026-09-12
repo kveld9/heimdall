@@ -3,9 +3,24 @@
 import json
 import os
 import subprocess
+import time
 from typing import Any, Dict, List
 
 from .base import BaseCollector
+
+
+def _format_countdown(diff_seconds: float) -> str:
+    """Format positive time delta into compact human countdown string."""
+    total_sec = max(0, int(diff_seconds))
+    days = total_sec // 86400
+    hours = (total_sec % 86400) // 3600
+    mins = (total_sec % 3600) // 60
+    if days > 0:
+        return f"{days}d {hours}h"
+    if hours > 0:
+        return f"{hours}h {mins}m"
+    return f"{mins}m"
+
 
 
 class HealthCollector(BaseCollector):
@@ -50,7 +65,8 @@ class HealthCollector(BaseCollector):
 
     def read_systemd_timers(self) -> List[Dict[str, str]]:
         """Query upcoming scheduled timers via systemctl list-timers."""
-        timers = []
+        now = time.time()
+        timers: List[Dict[str, str]] = []
         try:
             res = subprocess.run(
                 ["systemctl", "list-timers", "--output=json", "--no-pager"],
@@ -62,24 +78,54 @@ class HealthCollector(BaseCollector):
             if res.returncode == 0 and res.stdout.strip():
                 data = json.loads(res.stdout)
                 for item in data:
-                    unit = item.get("unit", "")
-                    left_str = item.get("left", "")
-                    activates = item.get("activates", "")
-                    if unit and left_str and left_str != "n/a" and not left_str.startswith("-"):
-                        short_unit = unit.replace(".timer", "")
-                        clean_left = left_str.split()[0] if " " in left_str else left_str
-                        timers.append({
-                            "unit": short_unit,
-                            "left_str": clean_left,
-                            "activates": activates,
-                        })
-                timers = timers[:4]
+                    unit = str(item.get("unit", ""))
+                    next_us = item.get("next", 0)
+                    activates = str(item.get("activates", ""))
+                    if not unit or not next_us:
+                        continue
+                    diff_sec = (float(next_us) / 1_000_000.0) - now
+                    if diff_sec <= 0:
+                        continue
+                    short_unit = unit.replace(".timer", "")
+                    timers.append({
+                        "unit": short_unit,
+                        "left_str": _format_countdown(diff_sec),
+                        "activates": activates,
+                    })
+                if timers:
+                    return timers[:4]
         except Exception:
             pass
-        return timers
+
+        # Fallback to legendless full output
+        try:
+            res_plain = subprocess.run(
+                ["systemctl", "list-timers", "--no-legend", "--full", "--no-pager"],
+                capture_output=True,
+                text=True,
+                timeout=0.8,
+                check=False
+            )
+            for line in res_plain.stdout.splitlines():
+                parts = line.strip().split()
+                if len(parts) >= 6 and ".timer" in line:
+                    for idx, part in enumerate(parts):
+                        if part.endswith(".timer"):
+                            unit_name = part.replace(".timer", "")
+                            activates = parts[idx + 1] if idx + 1 < len(parts) else ""
+                            timers.append({
+                                "unit": unit_name,
+                                "left_str": "soon",
+                                "activates": activates,
+                            })
+                            break
+        except Exception:
+            pass
+
+        return timers[:4]
 
     def read_vitals(self) -> Dict[str, Any]:
-        """Read host uptime, load average, and kernel OOM kill count."""
+        """Read host uptime, load average, logical CPU core count, and kernel OOM kill count."""
         uptime_str = "0m"
         try:
             with open("/proc/uptime", "r", encoding="utf-8") as f:
@@ -105,6 +151,8 @@ class HealthCollector(BaseCollector):
         except Exception:
             pass
 
+        cpu_cores = os.cpu_count() or 1
+
         oom_count = 0
         try:
             with open("/proc/vmstat", "r", encoding="utf-8") as f:
@@ -118,6 +166,7 @@ class HealthCollector(BaseCollector):
         return {
             "uptime_str": uptime_str,
             "loadavg": loadavg,
+            "cpu_cores": cpu_cores,
             "oom_count": oom_count,
         }
 
@@ -180,6 +229,8 @@ class HealthCollector(BaseCollector):
             "timers": timers,
             "uptime_str": vitals["uptime_str"],
             "loadavg": vitals["loadavg"],
+            "cpu_cores": vitals["cpu_cores"],
             "oom_count": vitals["oom_count"],
             "thermal_sensors": thermals,
         }
+

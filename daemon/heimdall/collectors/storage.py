@@ -58,32 +58,54 @@ class StorageCollector(BaseCollector):
     def read_partitions(self) -> List[Dict[str, Any]]:
         """Query mounted filesystem pools deduplicating identical physical storage devices."""
         partitions = []
-        candidate_mounts = [("/", "Root & Home (/)"), ("/boot", "/boot")]
+        candidate_mounts = [("/", "Root & Home (/)")]
+
+        # Discover secondary disks mounted under /mnt, /media, /run/media, /home
+        try:
+            with open("/proc/mounts", "r", encoding="utf-8") as f:
+                for line in f:
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        dev, target = parts[0], parts[1]
+                        if not dev.startswith("/dev/"):
+                            continue
+                        if target in ("/boot", "/efi", "/boot/efi"):
+                            continue
+                        if target.startswith(("/mnt/", "/media/", "/run/media/")) or target == "/home":
+                            label = target.split("/")[-1] if target != "/home" else "Home (/home)"
+                            candidate_mounts.append((target, label))
+        except Exception:
+            pass
 
         seen_devices = set()
         for path, label in candidate_mounts:
-            if os.path.isdir(path):
-                try:
-                    dev_id = os.stat(path).st_dev
-                    if dev_id in seen_devices:
-                        continue
-                    seen_devices.add(dev_id)
+            if not os.path.isdir(path):
+                continue
+            try:
+                st_dev = os.stat(path).st_dev
+                if st_dev in seen_devices:
+                    continue
+                seen_devices.add(st_dev)
 
-                    st = os.statvfs(path)
-                    total_bytes = st.f_blocks * st.f_frsize
-                    free_bytes = st.f_bavail * st.f_frsize
-                    used_bytes = total_bytes - free_bytes
+                st = os.statvfs(path)
+                total_bytes = st.f_blocks * st.f_frsize
+                free_bytes = st.f_bavail * st.f_frsize
+                used_bytes = total_bytes - free_bytes
 
-                    if total_bytes > 0:
-                        partitions.append({
-                            "mount": label,
-                            "total_gb": round(total_bytes / (1024**3), 1),
-                            "used_gb": round(used_bytes / (1024**3), 1),
-                            "free_gb": round(free_bytes / (1024**3), 1),
-                            "used_pct": round(used_bytes / total_bytes * 100.0, 1),
-                        })
-                except Exception:
-                    pass
+                # Ignore boot partitions under 5 GB unless root
+                if total_bytes < 5 * (1024**3) and path != "/":
+                    continue
+
+                if total_bytes > 0:
+                    partitions.append({
+                        "mount": label,
+                        "total_gb": round(total_bytes / (1024**3), 1),
+                        "used_gb": round(used_bytes / (1024**3), 1),
+                        "free_gb": round(free_bytes / (1024**3), 1),
+                        "used_pct": round(used_bytes / total_bytes * 100.0, 1),
+                    })
+            except Exception:
+                pass
 
         return partitions
 
