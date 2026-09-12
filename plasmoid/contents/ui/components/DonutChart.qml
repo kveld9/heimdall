@@ -9,8 +9,8 @@ Item {
     property int upPct: 45
     property string downBytesStr: "45 MB"
     property string upBytesStr: "38 MB"
-    property color colorDown: theme.accentPink
-    property color colorUp: theme.accentGreen
+    property color colorDown: theme.accentWhite
+    property color colorUp: theme.accentDarkGrey
 
     implicitWidth: 200
     implicitHeight: 200

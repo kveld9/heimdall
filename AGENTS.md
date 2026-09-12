@@ -60,18 +60,19 @@ WatchCat consists of two decoupled components:
    - All colors and formatting helpers must be consumed from `Theme.qml`.
    - Never embed ad-hoc, hardcoded hex colors inside individual page components.
 
-2. **Unified Dark Violet Palette ("Violetita")**:
-   - Primary Background: `#120f1d` (Deep obsidian violet)
-   - Card Background: `#1a162b` (Smooth dark violet surface)
-   - Card Highlight: `#251f3d` (Hover and elevated elements)
-   - Input/Rail Inset: `#161324`
-   - Borders: `#3b305d` (Crisp medium violet), `#272040` (Subtle divider)
-   - Accent Violet: `#c084fc` (Primary highlights, upload speed, budget knob, active tabs)
-   - Accent Lavender: `#e9d5ff` (Secondary highlights, download speed, pill badges)
-   - Accent Purple: `#a855f7` (Capacity bars, donut charts)
-   - Text Primary: `#f5f3ff` (Crisp lavender-white)
-   - Text Secondary: `#c4b5fd` (Soft readable violet)
-   - Text Muted: `#8879a8` (Dimmed violet-grey)
+2. **Translucent Monochromatic WM Palette**:
+   - Primary Background: `Qt.rgba(0.04, 0.04, 0.05, 0.70)` (Smoked translucent glass)
+   - Card Background: `Qt.rgba(1.0, 1.0, 1.0, 0.04)` (Frosted translucent surface)
+   - Card Highlight: `Qt.rgba(1.0, 1.0, 1.0, 0.08)` (Hover and elevated glass)
+   - Input/Rail Inset: `Qt.rgba(0.0, 0.0, 0.0, 0.45)`
+   - Borders: `Qt.rgba(1.0, 1.0, 1.0, 0.12)` (Crisp translucent border), `Qt.rgba(1.0, 1.0, 1.0, 0.06)` (Subtle divider)
+   - Accent White: `#ffffff` (Primary highlights, upload speed, budget knob, active tabs)
+   - Accent Silver / Grey: `#9ca3af` (Secondary highlights, download speed, pill badges)
+   - Accent Dark Slate: `#374151` (Doughnut secondary arc, capacity track)
+   - Text Primary: `#ffffff` (High-contrast pure white)
+   - Text Secondary: `#9ca3af` (Clean readable silver-grey)
+   - Text Muted: `#52525b` (Dimmed atmospheric grey)
+   - Background Hints: `PlasmaCore.Types.NoBackground` to eliminate opaque system frames and let rounded translucent glass reach the edges cleanly.
 
 3. **Desktop Widget Resizing & Collapsing**:
    - The Plasmoid must handle desktop placement (`Planar` form factor) gracefully.

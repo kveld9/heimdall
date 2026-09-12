@@ -13,7 +13,7 @@ Rectangle {
     color: theme.bgPrimary
     border.color: theme.border
     border.width: 1
-    radius: isCollapsed ? 22 : 12
+    radius: isCollapsed ? 22 : 16
     clip: true
 
     implicitWidth: isCollapsed ? 530 : 720

@@ -3,34 +3,35 @@ import QtQuick
 QtObject {
     id: theme
 
-    // Pure Dark Violet / Lavender Theme ("todo violetita")
-    // Deep obsidian-violet backgrounds
-    readonly property color bgPrimary: "#120f1d"          // Deep obsidian violet
-    readonly property color bgCard: "#1a162b"             // Dark violet card
-    readonly property color bgCardHighlight: "#251f3d"    // Highlighted card surface
-    readonly property color bgInput: "#161324"            // Inset dark violet
+    // Pure Monochromatic Translucent Window-Manager (WM) Aesthetic
+    // Translucent dark glass backgrounds
+    readonly property color bgPrimary: Qt.rgba(0.04, 0.04, 0.05, 0.70)          // Smoked dark glass (translucent)
+    readonly property color bgCard: Qt.rgba(1.0, 1.0, 1.0, 0.04)                // Frosted glass card
+    readonly property color bgCardHighlight: Qt.rgba(1.0, 1.0, 1.0, 0.08)       // Elevated glass surface
+    readonly property color bgInput: Qt.rgba(0.0, 0.0, 0.0, 0.45)               // Recessed dark track
 
-    // Violet Borders & Dividers
-    readonly property color border: "#3b305d"             // Crisp medium violet border
-    readonly property color borderSubtle: "#272040"       // Subtle deep border
-    readonly property color glowViolet: "#c084fc"
+    // Crisp Monochromatic Borders
+    readonly property color border: Qt.rgba(1.0, 1.0, 1.0, 0.12)                // Crisp translucent white border
+    readonly property color borderSubtle: Qt.rgba(1.0, 1.0, 1.0, 0.06)          // Subtle inner divider
+    readonly property color glowMonochrome: Qt.rgba(1.0, 1.0, 1.0, 0.25)
 
-    // Violet & Lavender Accents
-    readonly property color accentViolet: "#c084fc"       // Radiant bright violet
-    readonly property color accentLavender: "#e9d5ff"     // Soft bright lavender
-    readonly property color accentPurple: "#a855f7"       // Rich neon purple
-    readonly property color accentRoseViolet: "#f472b6"   // Rose-tinted violet
-    readonly property color accentMuted: "#796e9c"        // Muted purple-grey
-    readonly property color accentYellow: "#fcd34d"
+    // Monochromatic Accents
+    readonly property color accentWhite: "#ffffff"                               // High-contrast pure white
+    readonly property color accentSilver: "#e5e7eb"                              // Crisp silver
+    readonly property color accentGrey: "#9ca3af"                                // Neutral metallic grey
+    readonly property color accentDarkGrey: "#374151"                            // Deep slate/charcoal
+    readonly property color accentMuted: "#6b7280"                               // Dim neutral grey
 
-    // Mapped aliases so all existing references turn violetita:
-    readonly property color accentGreen: "#c084fc"        // Radiant violet for primary/speed/knob highlights
-    readonly property color accentPink: "#e9d5ff"         // Soft lavender for secondary/download highlights
+    // Aliases mapped to monochrome
+    readonly property color accentGreen: "#ffffff"                               // Pure white for primary highlights & knobs
+    readonly property color accentPink: "#9ca3af"                                // Crisp silver-grey for secondary/downloads
+    readonly property color accentViolet: "#ffffff"                              // Pure white
+    readonly property color accentLavender: "#e5e7eb"                            // Bright silver
 
     // Text hierarchy
-    readonly property color textPrimary: "#f5f3ff"       // Bright lavender-white
-    readonly property color textSecondary: "#c4b5fd"     // Soft light violet
-    readonly property color textMuted: "#8879a8"         // Dim violet-grey
+    readonly property color textPrimary: "#ffffff"                              // High-contrast pure white
+    readonly property color textSecondary: "#9ca3af"                            // Clean readable silver
+    readonly property color textMuted: "#52525b"                                // Dim grey
 
     // Typography
     readonly property string monoFont: "Monospace"

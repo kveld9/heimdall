@@ -35,8 +35,8 @@ Item {
                     width: 130
                     height: 80
                     radius: 8
-                    color: page.failedCount === 0 ? theme.bgCardHighlight : Qt.rgba(1, 0.2, 0.4, 0.15)
-                    border.color: page.failedCount === 0 ? theme.accentGreen : theme.accentPink
+                    color: page.failedCount === 0 ? theme.bgCardHighlight : Qt.rgba(1.0, 1.0, 1.0, 0.10)
+                    border.color: page.failedCount === 0 ? theme.border : theme.accentWhite
 
                     ColumnLayout {
                         anchors.centerIn: parent
@@ -46,7 +46,7 @@ Item {
                             font.family: theme.mainFont
                             font.pixelSize: 11
                             font.bold: true
-                            color: page.failedCount === 0 ? theme.accentGreen : theme.accentPink
+                            color: page.failedCount === 0 ? theme.accentSilver : theme.accentWhite
                             Layout.alignment: Qt.AlignHCenter
                         }
                         Text {
@@ -133,8 +133,8 @@ Item {
                                 width: 70
                                 height: 26
                                 radius: 5
-                                color: modelData.celsius > 75 ? Qt.rgba(1, 0.2, 0.4, 0.2) : theme.bgInput
-                                border.color: modelData.celsius > 75 ? theme.accentPink : theme.border
+                                color: modelData.celsius > 75 ? Qt.rgba(1.0, 1.0, 1.0, 0.12) : theme.bgInput
+                                border.color: modelData.celsius > 75 ? theme.accentWhite : theme.border
 
                                 Text {
                                     anchors.centerIn: parent
@@ -142,7 +142,7 @@ Item {
                                     font.family: theme.monoFont
                                     font.pixelSize: 12
                                     font.bold: true
-                                    color: modelData.celsius > 75 ? theme.accentPink : theme.accentGreen
+                                    color: modelData.celsius > 75 ? theme.accentWhite : theme.accentSilver
                                 }
                             }
                         }

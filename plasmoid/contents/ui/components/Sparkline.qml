@@ -4,8 +4,8 @@ Item {
     id: root
 
     property var values: []
-    property color strokeColor: "#ff79c6"
-    property real lineWidth: 2.0
+    property color strokeColor: "#ffffff"
+    property real lineWidth: 1.8
     property real maxVal: 0
 
     onValuesChanged: canvas.requestPaint()
