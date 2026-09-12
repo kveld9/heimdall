@@ -103,3 +103,16 @@ WatchCat consists of two decoupled components:
 - Format: Conventional Commits in English (`feat:`, `fix:`, `style:`, `refactor:`, `docs:`, `perf:`).
 - No emojis in commit messages.
 - No `Co-Authored-By` or AI attribution trailers.
+
+---
+
+## 7. Mandatory Technical Documentation Protocol (`ARCHITECTURE.md`)
+
+- **Strict Invariant**: Any change, refactoring, bug fix, feature addition, or architectural modification made to this repository MUST immediately update `ARCHITECTURE.md`.
+- A task or PR is strictly considered **INCOMPLETE** if code or configuration is modified without synchronizing the corresponding technical explanation in `ARCHITECTURE.md`.
+- **Required Documentation Standards in `ARCHITECTURE.md`**:
+  1. **Component Deep Dive**: Document exactly how the component functions internally, including data flows, algorithms, and interactions.
+  2. **Technical Rationale ("Why")**: Every significant architectural or design decision must explicitly document the reason why it was chosen over alternatives (e.g. why Python daemon instead of C++ plugin, why JSON storage instead of SQLite, why translucent monochrome instead of colored themes).
+  3. **Data Pipeline & Interfaces**: Detail all kernel sources (`/proc`, `/sys`), HTTP endpoints, and QML properties/signals affected by the change.
+  4. **Zero-Emoji Compliance**: Maintain zero emojis across all documentation updates.
+
