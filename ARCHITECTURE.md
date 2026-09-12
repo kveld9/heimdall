@@ -35,7 +35,7 @@ Heimdall is partitioned into two decoupled tiers:
 |  - main.qml: Zero-Jank polling loop & dynamic desktop sizing            |
 |  - Theme.qml: Translucent monochrome WM color tokens & typography       |
 |  - FullRepresentation.qml: 4-page dashboard or compact capsule          |
-|  - NetworkPage: Horizontal Day Budget slider, week table, split donut   |
+|  - NetworkPage: Daily traffic overview, aligned week table, split donut  |
 |  - ComputePage: Full-width CPU sparkline, ZRAM capacity, Top CPU/RAM    |
 |  - StoragePage: Dual read/write sparklines, mounts, Top Disk, PSI badge |
 |  - SystemdPage: System vitals, service state, timers, thermal grid      |
@@ -157,6 +157,7 @@ Recurring visual patterns are encapsulated into reusable components under `plasm
 - `Sparkline.qml`: Zero-jank Canvas renderer drawing continuous 30-to-60 point telemetry histories with pre-filled baseline buffers and translucent filled gradients.
 - `BudgetSlider.qml`: Daily network traffic overview component. Visualizes total daily bytes transferred with a proportional dual-segment download vs. upload track, eliminating artificial quota caps and over-budget warnings for home Ethernet/broadband workflows.
 - `DonutChart.qml`: Split circular arc visualization for download versus upload ratios.
+- Weekly History Table (`NetworkPage.qml`): Implements rigid column width properties (`colDayWidth: 72`, `colDateWidth: 52`, `colDownWidth: 76`, `colUpWidth: 76`, `colTotalWidth: 104`) with a shared flexible spacer across both the header and ListView delegates, guaranteeing terminal-grade tabular alignment across all resolutions and card widths.
 
 ---
 

@@ -13,6 +13,11 @@ Item {
     readonly property var weeklyList: telemetry ? telemetry.weekly : []
     readonly property var procList: telemetry && telemetry.net && telemetry.net.top_processes ? telemetry.net.top_processes : []
     readonly property var netData: telemetry ? telemetry.net : null
+    readonly property real colDayWidth: 72
+    readonly property real colDateWidth: 52
+    readonly property real colDownWidth: 76
+    readonly property real colUpWidth: 76
+    readonly property real colTotalWidth: 104
     readonly property real maxWeekBytes: {
         var m = 1048576;
         if (weeklyList) {
@@ -155,6 +160,8 @@ Item {
                     // Table Header with high contrast
                     RowLayout {
                         Layout.fillWidth: true
+                        Layout.leftMargin: 6
+                        Layout.rightMargin: 6
                         spacing: 8
 
                         Text {
@@ -163,7 +170,7 @@ Item {
                             font.pixelSize: 10
                             font.bold: true
                             color: theme.textSecondary
-                            Layout.preferredWidth: 70
+                            Layout.preferredWidth: page.colDayWidth
                         }
                         Text {
                             text: "DATE"
@@ -171,15 +178,18 @@ Item {
                             font.pixelSize: 10
                             font.bold: true
                             color: theme.textSecondary
-                            Layout.preferredWidth: 55
+                            Layout.preferredWidth: page.colDateWidth
                         }
+
+                        Item { Layout.fillWidth: true }
+
                         Text {
                             text: "DOWN"
                             font.family: theme.mainFont
                             font.pixelSize: 10
                             font.bold: true
                             color: theme.textSecondary
-                            Layout.preferredWidth: 65
+                            Layout.preferredWidth: page.colDownWidth
                             horizontalAlignment: Text.AlignRight
                         }
                         Text {
@@ -188,7 +198,7 @@ Item {
                             font.pixelSize: 10
                             font.bold: true
                             color: theme.textSecondary
-                            Layout.preferredWidth: 65
+                            Layout.preferredWidth: page.colUpWidth
                             horizontalAlignment: Text.AlignRight
                         }
                         Text {
@@ -197,7 +207,7 @@ Item {
                             font.pixelSize: 10
                             font.bold: true
                             color: theme.textSecondary
-                            Layout.fillWidth: true
+                            Layout.preferredWidth: page.colTotalWidth
                             horizontalAlignment: Text.AlignRight
                         }
                     }
@@ -225,8 +235,8 @@ Item {
 
                             RowLayout {
                                 anchors.fill: parent
-                                anchors.leftMargin: 4
-                                anchors.rightMargin: 4
+                                anchors.leftMargin: 6
+                                anchors.rightMargin: 6
                                 spacing: 8
 
                                 Text {
@@ -235,7 +245,7 @@ Item {
                                     font.pixelSize: 11
                                     font.bold: modelData.is_today
                                     color: modelData.is_today ? theme.textPrimary : theme.textSecondary
-                                    Layout.preferredWidth: 70
+                                    Layout.preferredWidth: page.colDayWidth
                                 }
 
                                 Text {
@@ -243,15 +253,17 @@ Item {
                                     font.family: theme.mainFont
                                     font.pixelSize: 10
                                     color: theme.textMuted
-                                    Layout.preferredWidth: 55
+                                    Layout.preferredWidth: page.colDateWidth
                                 }
+
+                                Item { Layout.fillWidth: true }
 
                                 Text {
                                     text: theme.formatBytes(modelData.down_bytes)
                                     font.family: theme.monoFont
                                     font.pixelSize: 11
                                     color: theme.textSecondary
-                                    Layout.preferredWidth: 65
+                                    Layout.preferredWidth: page.colDownWidth
                                     horizontalAlignment: Text.AlignRight
                                 }
 
@@ -260,13 +272,12 @@ Item {
                                     font.family: theme.monoFont
                                     font.pixelSize: 11
                                     color: theme.textSecondary
-                                    Layout.preferredWidth: 65
+                                    Layout.preferredWidth: page.colUpWidth
                                     horizontalAlignment: Text.AlignRight
                                 }
 
                                 RowLayout {
-                                    Layout.fillWidth: true
-                                    Layout.alignment: Qt.AlignRight
+                                    Layout.preferredWidth: page.colTotalWidth
                                     spacing: 6
 
                                     Text {
@@ -276,6 +287,7 @@ Item {
                                         font.bold: modelData.is_today
                                         color: modelData.is_today ? theme.accentWhite : theme.textSecondary
                                         horizontalAlignment: Text.AlignRight
+                                        Layout.fillWidth: true
                                     }
 
                                     // Mini bar indicator
@@ -284,6 +296,7 @@ Item {
                                         height: 4
                                         radius: 2
                                         color: theme.bgInput
+                                        Layout.alignment: Qt.AlignVCenter
 
                                         Rectangle {
                                             anchors.left: parent.left
