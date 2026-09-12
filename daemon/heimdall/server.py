@@ -37,7 +37,7 @@ def make_api_handler(
             elif path == "/api/week":
                 self._send_json(get_week_fn())
             elif path == "/health":
-                self._send_json({"status": "ok", "service": "watchcat-daemon", "version": "1.1.0"})
+                self._send_json({"status": "ok", "service": "heimdall-daemon", "version": "1.1.0"})
             else:
                 self._send_json({"error": "Not Found", "endpoint": path}, status=404)
 

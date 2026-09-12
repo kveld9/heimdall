@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Heimdall Telemetry Daemon execution shim for backward-compatible invocations."""
+"""Heimdall Telemetry Daemon execution entry point."""
 
 import os
 import sys

@@ -7,16 +7,28 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 
-class WatchCatStorage:
+class HeimdallStorage:
     """Manages daily bandwidth quotas, 30-day history pruning, and configuration."""
 
     def __init__(self, data_dir: Optional[str] = None) -> None:
         if data_dir is None:
-            data_dir = os.path.expanduser("~/.local/share/watchcat")
+            data_dir = os.path.expanduser("~/.local/share/heimdall")
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.history_file = self.data_dir / "history.json"
         self.config_file = self.data_dir / "config.json"
+
+        # Migrate existing watchcat history if present and heimdall history is empty
+        legacy_dir = Path(os.path.expanduser("~/.local/share/watchcat"))
+        if legacy_dir.exists() and not self.history_file.exists():
+            legacy_history = legacy_dir / "history.json"
+            if legacy_history.exists():
+                try:
+                    import shutil
+                    shutil.copy2(legacy_history, self.history_file)
+                except Exception:
+                    pass
+
         self._load_config()
         self._load_history()
 
@@ -157,3 +169,6 @@ class WatchCatStorage:
             })
 
         return result
+
+
+WatchCatStorage = HeimdallStorage

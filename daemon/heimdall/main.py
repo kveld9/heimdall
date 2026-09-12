@@ -1,4 +1,4 @@
-"""WatchCat Telemetry Daemon main orchestrator and entry point."""
+"""Heimdall Telemetry Daemon main orchestrator and entry point."""
 
 import argparse
 import signal
@@ -12,10 +12,10 @@ from .collectors.health import HealthCollector
 from .collectors.network import NetworkCollector
 from .collectors.storage import StorageCollector
 from .server import ThreadedHTTPServer, make_api_handler
-from .storage import WatchCatStorage
+from .storage import HeimdallStorage
 
 
-class WatchCatDaemon:
+class HeimdallDaemon:
     """Coordinates telemetry collectors, storage persistence, and HTTP serving."""
 
     def __init__(
@@ -33,7 +33,7 @@ class WatchCatDaemon:
         self._lock = threading.Lock()
 
         # Initialize storage
-        self.storage = WatchCatStorage(data_dir=data_dir)
+        self.storage = HeimdallStorage(data_dir=data_dir)
 
         # Initialize collectors
         self.net_collector = NetworkCollector(interface=interface)
@@ -124,7 +124,7 @@ class WatchCatDaemon:
         collector_thread = threading.Thread(target=self.run_loop, daemon=True, name="TelemetryCollector")
         collector_thread.start()
 
-        print(f"[*] WatchCat daemon listening on http://{self.host}:{self.port}")
+        print(f"[*] Heimdall daemon listening on http://{self.host}:{self.port}")
         try:
             self.server.serve_forever()
         except KeyboardInterrupt:
@@ -138,11 +138,14 @@ class WatchCatDaemon:
             self.running = False
             self.server.shutdown()
             self.server.server_close()
-            print("[-] WatchCat daemon stopped.")
+            print("[-] Heimdall daemon stopped.")
+
+
+WatchCatDaemon = HeimdallDaemon
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="WatchCat Telemetry Daemon")
+    parser = argparse.ArgumentParser(description="Heimdall Telemetry Daemon")
     parser.add_argument("--host", default="127.0.0.1", help="Bind IP address (default: 127.0.0.1)")
     parser.add_argument("--port", type=int, default=9871, help="Bind port (default: 9871)")
     parser.add_argument("--interval", type=float, default=1.0, help="Sampling interval in seconds (default: 1.0)")
@@ -150,7 +153,7 @@ def main() -> None:
     parser.add_argument("--data-dir", default=None, help="Custom data persistence directory")
 
     args = parser.parse_args()
-    daemon = WatchCatDaemon(
+    daemon = HeimdallDaemon(
         host=args.host,
         port=args.port,
         interval=args.interval,

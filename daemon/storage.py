@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Backward-compatibility shim for WatchCatStorage."""
+"""Backward-compatibility shim for HeimdallStorage."""
 
-from watchcat.storage import WatchCatStorage
+from heimdall.storage import HeimdallStorage, WatchCatStorage
 
-__all__ = ["WatchCatStorage"]
+__all__ = ["HeimdallStorage", "WatchCatStorage"]
