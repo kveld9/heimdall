@@ -60,7 +60,7 @@ Rectangle {
             }
 
             Text {
-                text: "WATCHCAT"
+                text: "HEIMDALL"
                 font.family: theme.monoFont
                 font.pixelSize: 12
                 font.bold: true

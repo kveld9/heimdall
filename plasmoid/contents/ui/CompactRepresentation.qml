@@ -23,7 +23,7 @@ Item {
         }
 
         Text {
-            text: (telemetry && telemetry.net) ? theme.formatSpeed(telemetry.net.down_rate_kb) : "WatchCat"
+            text: (telemetry && telemetry.net) ? theme.formatSpeed(telemetry.net.down_rate_kb) : "Heimdall"
             font.family: theme.monoFont
             font.pixelSize: 11
             font.bold: true

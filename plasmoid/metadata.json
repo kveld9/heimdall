@@ -8,13 +8,13 @@
             }
         ],
         "Category": "System Information",
-        "Description": "WatchCat - Aesthetic Zero-Jank System Monitor & Network Budget Plasmoid",
+        "Description": "Heimdall - Aesthetic Zero-Jank System Monitor & Network Budget Plasmoid",
         "Icon": "network-workgroup",
-        "Id": "org.kde.plasma.watchcat",
+        "Id": "org.kde.plasma.heimdall",
         "License": "GPL-3.0+",
-        "Name": "WatchCat",
-        "Version": "1.0.0",
-        "Website": "https://github.com/kveld/watchcat"
+        "Name": "Heimdall",
+        "Version": "1.1.0",
+        "Website": "https://github.com/kveld/heimdall"
     },
     "X-Plasma-API-Minimum-Version": "6.0"
 }

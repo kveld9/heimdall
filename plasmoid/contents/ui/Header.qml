@@ -45,7 +45,7 @@ Item {
             }
 
             Text {
-                text: "WATCHCAT"
+                text: "HEIMDALL"
                 font.family: theme.monoFont
                 font.pixelSize: 14
                 font.bold: true

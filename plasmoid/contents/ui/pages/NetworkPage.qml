@@ -18,7 +18,7 @@ Item {
         anchors.fill: parent
         spacing: 10
 
-        // DAY BUDGET Card (Main identity of WatchCat)
+        // DAY BUDGET Card (Main identity of Heimdall)
         MetricCard {
             Layout.fillWidth: true
             Layout.preferredHeight: 180
