@@ -36,7 +36,7 @@ Rectangle {
 
         // Process comm name + optional multi-instance badge
         RowLayout {
-            spacing: 4
+            spacing: 6
             Layout.fillWidth: true
 
             Text {
@@ -46,7 +46,7 @@ Rectangle {
                 font.bold: true
                 color: theme ? theme.textPrimary : "#ffffff"
                 elide: Text.ElideRight
-                Layout.maximumWidth: 140
+                Layout.maximumWidth: 150
             }
 
             Rectangle {
@@ -67,19 +67,23 @@ Rectangle {
             }
         }
 
-        // Secondary detail text (e.g. RAM or Read MB)
+        Item { Layout.fillWidth: true }
+
+        // Secondary detail text (e.g. RAM, CPU % or Read MB)
         Text {
             visible: root.detailText.length > 0
             text: root.detailText
             font.family: theme ? theme.monoFont : "monospace"
             font.pixelSize: 10
             color: theme ? theme.textSecondary : "#d1d5db"
+            Layout.preferredWidth: 85
+            horizontalAlignment: Text.AlignRight
         }
 
         // Primary metric badge
         Rectangle {
             height: 20
-            width: Math.max(root.badgeWidth, badgeVal.implicitWidth + 14)
+            Layout.preferredWidth: Math.max(root.badgeWidth, badgeVal.implicitWidth + 14)
             radius: 4
             color: Qt.rgba(1.0, 1.0, 1.0, 0.08)
             border.color: theme ? theme.border : Qt.rgba(1.0, 1.0, 1.0, 0.12)
