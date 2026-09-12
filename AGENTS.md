@@ -100,9 +100,17 @@ WatchCat consists of two decoupled components:
 
 ## 6. Git & Commit Guidelines
 
-- Format: Conventional Commits in English (`feat:`, `fix:`, `style:`, `refactor:`, `docs:`, `perf:`).
-- No emojis in commit messages.
-- No `Co-Authored-By` or AI attribution trailers.
+1. **Independent & Atomic Commits**:
+   - Every completed change, feature, bug fix, or refactoring MUST be tracked and registered automatically in independent, atomic Git commits.
+   - Never bundle unrelated modifications (e.g., daemon restructuring, UI enhancements, and documentation changes) into a single omnibus commit.
+   - Separate distinct concerns into logical, standalone commits immediately upon completing each implementation unit.
+
+2. **Commit Message Standards**:
+   - Format: Conventional Commits in English (`feat:`, `fix:`, `style:`, `refactor:`, `docs:`, `perf:`).
+   - Keep messages concise, imperative, and specific (e.g., `refactor(daemon): modularize backend into watchcat package`).
+   - ZERO emojis anywhere in commit titles or descriptions.
+   - No `Co-Authored-By` or AI attribution trailers under any circumstance.
+
 
 ---
 
@@ -115,4 +123,46 @@ WatchCat consists of two decoupled components:
   2. **Technical Rationale ("Why")**: Every significant architectural or design decision must explicitly document the reason why it was chosen over alternatives (e.g. why Python daemon instead of C++ plugin, why JSON storage instead of SQLite, why translucent monochrome instead of colored themes).
   3. **Data Pipeline & Interfaces**: Detail all kernel sources (`/proc`, `/sys`), HTTP endpoints, and QML properties/signals affected by the change.
   4. **Zero-Emoji Compliance**: Maintain zero emojis across all documentation updates.
+
+---
+
+## 8. Strict Modularity & Long-Term Maintainability Standards
+
+1. **Single Responsibility Principle (SRP)**:
+   - Every module, class, and QML component must have exactly one clearly defined responsibility.
+   - Telemetry collection logic must never be mixed with HTTP request routing or persistence.
+   - Backend collectors reside exclusively inside `daemon/watchcat/collectors/` and implement `BaseCollector`.
+
+2. **File Size Invariants & Anti-Monolith Policy**:
+   - Monolithic files (> 300 LOC) are strictly prohibited.
+   - If a collector, page, or component expands beyond 300 lines, it must be decomposed into sub-modules, helper utilities, or dedicated child components.
+
+3. **Backend Architecture & Package Layout**:
+   - `daemon/watchcat/`:
+     - `collectors/base.py`: Base collector interface contract.
+     - `collectors/network.py`: Network throughput, interfaces, and socket-owning processes.
+     - `collectors/compute.py`: CPU, RAM, ZRAM capacity, and top compute consumers.
+     - `collectors/storage.py`: Block device throughput, partition deduplication, top disk I/O.
+     - `collectors/health.py`: Systemd unit status, timers, uptime, loadavg, OOM kills, thermals.
+     - `storage.py`: Quota calculations and rolling JSON persistence.
+     - `server.py`: Threaded HTTP server and API endpoint routing.
+     - `main.py`: CLI parsing, collector loop orchestration, signal handling.
+   - `daemon/watchcat_daemon.py` and `daemon/storage.py` must remain lightweight compatibility shims.
+
+4. **Frontend Component Reusability**:
+   - Recurring UI patterns must never be copy-pasted across pages.
+   - Extracted components reside in `plasmoid/contents/ui/components/` (e.g., `ProcessRow.qml`, `StatusBadge.qml`, `MetricCard.qml`, `Sparkline.qml`, `BudgetSlider.qml`, `DonutChart.qml`).
+   - All components must declare explicit typed properties and consume theme colors exclusively from `Theme.qml`.
+
+5. **Automated Quality Gate Enforcement**:
+   - Before committing any change, contributor or agent must run:
+     ```bash
+     ./scripts/verify.sh
+     ```
+   - All 4 verification gates must pass:
+     1. Python module compilation (`py_compile`).
+     2. Collector smoke test (instant instantiation and assertions).
+     3. Strict zero-emoji repository audit.
+     4. Plasmoid metadata integrity check.
+
 
