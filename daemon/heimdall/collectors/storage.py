@@ -16,8 +16,8 @@ class StorageCollector(BaseCollector):
         self.prev_time: Optional[float] = None
         self.prev_sectors_read: int = 0
         self.prev_sectors_written: int = 0
-        self.sparkline_read: deque = deque(maxlen=sparkline_points)
-        self.sparkline_write: deque = deque(maxlen=sparkline_points)
+        self.sparkline_read: deque = deque([0.0] * sparkline_points, maxlen=sparkline_points)
+        self.sparkline_write: deque = deque([0.0] * sparkline_points, maxlen=sparkline_points)
 
     def read_disk_throughput(self) -> Tuple[float, float]:
         """Parse /proc/diskstats for primary block devices and compute MB/s."""

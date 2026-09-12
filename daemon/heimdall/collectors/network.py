@@ -19,8 +19,9 @@ class NetworkCollector(BaseCollector):
         self.prev_time: Optional[float] = None
         self.prev_rx_bytes = 0
         self.prev_tx_bytes = 0
-        self.sparkline_down: deque = deque(maxlen=sparkline_points)
-        self.sparkline_up: deque = deque(maxlen=sparkline_points)
+        self.sparkline_down: deque = deque([0.0] * sparkline_points, maxlen=sparkline_points)
+        self.sparkline_up: deque = deque([0.0] * sparkline_points, maxlen=sparkline_points)
+        self.prev_proc_io: Dict[str, Tuple[float, int]] = {}
 
     def detect_default_interface(self) -> str:
         """Find the active default route interface from /proc/net/route."""
@@ -110,12 +111,28 @@ class NetworkCollector(BaseCollector):
                             except Exception:
                                 pass
 
+            now = time.time()
             results = []
             for item in grouped.values():
                 total_io = item["read_bytes"] + item["write_bytes"]
+                rate_str = "0 KB/s"
+                cname = item["name"]
+                if cname in self.prev_proc_io:
+                    prev_t, prev_tot = self.prev_proc_io[cname]
+                    dt = now - prev_t
+                    if dt > 0.3 and total_io >= prev_tot:
+                        rate_bps = (total_io - prev_tot) / dt
+                        rate_kb = rate_bps / 1024.0
+                        if rate_kb < 1024:
+                            rate_str = f"{int(round(rate_kb))} KB/s"
+                        else:
+                            rate_str = f"{rate_kb / 1024.0:.1f} MB/s"
+                self.prev_proc_io[cname] = (now, total_io)
+
                 results.append({
                     "name": item["name"],
                     "instances": item["instances"],
+                    "rate_str": rate_str,
                     "total_io_mb": round(total_io / (1024 * 1024), 1),
                     "read_mb": round(item["read_bytes"] / (1024 * 1024), 1),
                     "write_mb": round(item["write_bytes"] / (1024 * 1024), 1),

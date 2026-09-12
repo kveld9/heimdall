@@ -118,16 +118,25 @@ class HeimdallDaemon:
             time.sleep(sleep_time)
 
     def start(self) -> None:
-        """Starts background collector thread and foreground HTTP server."""
+        """Starts background collector thread and HTTP server."""
         self.running = True
         self.sample_telemetry()  # Initial immediate sample
 
         collector_thread = threading.Thread(target=self.run_loop, daemon=True, name="TelemetryCollector")
         collector_thread.start()
 
+        server_thread = threading.Thread(
+            target=self.server.serve_forever,
+            kwargs={"poll_interval": 0.5},
+            daemon=True,
+            name="HTTPServer"
+        )
+        server_thread.start()
+
         print(f"[*] Heimdall daemon listening on http://{self.host}:{self.port}")
         try:
-            self.server.serve_forever()
+            while self.running:
+                time.sleep(0.5)
         except KeyboardInterrupt:
             pass
         finally:
@@ -137,8 +146,11 @@ class HeimdallDaemon:
         """Gracefully halts collectors and server."""
         if self.running:
             self.running = False
-            self.server.shutdown()
-            self.server.server_close()
+            try:
+                self.server.shutdown()
+                self.server.server_close()
+            except Exception:
+                pass
             print("[-] Heimdall daemon stopped.")
 
 

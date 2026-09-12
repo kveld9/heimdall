@@ -15,7 +15,7 @@ class ComputeCollector(BaseCollector):
         self.sparkline_points = sparkline_points
         self.prev_cpu_total: Optional[int] = None
         self.prev_cpu_idle: Optional[int] = None
-        self.sparkline_cpu: deque = deque(maxlen=sparkline_points)
+        self.sparkline_cpu: deque = deque([0.0] * sparkline_points, maxlen=sparkline_points)
 
     def read_cpu_pct(self) -> float:
         """Calculate non-idle tick delta from /proc/stat."""
