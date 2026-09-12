@@ -376,8 +376,20 @@ Item {
                 anchors.fill: parent
                 orientation: ListView.Horizontal
                 clip: true
+                boundsBehavior: Flickable.DragOverBounds
+                flickableDirection: Flickable.HorizontalFlick
                 model: page.procList
                 spacing: 8
+                footer: Item { width: 16; height: 1 }
+
+                MouseArea {
+                    anchors.fill: parent
+                    propagateComposedEvents: true
+                    onWheel: (wheel) => {
+                        var delta = (wheel.angleDelta.y !== 0) ? wheel.angleDelta.y : wheel.angleDelta.x;
+                        procListView.contentX = Math.max(0, Math.min(procListView.contentWidth - procListView.width, procListView.contentX - delta));
+                    }
+                }
 
                 delegate: Rectangle {
                     height: Math.min(28, procListView.height)
