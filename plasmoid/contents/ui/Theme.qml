@@ -1,33 +1,36 @@
 import QtQuick
-import org.kde.kirigami as Kirigami
 
 QtObject {
     id: theme
 
-    // Toggle between Cyber Olive (from the mockups) and dynamic KDE Plasma Palette
-    property bool useCyberTheme: true
+    // Pure Dark Violet / Lavender Theme ("todo violetita")
+    // Deep obsidian-violet backgrounds
+    readonly property color bgPrimary: "#120f1d"          // Deep obsidian violet
+    readonly property color bgCard: "#1a162b"             // Dark violet card
+    readonly property color bgCardHighlight: "#251f3d"    // Highlighted card surface
+    readonly property color bgInput: "#161324"            // Inset dark violet
 
-    // Backgrounds
-    readonly property color bgPrimary: useCyberTheme ? "#131712" : Kirigami.Theme.backgroundColor
-    readonly property color bgCard: useCyberTheme ? "#1c2219" : Kirigami.Theme.cardBackgroundColor
-    readonly property color bgCardHighlight: useCyberTheme ? "#242c20" : Qt.lighter(Kirigami.Theme.cardBackgroundColor, 1.15)
-    readonly property color bgInput: useCyberTheme ? "#171c14" : Qt.darker(Kirigami.Theme.backgroundColor, 1.1)
+    // Violet Borders & Dividers
+    readonly property color border: "#3b305d"             // Crisp medium violet border
+    readonly property color borderSubtle: "#272040"       // Subtle deep border
+    readonly property color glowViolet: "#c084fc"
 
-    // Borders & Dividers
-    readonly property color border: useCyberTheme ? "#2b3628" : Kirigami.Theme.separatorColor
-    readonly property color borderSubtle: useCyberTheme ? "#1f261d" : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.12)
-    readonly property color glowGreen: useCyberTheme ? "#7ae582" : Kirigami.Theme.highlightColor
+    // Violet & Lavender Accents
+    readonly property color accentViolet: "#c084fc"       // Radiant bright violet
+    readonly property color accentLavender: "#e9d5ff"     // Soft bright lavender
+    readonly property color accentPurple: "#a855f7"       // Rich neon purple
+    readonly property color accentRoseViolet: "#f472b6"   // Rose-tinted violet
+    readonly property color accentMuted: "#796e9c"        // Muted purple-grey
+    readonly property color accentYellow: "#fcd34d"
 
-    // Accents
-    readonly property color accentGreen: useCyberTheme ? "#7ae582" : Kirigami.Theme.positiveTextColor
-    readonly property color accentPink: useCyberTheme ? "#ff79c6" : Kirigami.Theme.negativeTextColor
-    readonly property color accentYellow: useCyberTheme ? "#f1fa8c" : Kirigami.Theme.neutralTextColor
-    readonly property color accentMuted: useCyberTheme ? "#687964" : Kirigami.Theme.disabledTextColor
+    // Mapped aliases so all existing references turn violetita:
+    readonly property color accentGreen: "#c084fc"        // Radiant violet for primary/speed/knob highlights
+    readonly property color accentPink: "#e9d5ff"         // Soft lavender for secondary/download highlights
 
     // Text hierarchy
-    readonly property color textPrimary: useCyberTheme ? "#e2ebd8" : Kirigami.Theme.textColor
-    readonly property color textSecondary: useCyberTheme ? "#889c83" : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.65)
-    readonly property color textMuted: useCyberTheme ? "#576654" : Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.45)
+    readonly property color textPrimary: "#f5f3ff"       // Bright lavender-white
+    readonly property color textSecondary: "#c4b5fd"     // Soft light violet
+    readonly property color textMuted: "#8879a8"         // Dim violet-grey
 
     // Typography
     readonly property string monoFont: "Monospace"

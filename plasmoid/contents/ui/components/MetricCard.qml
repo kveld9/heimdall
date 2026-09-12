@@ -6,8 +6,8 @@ Rectangle {
 
     property alias title: titleLabel.text
     property alias headerRight: rightHeaderItem.data
-    property color cardBg: "#1c2219"
-    property color cardBorder: "#2b3628"
+    property color cardBg: "#1a162b"
+    property color cardBorder: "#3b305d"
     property real radiusVal: 10
 
     color: cardBg
@@ -36,7 +36,7 @@ Rectangle {
                 font.bold: true
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1.2
-                color: "#889c83"
+                color: "#c4b5fd"
                 Layout.alignment: Qt.AlignVCenter
             }
 

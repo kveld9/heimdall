@@ -15,7 +15,6 @@ PlasmoidItem {
 
     Theme {
         id: appTheme
-        useCyberTheme: true
     }
 
     // Zero-jank Asynchronous HTTP Fetch

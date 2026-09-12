@@ -167,32 +167,6 @@ Item {
                     Layout.alignment: Qt.AlignRight
                 }
             }
-
-            // Theme Switcher Button (Cyber vs KDE Sync)
-            Rectangle {
-                width: 28
-                height: 28
-                radius: 6
-                color: theme.bgCardHighlight
-                border.color: theme.border
-
-                Text {
-                    anchors.centerIn: parent
-                    text: theme.useCyberTheme ? "⚡" : "🎨"
-                    font.pixelSize: 13
-                }
-
-                ToolTip.visible: hoverArea.containsMouse
-                ToolTip.text: theme.useCyberTheme ? "Theme: Cyber Olive (Mockup)\nClick to sync with KDE Plasma" : "Theme: KDE Plasma Dynamic\nClick for Cyber Olive"
-
-                MouseArea {
-                    id: hoverArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: theme.useCyberTheme = !theme.useCyberTheme
-                }
-            }
         }
     }
 }
