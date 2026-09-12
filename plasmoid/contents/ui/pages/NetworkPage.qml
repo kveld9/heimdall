@@ -37,7 +37,8 @@ Item {
         // Live Rate Sparklines (Inbound & Outbound)
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 68
+            Layout.preferredHeight: 80
+            Layout.fillHeight: false
             spacing: 10
 
             // Inbound (Down) Sparkline
@@ -127,6 +128,7 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.preferredHeight: 170
             spacing: 10
 
             // THIS WEEK — BY DAY Card
@@ -313,6 +315,7 @@ Item {
         MetricCard {
             Layout.fillWidth: true
             Layout.preferredHeight: 74
+            Layout.fillHeight: false
             cardBg: theme.bgCard
             cardBorder: theme.border
             title: "TOP NETWORK APPLICATIONS"

@@ -86,6 +86,7 @@ class HeimdallDaemon:
                 "top_processes": net_data["top_processes"],
             },
             "budget": budget_data,
+            "weekly": self.storage.get_weekly_breakdown(),
             "compute": compute_data,
             "storage": storage_data,
             "health": health_data,
