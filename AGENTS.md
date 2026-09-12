@@ -112,6 +112,13 @@ Heimdall consists of two decoupled components:
    - ZERO emojis anywhere in commit titles or descriptions.
    - No `Co-Authored-By` or AI attribution trailers under any circumstance.
 
+3. **Mandatory Post-Commit Live Recompilation & Installation Invariant**:
+   - Immediately upon completing and committing any change (or concluding any implementation unit that modifies QML components, styles, or daemon logic), the contributor or agent MUST automatically execute:
+     ```bash
+     ./scripts/install.sh
+     ```
+   - This ensures that the updated Plasmoid package is immediately repackaged/recompiled via `kpackagetool6`, compatibility trees are synchronized, and the user systemd telemetry service is refreshed so that changes are reflected live on the user's active desktop without requiring manual intervention.
+
 ---
 
 ## 7. Mandatory Technical Documentation Protocol (`ARCHITECTURE.md`)

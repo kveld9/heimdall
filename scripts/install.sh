@@ -39,7 +39,7 @@ cat <<EOF > "$COMPAT_WATCHCAT_DIR/metadata.json"
             }
         ],
         "Category": "System Information",
-        "Description": "Heimdall - Aesthetic Zero-Jank System Monitor & Network Budget Plasmoid (Legacy Compatibility)",
+        "Description": "Heimdall - Aesthetic Zero-Jank System Monitor & Network Telemetry Plasmoid (Legacy Compatibility)",
         "Icon": "network-workgroup",
         "Id": "org.kde.plasma.watchcat",
         "License": "GPL-3.0+",
@@ -94,4 +94,15 @@ systemctl --user daemon-reload
 systemctl --user enable --now heimdall.service
 
 echo "[+] Heimdall Telemetry Daemon enabled and started via systemd user session."
+
+# Purge Plasma QML bytecode cache
+echo "[*] Purging Plasma QML bytecode cache..."
+rm -rf "$HOME/.cache/plasmashell/qmlcache" "$HOME/.cache/plasmawindowed/qmlcache"
+
+# Reload plasmashell if active to reflect visual changes immediately
+if systemctl --user is-active --quiet plasma-plasmashell.service 2>/dev/null; then
+    echo "[*] Reloading active Plasma shell to refresh desktop plasmoids..."
+    systemctl --user restart plasma-plasmashell.service
+fi
+
 echo "=== Installation complete! You can now add 'Heimdall' to your desktop or panel. ==="
