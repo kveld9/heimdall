@@ -208,7 +208,7 @@ Item {
                 Layout.fillHeight: true
                 cardBg: theme.bgCard
                 cardBorder: theme.border
-                title: "TOP PROCESSES BY DISK I/O"
+                title: "TOP PROCESSES BY LIFETIME DISK I/O"
 
                 ColumnLayout {
                     anchors.fill: parent

@@ -11,7 +11,7 @@ Item {
 
     readonly property var budget: telemetry ? telemetry.budget : null
     readonly property var weeklyList: telemetry ? telemetry.weekly : []
-    readonly property var procList: telemetry ? telemetry.processes : []
+    readonly property var procList: telemetry && telemetry.net && telemetry.net.top_processes ? telemetry.net.top_processes : []
     readonly property var netData: telemetry ? telemetry.net : null
 
     ColumnLayout {
@@ -21,7 +21,7 @@ Item {
         // DAY BUDGET Card (Main identity of Heimdall)
         MetricCard {
             Layout.fillWidth: true
-            Layout.preferredHeight: 180
+            Layout.preferredHeight: 125
             cardBg: theme.bgCard
             cardBorder: theme.border
             title: "DAY BUDGET"
@@ -31,6 +31,95 @@ Item {
                 theme: page.theme
                 budget: page.budget
                 processCount: page.procList ? page.procList.length : 0
+            }
+        }
+
+        // Live Rate Sparklines (Inbound & Outbound)
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 68
+            spacing: 10
+
+            // Inbound (Down) Sparkline
+            MetricCard {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                cardBg: theme.bgCard
+                cardBorder: theme.border
+                title: "INBOUND RATE (DOWN)"
+
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 12
+
+                    ColumnLayout {
+                        spacing: 2
+                        Text {
+                            text: netData ? theme.formatSpeed(netData.down_rate_kb) : "0 KB/s"
+                            font.family: theme.monoFont
+                            font.pixelSize: 18
+                            font.bold: true
+                            color: theme.accentWhite
+                        }
+                        Text {
+                            text: "Interface: " + (netData ? netData.interface : "active")
+                            font.family: theme.monoFont
+                            font.pixelSize: 9
+                            color: theme.textMuted
+                        }
+                    }
+
+                    Item { Layout.fillWidth: true }
+
+                    Sparkline {
+                        Layout.preferredWidth: 150
+                        Layout.fillHeight: true
+                        values: netData ? netData.sparkline_down : []
+                        strokeColor: theme.accentWhite
+                        lineWidth: 1.8
+                    }
+                }
+            }
+
+            // Outbound (Up) Sparkline
+            MetricCard {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                cardBg: theme.bgCard
+                cardBorder: theme.border
+                title: "OUTBOUND RATE (UP)"
+
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 12
+
+                    ColumnLayout {
+                        spacing: 2
+                        Text {
+                            text: netData ? theme.formatSpeed(netData.up_rate_kb) : "0 KB/s"
+                            font.family: theme.monoFont
+                            font.pixelSize: 18
+                            font.bold: true
+                            color: theme.accentSilver
+                        }
+                        Text {
+                            text: "Transmitted traffic"
+                            font.family: theme.mainFont
+                            font.pixelSize: 9
+                            color: theme.textMuted
+                        }
+                    }
+
+                    Item { Layout.fillWidth: true }
+
+                    Sparkline {
+                        Layout.preferredWidth: 150
+                        Layout.fillHeight: true
+                        values: netData ? netData.sparkline_up : []
+                        strokeColor: theme.accentGrey
+                        lineWidth: 1.8
+                    }
+                }
             }
         }
 
@@ -260,7 +349,7 @@ Item {
                                 Layout.fillWidth: true
                             }
                             Text {
-                                text: modelData.instances > 1 ? ("(" + modelData.instances + ")") : ""
+                                text: modelData.instances > 1 ? ("(x" + modelData.instances + ")") : ""
                                 font.family: theme.monoFont
                                 font.pixelSize: 9
                                 color: theme.textMuted
@@ -272,14 +361,14 @@ Item {
                         RowLayout {
                             Layout.fillWidth: true
                             Text {
-                                text: "v " + modelData.down_rate_kb + " K/s"
+                                text: "R: " + (modelData.read_mb >= 1024 ? (modelData.read_mb / 1024.0).toFixed(1) + " GB" : modelData.read_mb.toFixed(0) + " MB")
                                 font.family: theme.monoFont
                                 font.pixelSize: 10
                                 color: theme.textSecondary
                             }
                             Item { Layout.fillWidth: true }
                             Text {
-                                text: "^ " + modelData.up_rate_kb + " K/s"
+                                text: "W: " + (modelData.write_mb >= 1024 ? (modelData.write_mb / 1024.0).toFixed(1) + " GB" : modelData.write_mb.toFixed(0) + " MB")
                                 font.family: theme.monoFont
                                 font.pixelSize: 10
                                 color: theme.accentWhite
@@ -287,6 +376,15 @@ Item {
                         }
                     }
                 }
+            }
+
+            Text {
+                visible: page.procList.length === 0
+                anchors.centerIn: parent
+                text: "Monitoring active network socket I/O..."
+                font.family: theme.monoFont
+                font.pixelSize: 11
+                color: theme.textMuted
             }
         }
     }

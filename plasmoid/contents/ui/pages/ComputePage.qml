@@ -144,21 +144,37 @@ Item {
                         }
                     }
 
+                    // PSI Memory Stall Pill
                     RowLayout {
                         Layout.fillWidth: true
+                        spacing: 8
+
                         Text {
-                            text: "PSI Memory Stall:"
+                            text: "PSI MEMORY STALL (10s):"
                             font.family: theme.mainFont
-                            font.pixelSize: 10
+                            font.pixelSize: 9
+                            font.bold: true
                             color: theme.textMuted
                         }
+
                         Item { Layout.fillWidth: true }
-                        Text {
-                            text: psiMem ? ("some " + psiMem.some_avg10.toFixed(2) + " · full " + psiMem.full_avg10.toFixed(2)) : "some 0.00 · full 0.00"
-                            font.family: theme.monoFont
-                            font.pixelSize: 10
-                            font.bold: true
-                            color: (psiMem && psiMem.full_avg10 > 0.5) ? theme.accentWhite : theme.textSecondary
+
+                        Rectangle {
+                            height: 18
+                            width: psiMemText.implicitWidth + 12
+                            radius: 3
+                            color: theme.bgInput
+                            border.color: theme.borderSubtle
+
+                            Text {
+                                id: psiMemText
+                                anchors.centerIn: parent
+                                text: psiMem ? ("some " + psiMem.some_avg10.toFixed(2) + "  |  full " + psiMem.full_avg10.toFixed(2)) : "some 0.00  |  full 0.00"
+                                font.family: theme.monoFont
+                                font.pixelSize: 10
+                                font.bold: true
+                                color: (psiMem && psiMem.full_avg10 > 0.1) ? theme.accentWarn : theme.textSecondary
+                            }
                         }
                     }
                 }
@@ -173,6 +189,8 @@ Item {
             cardBg: theme.bgCard
             cardBorder: theme.border
             title: "ZRAM COMPRESSION ENGINE (/sys/block/zram0)"
+
+            readonly property bool isIdle: !zram || !zram.has_zram || zram.orig_size_bytes < 1048576
 
             ColumnLayout {
                 anchors.fill: parent
@@ -192,9 +210,9 @@ Item {
                             color: theme.textMuted
                         }
                         Text {
-                            text: zram && zram.ratio > 0 ? (zram.ratio.toFixed(2) + ":1") : "1.00:1"
+                            text: isIdle ? "1.00:1 (Idle)" : (zram && zram.ratio > 0 ? (zram.ratio.toFixed(2) + ":1") : "1.00:1")
                             font.family: theme.monoFont
-                            font.pixelSize: 16
+                            font.pixelSize: 15
                             font.bold: true
                             color: theme.accentWhite
                         }
@@ -214,7 +232,7 @@ Item {
                         Text {
                             text: zram ? (zram.savings_mb.toFixed(1) + " MB") : "0.0 MB"
                             font.family: theme.monoFont
-                            font.pixelSize: 16
+                            font.pixelSize: 15
                             font.bold: true
                             color: theme.textPrimary
                         }
@@ -274,16 +292,16 @@ Item {
                         anchors.left: parent.left
                         anchors.top: parent.top
                         anchors.bottom: parent.bottom
-                        width: parent.width * Math.min(1.0, ((zram && zram.usage_pct) ? (zram.usage_pct / 100.0) : 0.001))
+                        width: isIdle ? 8 : parent.width * Math.min(1.0, ((zram && zram.usage_pct) ? (zram.usage_pct / 100.0) : 0.005))
                         radius: 3
-                        color: theme.accentWhite
+                        color: isIdle ? theme.accentGrey : theme.accentWhite
                     }
                 }
 
                 RowLayout {
                     Layout.fillWidth: true
                     Text {
-                        text: zram && zram.has_zram ? "[*] Hardware compression active: " + zram.usage_pct.toFixed(2) + "% of total device capacity utilized" : "[!] ZRAM device uninitialized"
+                        text: isIdle ? ("[*] ZRAM Idle (" + (zram ? theme.formatBytes(zram.orig_size_bytes) : "0 B") + " in use · " + (zram ? theme.formatBytes(zram.capacity_bytes) : "0 B") + " headroom)") : ("[*] Hardware compression active: " + zram.usage_pct.toFixed(2) + "% of total device capacity utilized")
                         font.family: theme.monoFont
                         font.pixelSize: 10
                         color: theme.textMuted
