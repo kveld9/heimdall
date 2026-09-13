@@ -161,6 +161,7 @@ Recurring visual patterns are encapsulated into reusable components under `plasm
 - Top Network Applications: Horizontal scrollable strip with `Flickable.HorizontalFlick`, 16px escape margin footer, and mouse wheel propagation to prevent boundary collisions on desktop.
 - Header System Synchronization (`Header.qml`): Real-time 1-second system timer dynamically rendering local date (`ddd, d MMM`) and time (`hh:mm`) without static fallbacks.
 - Systemd Timers (`SystemdPage.qml`): Multi-line timer items with separated bullet indicators (`• `), expanded 4px vertical interline spacing, and 68px fixed-width right-anchored countdown badges.
+- Systemd Service State (`SystemdPage.qml`): Unambiguous `STATUS: OK` badge indicator when zero units have failed, switching to `FAILED: <count>` with high-contrast alert highlighting only during active service failures.
 
 ---
 
