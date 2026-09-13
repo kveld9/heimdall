@@ -124,10 +124,10 @@ Every metric is collected without requiring root (`sudo`) privileges:
 
 ## 4. Frontend Plasmoid Design & Aesthetics
 
-### 4.1 Zero-Jank Guarantee
+### 4.1 Zero-Jank & State Resilience Guarantee (The UI Stack)
 - The QML UI never performs blocking synchronous file reads (`QFile`), system commands (`QProcess`), or heavy parsing on the render thread.
 - `main.qml` runs an asynchronous `Timer` at 1000ms invoking `XMLHttpRequest` with a 900ms timeout against `127.0.0.1:9871`.
-- If the daemon is temporarily unavailable, the UI gracefully renders cached values or zeroed indicators without freezing plasmashell.
+- **UI Stack Resilience**: Models the 5 UI states (Ideal, Blank, Loading, Partial, and Error/Disconnected). Network timeouts and XHR errors trigger `daemonConnected = false`. Rather than silently freezing on stale metrics, `Header.qml` and `FullRepresentation.qml` immediately surface an `OFFLINE` status and connection alert badge, providing unambiguous system state feedback.
 
 ### 4.2 Window Manager (WM) Translucent Monochromatic Aesthetic
 - **Rationale**:
@@ -148,13 +148,15 @@ Every metric is collected without requiring root (`sudo`) privileges:
      - Collapsed Capsule: `520x52px` pill with real-time status and a `[v] EXPAND` button. The visual card constrains its own width, height, and border-radius (`radius: 26`) while keeping the outer canvas transparent, eliminating any dark background container bloat on the desktop. The inner row is padded with 18px horizontal margins and dynamic button sizing to ensure zero text clipping or edge overflow.
      - Expanded Dashboard: `720x560px` 4-page stack with an `[^] COLLAPSE` button.
      - Symmetrical Transitions: `main.qml` and `FullRepresentation.qml` animate `width`, `height`, and `radius` with `Easing.OutCubic` (250ms). Visual card avoids anchor overrides (`anchors.fill`) by maintaining persistent center alignment (`anchors.centerIn: parent`), allowing properties to drive identical fluid transitions on both expansion and contraction. Capsule and dashboard views smoothly cross-fade via opacity transitions.
+  6. **Desktop Accessibility (AT-SPI / Orca Integration)**:
+     - Interactive controls, navigation tabs, and collapse/expand toggles expose explicit `Accessible.role` (e.g. `Accessible.PageTab`, `Accessible.Button`) and `Accessible.name` metadata, ensuring compliance with desktop assistive technologies.
 
 ### 4.3 Modular UI Component Library
 Recurring visual patterns are encapsulated into reusable components under `plasmoid/contents/ui/components/`:
 - `ProcessRow.qml`: Standardized process ranking row with fixed tabular column alignment. Process name and instance pill (`xN`) expand flexibly on the left, while secondary metrics (`detailText`, width: 70px) and highlight badges (`badge`, width: 64px) are rigidly right-anchored (`rightMargin: 16`) for terminal-grade tabular precision.
 - `StatusBadge.qml`: Status pill with an indicator dot, high-contrast title, and muted explanatory description (used for PSI bottlenecks and system health). Standardized with explicit `implicitHeight: 48`, vertical centering, and bounded text layout to prevent descender clipping or card overflow.
 - `MetricCard.qml`: Frosted glass container with translucent borders, uppercase header label, and slot for auxiliary controls.
-- `Sparkline.qml`: Zero-jank Canvas renderer drawing continuous 30-to-60 point telemetry histories with pre-filled baseline buffers and translucent filled gradients.
+- `Sparkline.qml`: Zero-jank Canvas renderer drawing continuous 30-to-60 point telemetry histories with single-pass direct `moveTo` and `lineTo` path calculation. Eliminates cyclical JavaScript `{x, y}` object and array allocations on every 1-second tick, preventing garbage collection pauses in the QML V4 engine.
 - `BudgetSlider.qml`: Daily network traffic overview component. Visualizes total daily bytes transferred with a proportional dual-segment download vs. upload track, eliminating artificial quota caps and over-budget warnings for home Ethernet/broadband workflows.
 - `DonutChart.qml`: Split circular arc visualization for download versus upload ratios.
 - Weekly History Table (`NetworkPage.qml`): Implements rigid column width properties (`colDayWidth: 70`, `colDateWidth: 50`, `colDownWidth: 75`, `colUpWidth: 75`, `colTotalWidth: 100`) with anchor-based alignment across both header and delegates, guaranteeing terminal-grade tabular alignment across all resolutions.

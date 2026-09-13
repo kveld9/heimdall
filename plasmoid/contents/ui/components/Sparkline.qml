@@ -39,18 +39,16 @@ Item {
             ctx.lineJoin = "round";
             ctx.lineCap = "round";
 
-            var points = [];
-            for (var j = 0; j < values.length; j++) {
+            // Single-pass direct path without heap allocations
+            var firstRatio = Math.max(0.0, Math.min(1.0, values[0] / max));
+            var firstY = height - padding - (firstRatio * usableH);
+            ctx.moveTo(0, firstY);
+
+            for (var j = 1; j < values.length; j++) {
                 var x = j * step;
                 var ratio = Math.max(0.0, Math.min(1.0, values[j] / max));
                 var y = height - padding - (ratio * usableH);
-                points.push({x: x, y: y});
-            }
-
-            // Draw line
-            ctx.moveTo(points[0].x, points[0].y);
-            for (var k = 1; k < points.length; k++) {
-                ctx.lineTo(points[k].x, points[k].y);
+                ctx.lineTo(x, y);
             }
             ctx.stroke();
 

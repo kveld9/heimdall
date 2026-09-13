@@ -53,6 +53,10 @@ PlasmoidItem {
             root.daemonConnected = false;
         };
 
+        xhr.onerror = function() {
+            root.daemonConnected = false;
+        };
+
         try {
             xhr.send();
         } catch(e) {

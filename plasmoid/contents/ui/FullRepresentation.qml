@@ -9,6 +9,7 @@ Item {
     readonly property var theme: root.theme
     readonly property var telemetry: root.telemetry
     readonly property bool isCollapsed: root.isCollapsed
+    readonly property bool daemonConnected: root.daemonConnected
 
     implicitWidth: isCollapsed ? 520 : 720
     implicitHeight: isCollapsed ? 52 : 560
@@ -122,12 +123,13 @@ Item {
                     color: theme.borderSubtle
                 }
 
-                // Today Transferred
+                // Today Transferred / Offline state
                 Text {
-                    text: (telemetry && telemetry.budget) ? ("Today: " + theme.formatBytes(telemetry.budget.total_bytes)) : "Today: 0 MB"
+                    text: !fullRoot.daemonConnected ? "DAEMON OFFLINE" : ((telemetry && telemetry.budget) ? ("Today: " + theme.formatBytes(telemetry.budget.total_bytes)) : "Today: 0 MB")
                     font.family: theme.monoFont
                     font.pixelSize: 11
-                    color: theme.textSecondary
+                    font.bold: !fullRoot.daemonConnected
+                    color: !fullRoot.daemonConnected ? theme.accentSilver : theme.textSecondary
                 }
 
                 Item { Layout.fillWidth: true }
@@ -141,6 +143,8 @@ Item {
                     radius: 6
                     color: btnArea.containsMouse ? theme.bgCardHighlight : theme.bgCard
                     border.color: btnArea.containsMouse ? theme.accentWhite : theme.border
+                    Accessible.role: Accessible.Button
+                    Accessible.name: "Expand dashboard"
 
                     Row {
                         id: expandRow
@@ -171,6 +175,8 @@ Item {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         hoverEnabled: true
+                        Accessible.role: Accessible.Button
+                        Accessible.name: "Expand dashboard"
                         onClicked: root.isCollapsed = false
                     }
                 }
@@ -197,6 +203,7 @@ Item {
                 Layout.fillWidth: true
                 theme: root.theme
                 telemetry: root.telemetry
+                daemonConnected: fullRoot.daemonConnected
                 currentPage: stack.currentIndex
                 onPageSelected: function(idx) {
                     stack.currentIndex = idx;

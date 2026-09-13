@@ -7,6 +7,7 @@ Item {
 
     property var theme
     property var telemetry: null
+    property bool daemonConnected: true
     property int currentPage: 0
     signal pageSelected(int pageIndex)
     signal collapseRequested()
@@ -35,20 +36,20 @@ Item {
         RowLayout {
             spacing: 10
 
-            // Pulse wave icon
+            // Pulse wave icon / connection state
             Rectangle {
                 width: 22
                 height: 22
                 radius: 6
                 color: theme.bgCardHighlight
-                border.color: theme.border
+                border.color: root.daemonConnected ? theme.border : theme.borderSubtle
 
                 Text {
                     anchors.centerIn: parent
-                    text: "∿"
+                    text: root.daemonConnected ? "∿" : "!"
                     font.pixelSize: 14
                     font.bold: true
-                    color: theme.accentGreen
+                    color: root.daemonConnected ? theme.accentGreen : theme.accentPink
                 }
             }
 
@@ -108,6 +109,9 @@ Item {
                     color: root.currentPage === modelData.index ? theme.bgCardHighlight : "transparent"
                     border.color: root.currentPage === modelData.index ? theme.border : "transparent"
 
+                    Accessible.role: Accessible.PageTab
+                    Accessible.name: modelData.title + " tab"
+
                     Text {
                         anchors.centerIn: parent
                         text: modelData.title
@@ -121,6 +125,8 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
+                        Accessible.role: Accessible.Button
+                        Accessible.name: modelData.title
                         onClicked: root.pageSelected(modelData.index)
                     }
                 }
@@ -158,19 +164,19 @@ Item {
                 color: theme.borderSubtle
             }
 
-            // Date & Clock
+            // Date & Clock / Connection state
             ColumnLayout {
                 spacing: 1
                 Text {
-                    text: root.dateStr
+                    text: root.daemonConnected ? root.dateStr : "OFFLINE"
                     font.family: theme.mainFont
                     font.pixelSize: 11
                     font.bold: true
-                    color: theme.textPrimary
+                    color: root.daemonConnected ? theme.textPrimary : theme.accentPink
                     Layout.alignment: Qt.AlignRight
                 }
                 Text {
-                    text: "refreshed " + root.timeStr
+                    text: root.daemonConnected ? ("refreshed " + root.timeStr) : "daemon unreachable"
                     font.family: theme.mainFont
                     font.pixelSize: 9
                     color: theme.textMuted
@@ -185,6 +191,8 @@ Item {
                 radius: 6
                 color: theme.bgCardHighlight
                 border.color: theme.border
+                Accessible.role: Accessible.Button
+                Accessible.name: "Collapse dashboard"
 
                 RowLayout {
                     anchors.centerIn: parent
@@ -210,6 +218,8 @@ Item {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     hoverEnabled: true
+                    Accessible.role: Accessible.Button
+                    Accessible.name: "Collapse dashboard"
                     onClicked: root.collapseRequested()
                 }
             }
