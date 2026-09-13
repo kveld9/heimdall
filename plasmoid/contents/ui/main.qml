@@ -14,8 +14,15 @@ PlasmoidItem {
     property bool daemonConnected: false
     property bool isCollapsed: false
 
-    implicitWidth: isCollapsed ? 530 : 720
-    implicitHeight: isCollapsed ? 44 : 560
+    implicitWidth: isCollapsed ? 480 : 720
+    implicitHeight: isCollapsed ? 52 : 560
+
+    Behavior on implicitWidth {
+        NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+    }
+    Behavior on implicitHeight {
+        NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+    }
 
     Theme {
         id: appTheme

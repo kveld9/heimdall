@@ -8,7 +8,7 @@ Item {
     readonly property var telemetry: root.telemetry
     readonly property var theme: root.theme
 
-    implicitWidth: 70
+    implicitWidth: 84
     implicitHeight: 28
 
     RowLayout {
@@ -19,15 +19,15 @@ Item {
             width: 6
             height: 6
             radius: 3
-            color: theme.accentGreen
+            color: theme ? theme.accentWhite : "#ffffff"
         }
 
         Text {
-            text: (telemetry && telemetry.net) ? theme.formatSpeed(telemetry.net.down_rate_kb) : "Heimdall"
-            font.family: theme.monoFont
+            text: (telemetry && telemetry.net) ? ("v " + theme.formatSpeed(telemetry.net.down_rate_kb)) : "Heimdall"
+            font.family: theme ? theme.monoFont : "monospace"
             font.pixelSize: 11
             font.bold: true
-            color: theme.textPrimary
+            color: theme ? theme.textPrimary : "#ffffff"
         }
     }
 
