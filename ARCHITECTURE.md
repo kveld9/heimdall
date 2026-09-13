@@ -152,7 +152,7 @@ Every metric is collected without requiring root (`sudo`) privileges:
 ### 4.3 Modular UI Component Library
 Recurring visual patterns are encapsulated into reusable components under `plasmoid/contents/ui/components/`:
 - `ProcessRow.qml`: Standardized process ranking row with fixed tabular column alignment. Process name and instance pill (`xN`) expand flexibly on the left, while secondary metrics (`detailText`, width: 70px) and highlight badges (`badge`, width: 64px) are rigidly right-anchored (`rightMargin: 16`) for terminal-grade tabular precision.
-- `StatusBadge.qml`: Status pill with an indicator dot, high-contrast title, and muted explanatory description (used for PSI bottlenecks and system health).
+- `StatusBadge.qml`: Status pill with an indicator dot, high-contrast title, and muted explanatory description (used for PSI bottlenecks and system health). Standardized with explicit `implicitHeight: 48`, vertical centering, and bounded text layout to prevent descender clipping or card overflow.
 - `MetricCard.qml`: Frosted glass container with translucent borders, uppercase header label, and slot for auxiliary controls.
 - `Sparkline.qml`: Zero-jank Canvas renderer drawing continuous 30-to-60 point telemetry histories with pre-filled baseline buffers and translucent filled gradients.
 - `BudgetSlider.qml`: Daily network traffic overview component. Visualizes total daily bytes transferred with a proportional dual-segment download vs. upload track, eliminating artificial quota caps and over-budget warnings for home Ethernet/broadband workflows.
