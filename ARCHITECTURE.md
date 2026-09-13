@@ -145,8 +145,8 @@ Every metric is collected without requiring root (`sudo`) privileges:
      - Text Muted (`#9ca3af`): subheadings and auxiliary units with strong contrast against dark glass.
      - Monochromatic baseline: crisp white tracks and frosted elevated glass (`Qt.rgba(1.0, 1.0, 1.0, 0.16)`). Strict repository invariant prohibits chromatic drift; any user request to introduce arbitrary colors requires mandatory secondary confirmation. Hardware thermal levels and PSI stalls retain subdued functional alerts only where strictly necessary.
   5. **Desktop Placement & Dynamic Sizing**:
-     - Collapsed Capsule: `520x52px` pill with real-time status and a `[v] Expand` button. The visual card constrains its own width, height, and border-radius (`radius: 26`) while keeping the outer canvas transparent, eliminating any dark background container bloat on the desktop. The inner row is padded with 18px horizontal margins and dynamic button sizing to ensure zero text clipping or edge overflow.
-     - Expanded Dashboard: `720x560px` 4-page stack with an `[^] Collapse` button.
+     - Collapsed Capsule: `520x52px` pill with real-time status and a `[v] EXPAND` button. The visual card constrains its own width, height, and border-radius (`radius: 26`) while keeping the outer canvas transparent, eliminating any dark background container bloat on the desktop. The inner row is padded with 18px horizontal margins and dynamic button sizing to ensure zero text clipping or edge overflow.
+     - Expanded Dashboard: `720x560px` 4-page stack with an `[^] COLLAPSE` button.
      - Symmetrical Transitions: `main.qml` and `FullRepresentation.qml` animate `width`, `height`, and `radius` with `Easing.OutCubic` (250ms). Visual card avoids anchor overrides (`anchors.fill`) by maintaining persistent center alignment (`anchors.centerIn: parent`), allowing properties to drive identical fluid transitions on both expansion and contraction. Capsule and dashboard views smoothly cross-fade via opacity transitions.
 
 ### 4.3 Modular UI Component Library
@@ -159,7 +159,7 @@ Recurring visual patterns are encapsulated into reusable components under `plasm
 - `DonutChart.qml`: Split circular arc visualization for download versus upload ratios.
 - Weekly History Table (`NetworkPage.qml`): Implements rigid column width properties (`colDayWidth: 70`, `colDateWidth: 50`, `colDownWidth: 75`, `colUpWidth: 75`, `colTotalWidth: 100`) with anchor-based alignment across both header and delegates, guaranteeing terminal-grade tabular alignment across all resolutions.
 - Top Network Applications: Horizontal scrollable strip with `Flickable.HorizontalFlick`, 16px escape margin footer, and mouse wheel propagation to prevent boundary collisions on desktop.
-- Header System Synchronization (`Header.qml`): Real-time 1-second system timer dynamically rendering local date (`ddd, d MMM`) and time (`hh:mm`) without static fallbacks.
+- Header System Synchronization & Navigation (`Header.qml`): Real-time 1-second system timer dynamically rendering local date (`ddd, d MMM`) and time (`hh:mm`) without static fallbacks. Navigation tabs (`NETWORK`, `COMPUTE`, `STORAGE`, `DAEMONS`) and toggle buttons (`COLLAPSE`, `EXPAND`) are consistently styled in bold uppercase (`font.bold: true`, `font.capitalization: Font.AllUppercase`) across active and inactive states for clean visual hierarchy and strong interface contrast.
 - Systemd Timers (`SystemdPage.qml`): Multi-line timer items with separated bullet indicators (`• `), expanded 4px vertical interline spacing, and 68px fixed-width right-anchored countdown badges.
 - Systemd Service State (`SystemdPage.qml`): Unambiguous `STATUS: OK` badge indicator when zero units have failed, switching to `FAILED: <count>` with high-contrast alert highlighting only during active service failures.
 

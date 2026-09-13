@@ -95,14 +95,14 @@ Item {
 
             Repeater {
                 model: [
-                    {index: 0, title: "Network"},
-                    {index: 1, title: "Compute"},
-                    {index: 2, title: "Storage"},
-                    {index: 3, title: "Daemons"}
+                    {index: 0, title: "NETWORK"},
+                    {index: 1, title: "COMPUTE"},
+                    {index: 2, title: "STORAGE"},
+                    {index: 3, title: "DAEMONS"}
                 ]
 
                 Rectangle {
-                    width: 78
+                    width: 82
                     height: 28
                     radius: 6
                     color: root.currentPage === modelData.index ? theme.bgCardHighlight : "transparent"
@@ -112,8 +112,9 @@ Item {
                         anchors.centerIn: parent
                         text: modelData.title
                         font.family: theme.mainFont
-                        font.pixelSize: 11
-                        font.bold: root.currentPage === modelData.index
+                        font.pixelSize: 10
+                        font.bold: true
+                        font.capitalization: Font.AllUppercase
                         color: root.currentPage === modelData.index ? theme.accentGreen : theme.textSecondary
                     }
 
@@ -179,7 +180,7 @@ Item {
 
             // Collapse Button
             Rectangle {
-                width: 78
+                width: 86
                 height: 26
                 radius: 6
                 color: theme.bgCardHighlight
@@ -196,10 +197,11 @@ Item {
                         color: theme.textSecondary
                     }
                     Text {
-                        text: "Collapse"
+                        text: "COLLAPSE"
                         font.family: theme.mainFont
-                        font.pixelSize: 11
+                        font.pixelSize: 10
                         font.bold: true
+                        font.capitalization: Font.AllUppercase
                         color: theme.textSecondary
                     }
                 }

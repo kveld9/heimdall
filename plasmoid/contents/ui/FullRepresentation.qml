@@ -156,10 +156,11 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         Text {
-                            text: "Expand"
+                            text: "EXPAND"
                             font.family: theme.mainFont
                             font.pixelSize: 10
                             font.bold: true
+                            font.capitalization: Font.AllUppercase
                             color: theme.textSecondary
                             anchors.verticalCenter: parent.verticalCenter
                         }
