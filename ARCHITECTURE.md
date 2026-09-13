@@ -145,9 +145,9 @@ Every metric is collected without requiring root (`sudo`) privileges:
      - Text Muted (`#9ca3af`): subheadings and auxiliary units with strong contrast against dark glass.
      - Monochromatic baseline: crisp white tracks and frosted elevated glass (`Qt.rgba(1.0, 1.0, 1.0, 0.16)`). Strict repository invariant prohibits chromatic drift; any user request to introduce arbitrary colors requires mandatory secondary confirmation. Hardware thermal levels and PSI stalls retain subdued functional alerts only where strictly necessary.
   5. **Desktop Placement & Dynamic Sizing**:
-     - Collapsed Capsule: `530x44px` pill with real-time status and a `[v] Expandir` button.
+     - Collapsed Capsule: `480x52px` pill with real-time status and a `[v] Expandir` button. The visual card constrains its own width, height, and border-radius (`radius: 26`) while keeping the outer canvas transparent, eliminating any dark background container bloat on the desktop.
      - Expanded Dashboard: `720x560px` 4-page stack with an `[^] Contraer` button.
-     - `implicitWidth` and `implicitHeight` in `main.qml` update dynamically to resize the Plasma desktop container cleanly.
+     - `implicitWidth` and `implicitHeight` in `main.qml` transition with smooth `Easing.OutCubic` number animations (250ms) to resize the Plasma desktop container dynamically.
 
 ### 4.3 Modular UI Component Library
 Recurring visual patterns are encapsulated into reusable components under `plasmoid/contents/ui/components/`:
