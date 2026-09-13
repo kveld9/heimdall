@@ -78,7 +78,7 @@ Every metric is collected without requiring root (`sudo`) privileges:
      - `usage_pct`: Percentage of total allocated ZRAM pool capacity in use (`(compr_data_size / disksize) * 100`).
      - Calculates compression ratio (`orig / compr`) and memory saved in MB.
   4. **Top CPU and Memory Consumers**: Executes `ps -eo comm,%cpu,%mem,rss --no-headers --sort=-%cpu` to extract active processes. Aggregates multi-instance binaries by name and extracts the top 3 processes by `%CPU` and top 3 processes by `RSS` memory.
-- **Rationale**: Displays real CPU and memory hogs directly inside the Compute panel without leaving dead space. Showing ZRAM compressed size against its allocated pool capacity provides clear context on remaining swap headroom.
+- **Rationale**: Displays real CPU and memory hogs directly inside the Compute panel without leaving dead space. Showing ZRAM compressed size against its allocated pool capacity provides clear context on remaining swap headroom. The page balances vertical proportions (`Row 1: 152px`, `Row 2: 124px`, `Row 3: fillHeight`) ensuring comfortable padding and zero clipping across status lines and capacity rails.
 
 ### 2.4 Pressure Stall Information (PSI)
 - **Sources**: `/proc/pressure/cpu`, `/proc/pressure/memory`, `/proc/pressure/io`.
