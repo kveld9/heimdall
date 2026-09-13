@@ -147,7 +147,7 @@ Every metric is collected without requiring root (`sudo`) privileges:
   5. **Desktop Placement & Dynamic Sizing**:
      - Collapsed Capsule: `520x52px` pill with real-time status and a `[v] Expandir` button. The visual card constrains its own width, height, and border-radius (`radius: 26`) while keeping the outer canvas transparent, eliminating any dark background container bloat on the desktop. The inner row is padded with 18px horizontal margins and dynamic button sizing to ensure zero text clipping or edge overflow.
      - Expanded Dashboard: `720x560px` 4-page stack with an `[^] Contraer` button.
-     - `implicitWidth` and `implicitHeight` in `main.qml` transition with smooth `Easing.OutCubic` number animations (250ms) to resize the Plasma desktop container dynamically.
+     - Symmetrical Transitions: `main.qml` and `FullRepresentation.qml` animate `width`, `height`, and `radius` with `Easing.OutCubic` (250ms). Visual card avoids anchor overrides (`anchors.fill`) by maintaining persistent center alignment (`anchors.centerIn: parent`), allowing properties to drive identical fluid transitions on both expansion and contraction. Capsule and dashboard views smoothly cross-fade via opacity transitions.
 
 ### 4.3 Modular UI Component Library
 Recurring visual patterns are encapsulated into reusable components under `plasmoid/contents/ui/components/`:
