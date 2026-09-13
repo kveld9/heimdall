@@ -25,7 +25,7 @@ Item {
         // Row 1: Read & Write Throughput Cards with Sparklines
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 125
+            Layout.preferredHeight: 120
             Layout.fillHeight: false
             spacing: 10
 
@@ -115,7 +115,7 @@ Item {
         // Row 2: Mounted Filesystems (Deduplicated physical devices)
         MetricCard {
             Layout.fillWidth: true
-            Layout.preferredHeight: 125
+            Layout.preferredHeight: 110
             Layout.fillHeight: false
             cardBg: theme.bgCard
             cardBorder: theme.border
@@ -247,7 +247,7 @@ Item {
 
             // PSI Status Indicator Card
             MetricCard {
-                Layout.preferredWidth: 260
+                Layout.preferredWidth: 310
                 Layout.fillHeight: true
                 cardBg: theme.bgCard
                 cardBorder: theme.border
@@ -259,6 +259,8 @@ Item {
 
                     // Prominent Status Badge
                     StatusBadge {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 48
                         theme: page.theme
                         title: page.isIoStalled ? "I/O BOTTLENECK DETECTED" : (page.isIoElevated ? "ELEVATED I/O LATENCY" : "I/O PIPELINE OPTIMAL")
                         subtitle: page.isIoStalled ? "Tasks stalled on pagecache flush" : (page.isIoElevated ? "Minor queue contention" : "Zero block device wait states")
@@ -269,7 +271,7 @@ Item {
                     // Pressure averages breakdown
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 4
+                        spacing: 6
 
                         RowLayout {
                             Layout.fillWidth: true

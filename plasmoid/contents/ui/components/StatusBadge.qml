@@ -11,7 +11,9 @@ Rectangle {
     property bool isAlert: false
 
     Layout.fillWidth: true
-    height: 48
+    implicitHeight: 48
+    Layout.preferredHeight: implicitHeight
+    height: implicitHeight
     radius: 6
     color: root.isAlert ? Qt.rgba(1.0, 1.0, 1.0, 0.16) : (theme ? theme.bgCardHighlight : Qt.rgba(1.0, 1.0, 1.0, 0.06))
     border.color: root.isAlert ? (theme ? theme.accentWhite : "#ffffff") : (theme ? theme.border : Qt.rgba(1.0, 1.0, 1.0, 0.12))
@@ -20,6 +22,8 @@ Rectangle {
         anchors.fill: parent
         anchors.leftMargin: 12
         anchors.rightMargin: 12
+        anchors.topMargin: 6
+        anchors.bottomMargin: 6
         spacing: 10
 
         // Indicator status dot
@@ -28,11 +32,13 @@ Rectangle {
             height: 8
             radius: 4
             color: root.indicatorColor
+            Layout.alignment: Qt.AlignVCenter
         }
 
         ColumnLayout {
-            spacing: 1
+            spacing: 2
             Layout.fillWidth: true
+            Layout.alignment: Qt.AlignVCenter
 
             Text {
                 text: root.title
@@ -41,6 +47,7 @@ Rectangle {
                 font.bold: true
                 color: theme ? theme.textPrimary : "#ffffff"
                 elide: Text.ElideRight
+                Layout.fillWidth: true
             }
 
             Text {
@@ -50,6 +57,7 @@ Rectangle {
                 font.pixelSize: 9
                 color: theme ? theme.textMuted : "#9ca3af"
                 elide: Text.ElideRight
+                Layout.fillWidth: true
             }
         }
     }
