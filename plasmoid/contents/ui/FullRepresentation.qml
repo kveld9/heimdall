@@ -156,7 +156,7 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         Text {
-                            text: "Expandir"
+                            text: "Expand"
                             font.family: theme.mainFont
                             font.pixelSize: 10
                             font.bold: true

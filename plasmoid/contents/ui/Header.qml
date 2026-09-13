@@ -196,7 +196,7 @@ Item {
                         color: theme.textSecondary
                     }
                     Text {
-                        text: "Contraer"
+                        text: "Collapse"
                         font.family: theme.mainFont
                         font.pixelSize: 11
                         font.bold: true
