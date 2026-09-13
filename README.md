@@ -12,7 +12,7 @@ Heimdall is an aesthetic system telemetry Plasmoid and unprivileged background m
   - **Page 3: Storage & Disk I/O**: Live disk read/write throughput sparklines, deduplicated physical filesystem pools (`Root & Home (/)` and `/boot`), Top 3 disk consumers, and kernel I/O PSI status indicator (`OPTIMAL`, `ELEVATED`, `STALLED`).
   - **Page 4: Systemd Daemons & Vitals**: Host uptime, 1m/5m/15m load average, kernel OOM terminations, systemd service health, upcoming scheduled timers (`systemctl list-timers`), and a compact hardware thermal grid (/sys/class/hwmon).
 - **Desktop Widget with Collapse/Expand**:
-  - Compact capsule mode (530x44px) showing live summary metrics and an Expand button.
+  - Compact capsule mode (520x52px) showing live summary metrics and an Expand button.
   - Full dashboard mode (720x560px) with 4-page navigation stack and a Collapse button.
 - **Translucent Monochromatic WM Aesthetic**:
   - Smoked translucent glass (`rgba(0.04, 0.04, 0.05, 0.70)`), frosted cards, delicate translucent borders, high-contrast white typography, and silver-grey metrics.

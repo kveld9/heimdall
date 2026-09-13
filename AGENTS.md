@@ -17,7 +17,20 @@ This document specifies architectural rules, coding standards, and strict operat
 
 ---
 
-## 2. Project Architecture Overview
+## 2. Absolute Rule: Strict English-Only Invariant across Repository
+
+- **100% STRICT ENGLISH ACROSS THE ENTIRE REPOSITORY**: Under no circumstance shall any language other than English be used anywhere in this repository.
+- This invariant applies unconditionally to:
+  - All source code, backend daemon logic, QML components, shell scripts, and systemd units.
+  - User interface labels, strings, buttons, tooltips, dialogs, badges, and status indicators (e.g. `Expand`, `Collapse`, `Today`, `Network`, `Compute`, `Storage`, `Daemons`).
+  - Code comments, docstrings, variable/function identifiers, and logging statements.
+  - All technical documentation (`README.md`, `ARCHITECTURE.md`, `AGENTS.md`, design notes, and guides).
+  - Commit messages, Pull Request titles, descriptions, and git tags.
+- No Spanish or any other natural language is permitted in any repository artifact or system code.
+
+---
+
+## 3. Project Architecture Overview
 
 Heimdall consists of two decoupled components:
 
@@ -36,7 +49,7 @@ Heimdall consists of two decoupled components:
 
 ---
 
-## 3. Telemetry & Zero-Jank Invariants
+## 4. Telemetry & Zero-Jank Invariants
 
 1. **Zero-Jank UI Thread Guarantee**:
    - QML must never perform blocking syscalls, subprocess executions (`QProcess`), synchronous file I/O, or network operations on the main rendering thread.
@@ -54,7 +67,7 @@ Heimdall consists of two decoupled components:
 
 ---
 
-## 4. Design & Theme System Standards
+## 5. Design & Theme System Standards
 
 1. **Single Source of Truth**:
    - All colors and formatting helpers must be consumed from `Theme.qml`.
@@ -82,11 +95,11 @@ Heimdall consists of two decoupled components:
 
 4. **Strict Monochromatic Palette Invariant & Mandatory Confirmation Protocol**:
    - **Zero Chromatic Drift Invariant**: The UI must strictly adhere to a translucent monochromatic palette (pure white `#ffffff`, silver `#d1d5db`, slate `#374151`, muted grey `#9ca3af`, and smoked/frosted glass). Under no circumstance shall any chromatic accent (yellow, amber, green, cyan, blue, purple, magenta, red, or orange) be introduced into UI components, status pills, badges, graphs, or text.
-   - **Mandatory User Confirmation Protocol**: Even if the user explicitly requests in chat to implement or test any chromatic color (e.g., "ponele color amarillo", "hacelo verde", "usá rojo"), the agent or contributor MUST NOT execute the change immediately. The agent is strictly required to pause, cite this invariant, and ask the user for explicit re-confirmation (asking whether they genuinely intend to break the repository strict monochromatic design rule). Only after receiving a second, unambiguous affirmative confirmation from the user may a chromatic change be processed.
+   - **Mandatory User Confirmation Protocol**: Even if the user explicitly requests in chat to implement or test any chromatic color (e.g., "make it yellow", "use green accents", "change to red"), the agent or contributor MUST NOT execute the change immediately. The agent is strictly required to pause, cite this invariant, and ask the user for explicit re-confirmation (asking whether they genuinely intend to break the repository strict monochromatic design rule). Only after receiving a second, unambiguous affirmative confirmation from the user may a chromatic change be processed.
 
 ---
 
-## 5. Deployment, Packaging & Verification
+## 6. Deployment, Packaging & Verification
 
 1. **Scripts Directory (`scripts/`)**:
    - `scripts/install.sh`: Packages and updates the plasmoid via `kpackagetool6`, sets up and restarts the systemd user service (`heimdall.service`).
@@ -100,10 +113,11 @@ Heimdall consists of two decoupled components:
    - Upgrade package: `./scripts/install.sh`.
    - Test QML rendering without errors: `timeout 4 plasmawindowed org.kde.plasma.heimdall`.
    - Check for forbidden emojis: verify zero matches in modified files.
+   - Check for language consistency: verify 100% English text across all files.
 
 ---
 
-## 6. Git & Commit Guidelines
+## 7. Git & Commit Guidelines
 
 1. **Independent & Atomic Commits**:
    - Every completed change, feature, bug fix, or refactoring MUST be tracked and registered automatically in independent, atomic Git commits.
@@ -125,7 +139,7 @@ Heimdall consists of two decoupled components:
 
 ---
 
-## 7. Mandatory Technical Documentation Protocol (`ARCHITECTURE.md`)
+## 8. Mandatory Technical Documentation Protocol (`ARCHITECTURE.md`)
 
 - **Strict Invariant**: Any change, refactoring, bug fix, feature addition, or architectural modification made to this repository MUST immediately update `ARCHITECTURE.md`.
 - A task or PR is strictly considered **INCOMPLETE** if code or configuration is modified without synchronizing the corresponding technical explanation in `ARCHITECTURE.md`.
@@ -134,10 +148,11 @@ Heimdall consists of two decoupled components:
   2. **Technical Rationale ("Why")**: Every significant architectural or design decision must explicitly document the reason why it was chosen over alternatives (e.g. why Python daemon instead of C++ plugin, why JSON storage instead of SQLite, why translucent monochrome instead of colored themes).
   3. **Data Pipeline & Interfaces**: Detail all kernel sources (`/proc`, `/sys`), HTTP endpoints, and QML properties/signals affected by the change.
   4. **Zero-Emoji Compliance**: Maintain zero emojis across all documentation updates.
+  5. **English-Only Compliance**: Maintain 100% English across all documentation updates.
 
 ---
 
-## 8. Strict Modularity & Long-Term Maintainability Standards
+## 9. Strict Modularity & Long-Term Maintainability Standards
 
 1. **Single Responsibility Principle (SRP)**:
    - Every module, class, and QML component must have exactly one clearly defined responsibility.
@@ -170,8 +185,9 @@ Heimdall consists of two decoupled components:
      ```bash
      ./scripts/verify.sh
      ```
-   - All 4 verification gates must pass:
+   - All 5 verification gates must pass:
      1. Python module compilation (`py_compile`).
      2. Collector smoke test (instant instantiation and assertions).
      3. Strict zero-emoji repository audit.
-     4. Plasmoid metadata integrity check.
+     4. Strict English-only language audit.
+     5. Plasmoid metadata integrity check.
