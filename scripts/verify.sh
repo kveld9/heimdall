@@ -7,7 +7,7 @@ cd "${REPO_DIR}"
 echo "=== [Heimdall] Running Quality & Modularity Verification Pipeline ==="
 
 # 1. Python Syntax & Compilation Gate
-echo "[*] Step 1/4: Compiling Python modules..."
+echo "[*] Step 1/5: Compiling Python modules..."
 python3 -m py_compile \
     daemon/*.py \
     daemon/heimdall/*.py \
@@ -15,7 +15,7 @@ python3 -m py_compile \
 echo "[+] Python compilation successful."
 
 # 2. Collector Smoke Test Gate
-echo "[*] Step 2/4: Running collector smoke test..."
+echo "[*] Step 2/5: Running collector smoke test..."
 python3 -c "
 import sys
 sys.path.insert(0, '${REPO_DIR}/daemon')
@@ -40,7 +40,7 @@ print('[+] All 4 telemetry collectors initialized and executed successfully.')
 "
 
 # 3. Strict Emoji Prohibition Gate
-echo "[*] Step 3/4: Auditing repository for prohibited emojis and non-ascii glyphs..."
+echo "[*] Step 3/5: Auditing repository for prohibited emojis and non-ascii glyphs..."
 python3 -c "
 import re, glob, sys
 
@@ -82,8 +82,45 @@ if violations > 0:
 print('[+] Zero emojis found. Repository is 100% compliant.')
 "
 
-# 4. QML & Package Metadata Gate
-echo "[*] Step 4/4: Verifying Plasmoid package metadata and files..."
+# 4. Strict English-Only Language Audit Gate
+echo "[*] Step 4/5: Auditing repository for language consistency (English only)..."
+python3 -c "
+import re, glob, sys
+
+forbidden_words = re.compile(
+    r'\b(expandir|contraer|descargar|subir|dias|dia|hoy|semana|memoria|almacenamiento|procesos)\b',
+    flags=re.IGNORECASE
+)
+
+files = [
+    f for f in (
+        glob.glob('daemon/**/*.py', recursive=True) +
+        glob.glob('plasmoid/**/*', recursive=True) +
+        glob.glob('scripts/*.sh') +
+        glob.glob('*.md')
+    ) if f != 'scripts/verify.sh'
+]
+
+violations = 0
+for f in files:
+    try:
+        with open(f, 'r', encoding='utf-8') as fh:
+            for i, line in enumerate(fh, 1):
+                matches = forbidden_words.findall(line)
+                if matches:
+                    print(f'[-] FORBIDDEN NON-ENGLISH WORD: {f}:{i} -> {matches}', file=sys.stderr)
+                    violations += 1
+    except Exception:
+        pass
+
+if violations > 0:
+    print(f'[!] Verification failed: {violations} non-English token(s) detected.', file=sys.stderr)
+    sys.exit(1)
+print('[+] 100% English language compliance verified.')
+"
+
+# 5. QML & Package Metadata Gate
+echo "[*] Step 5/5: Verifying Plasmoid package metadata and files..."
 python3 -c "
 import json
 with open('plasmoid/metadata.json', 'r', encoding='utf-8') as f:
