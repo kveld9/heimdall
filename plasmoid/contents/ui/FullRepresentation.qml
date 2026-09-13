@@ -10,9 +10,9 @@ Item {
     readonly property var telemetry: root.telemetry
     readonly property bool isCollapsed: root.isCollapsed
 
-    implicitWidth: isCollapsed ? 480 : 720
+    implicitWidth: isCollapsed ? 520 : 720
     implicitHeight: isCollapsed ? 52 : 560
-    Layout.minimumWidth: isCollapsed ? 420 : 620
+    Layout.minimumWidth: isCollapsed ? 460 : 620
     Layout.minimumHeight: isCollapsed ? 52 : 500
     Layout.preferredWidth: implicitWidth
     Layout.preferredHeight: implicitHeight
@@ -34,7 +34,7 @@ Item {
 
         anchors.centerIn: fullRoot.isCollapsed ? parent : undefined
         anchors.fill: fullRoot.isCollapsed ? undefined : parent
-        width: fullRoot.isCollapsed ? Math.min(parent.width, 480) : parent.width
+        width: fullRoot.isCollapsed ? Math.min(parent.width, 520) : parent.width
         height: fullRoot.isCollapsed ? Math.min(parent.height, 52) : parent.height
         radius: fullRoot.isCollapsed ? 26 : 16
 
@@ -51,18 +51,18 @@ Item {
         // Collapsed Capsule View
         Item {
             anchors.fill: parent
-            anchors.leftMargin: 14
-            anchors.rightMargin: 14
+            anchors.leftMargin: 18
+            anchors.rightMargin: 18
             visible: fullRoot.isCollapsed
 
             RowLayout {
                 anchors.fill: parent
-                spacing: 12
+                spacing: 10
 
                 // Waveform Icon
                 Rectangle {
-                    width: 22
-                    height: 22
+                    Layout.preferredWidth: 20
+                    Layout.preferredHeight: 20
                     radius: 5
                     color: theme.bgCardHighlight
                     border.color: theme.border
@@ -71,7 +71,7 @@ Item {
                         anchors.centerIn: parent
                         text: "~"
                         font.family: theme.monoFont
-                        font.pixelSize: 12
+                        font.pixelSize: 11
                         font.bold: true
                         color: theme.accentWhite
                     }
@@ -80,16 +80,16 @@ Item {
                 Text {
                     text: "HEIMDALL"
                     font.family: theme.monoFont
-                    font.pixelSize: 12
+                    font.pixelSize: 11
                     font.bold: true
-                    font.letterSpacing: 1.5
+                    font.letterSpacing: 1.0
                     color: theme.textPrimary
                 }
 
                 Rectangle {
-                    width: 6
-                    height: 6
-                    radius: 3
+                    Layout.preferredWidth: 5
+                    Layout.preferredHeight: 5
+                    radius: 2.5
                     color: theme.accentWhite
                 }
 
@@ -111,8 +111,8 @@ Item {
                 }
 
                 Rectangle {
-                    width: 1
-                    height: 14
+                    Layout.preferredWidth: 1
+                    Layout.preferredHeight: 14
                     color: theme.borderSubtle
                 }
 
@@ -128,32 +128,39 @@ Item {
 
                 // Expand Button
                 Rectangle {
-                    width: 84
-                    height: 26
+                    id: expandBtn
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    implicitWidth: expandRow.implicitWidth + 18
+                    implicitHeight: 24
                     radius: 6
-                    color: theme.bgCardHighlight
-                    border.color: theme.border
+                    color: btnArea.containsMouse ? theme.bgCardHighlight : theme.bgCard
+                    border.color: btnArea.containsMouse ? theme.accentWhite : theme.border
 
-                    RowLayout {
+                    Row {
+                        id: expandRow
                         anchors.centerIn: parent
-                        spacing: 4
+                        spacing: 5
+
                         Text {
                             text: "v"
                             font.family: theme.monoFont
-                            font.pixelSize: 11
+                            font.pixelSize: 10
                             font.bold: true
                             color: theme.textSecondary
+                            anchors.verticalCenter: parent.verticalCenter
                         }
                         Text {
                             text: "Expandir"
                             font.family: theme.mainFont
-                            font.pixelSize: 11
+                            font.pixelSize: 10
                             font.bold: true
                             color: theme.textSecondary
+                            anchors.verticalCenter: parent.verticalCenter
                         }
                     }
 
                     MouseArea {
+                        id: btnArea
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         hoverEnabled: true

@@ -14,7 +14,7 @@ PlasmoidItem {
     property bool daemonConnected: false
     property bool isCollapsed: false
 
-    implicitWidth: isCollapsed ? 480 : 720
+    implicitWidth: isCollapsed ? 520 : 720
     implicitHeight: isCollapsed ? 52 : 560
 
     Behavior on implicitWidth {
