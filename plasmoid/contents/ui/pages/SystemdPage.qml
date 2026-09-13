@@ -301,19 +301,19 @@ Item {
                                 anchors.centerIn: parent
                                 spacing: 2
                                 Text {
-                                    text: page.failedCount === 0 ? "OPTIMAL" : "FAILED"
+                                    text: page.failedCount === 0 ? "STATUS" : "FAILED"
                                     font.family: theme.mainFont
                                     font.pixelSize: 9
                                     font.bold: true
-                                    color: page.failedCount === 0 ? theme.textPrimary : theme.accentAlert
+                                    color: page.failedCount === 0 ? theme.textMuted : theme.accentAlert
                                     Layout.alignment: Qt.AlignHCenter
                                 }
                                 Text {
-                                    text: page.failedCount.toString()
+                                    text: page.failedCount === 0 ? "OK" : page.failedCount.toString()
                                     font.family: theme.monoFont
                                     font.pixelSize: 18
                                     font.bold: true
-                                    color: page.failedCount === 0 ? theme.accentWhite : theme.accentAlert
+                                    color: theme.accentWhite
                                     Layout.alignment: Qt.AlignHCenter
                                 }
                             }
@@ -324,7 +324,7 @@ Item {
                             spacing: 3
 
                             Text {
-                                text: page.failedCount === 0 ? "All system daemons normal" : "Failed services:"
+                                text: page.failedCount === 0 ? "All system daemons normal (0 failed)" : (page.failedCount + " service" + (page.failedCount > 1 ? "s" : "") + " failed:")
                                 font.family: theme.mainFont
                                 font.pixelSize: 11
                                 font.bold: true
