@@ -32,10 +32,9 @@ Item {
         border.width: 1
         clip: true
 
-        anchors.centerIn: fullRoot.isCollapsed ? parent : undefined
-        anchors.fill: fullRoot.isCollapsed ? undefined : parent
-        width: fullRoot.isCollapsed ? Math.min(parent.width, 520) : parent.width
-        height: fullRoot.isCollapsed ? Math.min(parent.height, 52) : parent.height
+        anchors.centerIn: parent
+        width: fullRoot.isCollapsed ? Math.min(parent.width > 0 ? parent.width : 520, 520) : (parent.width > 0 ? parent.width : 720)
+        height: fullRoot.isCollapsed ? Math.min(parent.height > 0 ? parent.height : 52, 52) : (parent.height > 0 ? parent.height : 560)
         radius: fullRoot.isCollapsed ? 26 : 16
 
         Behavior on width {
@@ -50,10 +49,17 @@ Item {
 
         // Collapsed Capsule View
         Item {
+            id: capsuleView
             anchors.fill: parent
             anchors.leftMargin: 18
             anchors.rightMargin: 18
-            visible: fullRoot.isCollapsed
+            opacity: fullRoot.isCollapsed ? 1.0 : 0.0
+            visible: opacity > 0
+            enabled: fullRoot.isCollapsed
+
+            Behavior on opacity {
+                NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+            }
 
             RowLayout {
                 anchors.fill: parent
@@ -172,10 +178,17 @@ Item {
 
         // Expanded Full View
         ColumnLayout {
+            id: expandedView
             anchors.fill: parent
             anchors.margins: 16
             spacing: 12
-            visible: !fullRoot.isCollapsed
+            opacity: fullRoot.isCollapsed ? 0.0 : 1.0
+            visible: opacity > 0
+            enabled: !fullRoot.isCollapsed
+
+            Behavior on opacity {
+                NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+            }
 
             // Header with Logo, live rates, tabs, and collapse button
             Header {
