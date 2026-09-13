@@ -157,7 +157,10 @@ Recurring visual patterns are encapsulated into reusable components under `plasm
 - `Sparkline.qml`: Zero-jank Canvas renderer drawing continuous 30-to-60 point telemetry histories with pre-filled baseline buffers and translucent filled gradients.
 - `BudgetSlider.qml`: Daily network traffic overview component. Visualizes total daily bytes transferred with a proportional dual-segment download vs. upload track, eliminating artificial quota caps and over-budget warnings for home Ethernet/broadband workflows.
 - `DonutChart.qml`: Split circular arc visualization for download versus upload ratios.
-- Weekly History Table (`NetworkPage.qml`): Implements rigid column width properties (`colDayWidth: 72`, `colDateWidth: 52`, `colDownWidth: 76`, `colUpWidth: 76`, `colTotalWidth: 104`) with a shared flexible spacer across both the header and ListView delegates, guaranteeing terminal-grade tabular alignment across all resolutions and card widths.
+- Weekly History Table (`NetworkPage.qml`): Implements rigid column width properties (`colDayWidth: 70`, `colDateWidth: 50`, `colDownWidth: 75`, `colUpWidth: 75`, `colTotalWidth: 100`) with anchor-based alignment across both header and delegates, guaranteeing terminal-grade tabular alignment across all resolutions.
+- Top Network Applications: Horizontal scrollable strip with `Flickable.HorizontalFlick`, 16px escape margin footer, and mouse wheel propagation to prevent boundary collisions on desktop.
+- Header System Synchronization (`Header.qml`): Real-time 1-second system timer dynamically rendering local date (`ddd, d MMM`) and time (`hh:mm`) without static fallbacks.
+- Systemd Timers (`SystemdPage.qml`): Multi-line timer items with separated bullet indicators (`• `), expanded 4px vertical interline spacing, and 68px fixed-width right-anchored countdown badges.
 
 ---
 
