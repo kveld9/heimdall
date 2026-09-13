@@ -76,7 +76,7 @@ Heimdall consists of two decoupled components:
 
 3. **Desktop Widget Resizing & Collapsing**:
    - The Plasmoid must handle desktop placement (`Planar` form factor) gracefully.
-   - When collapsed: Compact floating capsule (~480x52px).
+   - When collapsed: Compact floating capsule (~520x52px).
    - When expanded: Complete 4-page dashboard (720x560px).
    - `implicitWidth` and `implicitHeight` in `main.qml` must track the `isCollapsed` state to prevent empty layout borders on the desktop.
 
