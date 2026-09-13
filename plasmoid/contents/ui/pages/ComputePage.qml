@@ -24,7 +24,7 @@ Item {
         // Row 1: CPU & RAM Gauges
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 170
+            Layout.preferredHeight: 152
             Layout.fillHeight: false
             spacing: 10
 
@@ -164,7 +164,7 @@ Item {
                             font.family: theme.monoFont
                             font.pixelSize: 10
                             font.bold: true
-                            color: (psiMem && psiMem.full_avg10 > 0.1) ? "#e06c75" : theme.textSecondary
+                            color: (psiMem && psiMem.full_avg10 > 0.1) ? theme.accentWhite : theme.textSecondary
                         }
                     }
                 }
@@ -174,7 +174,7 @@ Item {
         // Row 2: ZRAM Compression Card with Capacity Bar
         MetricCard {
             Layout.fillWidth: true
-            Layout.preferredHeight: 106
+            Layout.preferredHeight: 124
             Layout.fillHeight: false
             cardBg: theme.bgCard
             cardBorder: theme.border
@@ -182,7 +182,7 @@ Item {
 
             ColumnLayout {
                 anchors.fill: parent
-                spacing: 8
+                spacing: 6
 
                 RowLayout {
                     Layout.fillWidth: true
