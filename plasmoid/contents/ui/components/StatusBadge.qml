@@ -1,10 +1,15 @@
 import QtQuick
 import QtQuick.Layouts
+import ".."
 
 Rectangle {
     id: root
 
-    property var theme
+    Theme {
+        id: fallbackTheme
+    }
+
+    property var theme: fallbackTheme
     property string title: "OPTIMAL"
     property string subtitle: ""
     property color indicatorColor: theme ? theme.accentWhite : "#ffffff"

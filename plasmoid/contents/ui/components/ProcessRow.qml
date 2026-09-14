@@ -1,10 +1,15 @@
 import QtQuick
 import QtQuick.Layouts
+import ".."
 
 Rectangle {
     id: root
 
-    property var theme
+    Theme {
+        id: fallbackTheme
+    }
+
+    property var theme: fallbackTheme
     property int rank: 1
     property string name: ""
     property int instances: 1

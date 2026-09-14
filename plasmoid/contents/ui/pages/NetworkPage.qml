@@ -1,12 +1,17 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import ".."
 import "../components"
 
 Item {
     id: page
 
-    property var theme
+    Theme {
+        id: fallbackTheme
+    }
+
+    property var theme: fallbackTheme
     property var telemetry: null
 
     readonly property var budget: telemetry ? telemetry.budget : null
@@ -29,10 +34,9 @@ Item {
 
         // TODAY NETWORK TRAFFIC Card (Session and daily throughput)
         MetricCard {
+            theme: page.theme
             Layout.fillWidth: true
             Layout.preferredHeight: 125
-            cardBg: theme.bgCard
-            cardBorder: theme.border
             title: "TODAY NETWORK TRAFFIC"
 
             BudgetSlider {
@@ -52,10 +56,9 @@ Item {
 
             // Inbound (Down) Sparkline
             MetricCard {
+                theme: page.theme
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
                 title: "INBOUND RATE (DOWN)"
 
                 RowLayout {
@@ -93,10 +96,9 @@ Item {
 
             // Outbound (Up) Sparkline
             MetricCard {
+                theme: page.theme
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
                 title: "OUTBOUND RATE (UP)"
 
                 RowLayout {
@@ -150,11 +152,10 @@ Item {
 
             // TODAY SPLIT Card
             MetricCard {
+                theme: page.theme
                 Layout.preferredWidth: 230
                 Layout.minimumWidth: 200
                 Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
                 title: "TODAY SPLIT"
 
                 DonutChart {
@@ -170,11 +171,10 @@ Item {
 
         // TOP NETWORK APPLICATIONS (Grouped by binary name)
         MetricCard {
+            theme: page.theme
             Layout.fillWidth: true
             Layout.preferredHeight: 76
             Layout.fillHeight: false
-            cardBg: theme.bgCard
-            cardBorder: theme.border
             title: "TOP NETWORK APPLICATIONS"
 
             ListView {

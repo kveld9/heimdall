@@ -1,12 +1,17 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import ".."
 import "../components"
 
 Item {
     id: page
 
-    property var theme
+    Theme {
+        id: fallbackTheme
+    }
+
+    property var theme: fallbackTheme
     property var telemetry: null
 
     readonly property var compute: telemetry ? telemetry.compute : null
@@ -30,10 +35,9 @@ Item {
 
             // CPU Load Card with full-width bottom sparkline
             MetricCard {
+                theme: page.theme
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
                 title: "CPU UTILIZATION"
 
                 ColumnLayout {
@@ -88,10 +92,9 @@ Item {
 
             // RAM Card
             MetricCard {
+                theme: page.theme
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
                 title: "PHYSICAL MEMORY"
 
                 ColumnLayout {
@@ -187,10 +190,9 @@ Item {
 
             // Top CPU Processes Card
             MetricCard {
+                theme: page.theme
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
                 title: "TOP PROCESSES BY CPU"
 
                 ProcessTable {
@@ -213,10 +215,9 @@ Item {
 
             // Top RAM Processes Card
             MetricCard {
+                theme: page.theme
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
                 title: "TOP PROCESSES BY RAM (RSS)"
 
                 ProcessTable {

@@ -5,15 +5,12 @@ import QtQuick.Controls
 MetricCard {
     id: root
 
-    property var theme
     property int failedCount: 0
     property var failedUnits: []
     property string systemState: "running"
 
     Layout.fillWidth: true
     Layout.preferredHeight: 210
-    cardBg: theme ? theme.bgCard : Qt.rgba(1.0, 1.0, 1.0, 0.04)
-    cardBorder: theme ? theme.border : Qt.rgba(1.0, 1.0, 1.0, 0.12)
     title: "SYSTEMD SERVICE STATE"
 
     ColumnLayout {

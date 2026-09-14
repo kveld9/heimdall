@@ -1,12 +1,17 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import ".."
 import "../components"
 
 Item {
     id: page
 
-    property var theme
+    Theme {
+        id: fallbackTheme
+    }
+
+    property var theme: fallbackTheme
     property var telemetry: null
 
     readonly property var health: telemetry ? telemetry.health : null
@@ -38,10 +43,9 @@ Item {
 
             // 1. SYSTEM VITALS & KERNEL HEALTH
             MetricCard {
+                theme: page.theme
                 Layout.fillWidth: true
                 Layout.preferredHeight: 210
-                cardBg: theme.bgCard
-                cardBorder: theme.border
                 title: "SYSTEM VITALS & KERNEL HEALTH"
 
                 ColumnLayout {
@@ -164,10 +168,9 @@ Item {
 
             // 2. SCHEDULED SYSTEMD TIMERS
             MetricCard {
+                theme: page.theme
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
                 title: "SCHEDULED SYSTEMD TIMERS (NEXT RUN)"
 
                 SystemdTimersTable {
@@ -196,10 +199,9 @@ Item {
 
             // 2. HARDWARE THERMALS (Expanded Grid)
             MetricCard {
+                theme: page.theme
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
                 title: "HARDWARE THERMALS (/sys/class/hwmon)"
 
                 HardwareThermalsTable {

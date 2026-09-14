@@ -5,7 +5,11 @@ import QtQuick.Controls
 Item {
     id: root
 
-    property var theme
+    Theme {
+        id: fallbackTheme
+    }
+
+    property var theme: fallbackTheme
     property var telemetry: null
     property bool daemonConnected: true
     property int currentPage: 0
@@ -72,7 +76,7 @@ Item {
                     width: 7
                     height: 7
                     radius: 3.5
-                    color: root.daemonConnected ? theme.accentGreen : theme.accentMuted
+                    color: root.daemonConnected ? theme.accentWhite : theme.accentMuted
                     opacity: root.daemonConnected ? 1.0 : 0.4
 
                     // Breathing animation
@@ -124,7 +128,7 @@ Item {
                         font.pixelSize: 10
                         font.bold: true
                         font.capitalization: Font.AllUppercase
-                        color: root.currentPage === modelData.index ? theme.accentGreen : theme.textSecondary
+                        color: root.currentPage === modelData.index ? theme.accentWhite : theme.textSecondary
                     }
 
                     MouseArea {

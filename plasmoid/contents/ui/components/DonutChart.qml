@@ -1,16 +1,21 @@
 import QtQuick
 import QtQuick.Layouts
+import ".."
 
 Item {
     id: root
 
-    property var theme
+    Theme {
+        id: fallbackTheme
+    }
+
+    property var theme: fallbackTheme
     property int downPct: 55
     property int upPct: 45
     property string downBytesStr: "45 MB"
     property string upBytesStr: "38 MB"
-    property color colorDown: theme.accentWhite
-    property color colorUp: theme.accentDarkGrey
+    property color colorDown: theme ? theme.accentWhite : "#ffffff"
+    property color colorUp: theme ? theme.accentDarkGrey : "#374151"
 
     implicitWidth: 200
     implicitHeight: 200
@@ -46,7 +51,7 @@ Item {
                     var total = Math.max(1, root.downPct + root.upPct);
                     var downAngle = (root.downPct / total) * 2 * Math.PI;
 
-                    // Draw Down arc (pink)
+                    // Draw Down arc (white)
                     ctx.beginPath();
                     ctx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + downAngle, false);
                     ctx.strokeStyle = root.colorDown;
@@ -54,7 +59,7 @@ Item {
                     ctx.lineCap = "round";
                     ctx.stroke();
 
-                    // Draw Up arc (green)
+                    // Draw Up arc (dark slate)
                     ctx.beginPath();
                     ctx.arc(centerX, centerY, radius, -Math.PI / 2 + downAngle + 0.1, -Math.PI / 2 + (2 * Math.PI) - 0.1, false);
                     ctx.strokeStyle = root.colorUp;

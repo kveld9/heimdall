@@ -176,6 +176,19 @@ Recurring visual patterns are encapsulated into reusable components under `plasm
 - Hardware Thermals (`SystemdPage.qml`): Multi-sensor monitor rendering index, sensor label, thermal status tags (`OPTIMAL`, `WARM`, `HOT`), relative temperature gauge rails, rolling thermal sparkline history, and fan/voltage telemetry adhering to the strict monochromatic theme.
 - Systemd Service State (`SystemdPage.qml`): Unambiguous `STATUS: OK` badge indicator when zero units have failed, switching to `FAILED: <count>` with high-contrast alert highlighting only during active service failures.
 
+### 4.4 Theme Scoping & Fallback Resilience Architecture
+- **Root Cause of Default Black (#000000) Rendering**:
+  In Qt Quick / QML, when a color property binding fails due to a runtime JavaScript TypeError (or when evaluating an undefined symbol such as a non-existent color property), the QML engine defaults the property value to `QColor()`, which renders as solid opaque black (`#000000`).
+  Three primary mechanisms caused this regression:
+  1. *Undefined Theme References*: `Header.qml` referenced `theme.accentGreen`, which does not exist in the monochromatic `Theme.qml` specification, producing `Unable to assign [undefined] to QColor` and defaulting the active tab text and connection indicator to solid black.
+  2. *QML Property Scope Masking*: Components declared `property var theme: null`. When parent views instantiated `MetricCard` with `cardBg: theme.bgCard`, QML scoping resolved `theme` against the card's own uninitialized `theme: null` rather than the page's theme, throwing `TypeError: Cannot read property 'bgCard' of null` and evaluating cards to solid black.
+  3. *Directory Boundary Imports*: Child items in subdirectories (`contents/ui/pages/` and `contents/ui/components/`) did not import their parent directory (`import ".."`), preventing `Theme.qml` from being resolved as a declarative type.
+- **Architectural Resolution**:
+  - Every child component and page defines a local fallback instance (`Theme { id: fallbackTheme }`) with `property var theme: fallbackTheme`, ensuring `theme` is never null or undefined even during asynchronous component creation.
+  - Subdirectory components explicitly include `import ".."` to import `Theme.qml` across directory boundaries.
+  - `MetricCard` encapsulates its own default styling (`cardBg` and `cardBorder`) derived directly from `theme.bgCard` and `theme.border`, eliminating fragile external property overrides.
+  - Opaque color string fallbacks (such as `#16181c`) are replaced with translucent theme tokens (`Qt.rgba(1.0, 1.0, 1.0, 0.08)` and `theme.accentWhite`), guaranteeing that the entire UI adheres strictly to the frosted glass monochromatic WM aesthetic without chromatic drift or solid black artifacts.
+
 ---
 
 ## 5. Modular Backend Package Structure

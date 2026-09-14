@@ -4,7 +4,6 @@ import QtQuick.Layouts
 MetricCard {
     id: root
 
-    property var theme
     property var weeklyList: []
     property real maxWeekBytes: 1
     property real colDayWidth: 42
@@ -15,8 +14,6 @@ MetricCard {
 
     Layout.fillWidth: true
     Layout.fillHeight: true
-    cardBg: theme ? theme.bgCard : Qt.rgba(1.0, 1.0, 1.0, 0.04)
-    cardBorder: theme ? theme.border : Qt.rgba(1.0, 1.0, 1.0, 0.09)
     title: "THIS WEEK - BY DAY"
 
     ColumnLayout {

@@ -1,16 +1,21 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import ".."
 
 Item {
     id: root
 
-    property var theme
+    Theme {
+        id: fallbackTheme
+    }
+
+    property var theme: fallbackTheme
     property var model: []
 
     Rectangle {
         anchors.fill: parent
-        color: theme ? theme.bgCardHighlight : "#16181c"
+        color: theme ? theme.bgCardHighlight : Qt.rgba(1.0, 1.0, 1.0, 0.08)
         radius: 8
         border.color: theme ? theme.borderSubtle : Qt.rgba(1.0, 1.0, 1.0, 0.06)
         border.width: 1

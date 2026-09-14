@@ -1,14 +1,19 @@
 import QtQuick
 import QtQuick.Layouts
+import ".."
 
 Rectangle {
     id: card
 
+    Theme {
+        id: fallbackTheme
+    }
+
     property alias title: titleLabel.text
     property alias headerRight: rightHeaderItem.data
-    property var theme: null
+    property var theme: fallbackTheme
     property color cardBg: (theme && theme.bgCard) ? theme.bgCard : Qt.rgba(1.0, 1.0, 1.0, 0.04)
-    property color cardBorder: (theme && theme.border) ? theme.border : Qt.rgba(1.0, 1.0, 1.0, 0.09)
+    property color cardBorder: (theme && theme.border) ? theme.border : Qt.rgba(1.0, 1.0, 1.0, 0.12)
     property real radiusVal: 12
 
     color: cardBg

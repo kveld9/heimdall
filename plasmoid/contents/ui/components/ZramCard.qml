@@ -4,15 +4,12 @@ import QtQuick.Layouts
 MetricCard {
     id: root
 
-    property var theme
     property var zram: null
     property bool isZramIdle: true
 
     Layout.fillWidth: true
     Layout.preferredHeight: 114
     Layout.fillHeight: false
-    cardBg: theme ? theme.bgCard : Qt.rgba(1.0, 1.0, 1.0, 0.04)
-    cardBorder: theme ? theme.border : Qt.rgba(1.0, 1.0, 1.0, 0.09)
     title: "ZRAM COMPRESSION ENGINE (/sys/block/zram0)"
 
     ColumnLayout {

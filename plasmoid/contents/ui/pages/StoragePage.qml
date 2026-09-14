@@ -1,12 +1,17 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import ".."
 import "../components"
 
 Item {
     id: page
 
-    property var theme
+    Theme {
+        id: fallbackTheme
+    }
+
+    property var theme: fallbackTheme
     property var telemetry: null
 
     readonly property var storage: telemetry ? telemetry.storage : null
@@ -30,10 +35,9 @@ Item {
 
             // Read Card
             MetricCard {
+                theme: page.theme
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
                 title: "DISK READ THROUGHPUT"
 
                 RowLayout {
@@ -71,10 +75,9 @@ Item {
 
             // Write Card
             MetricCard {
+                theme: page.theme
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
                 title: "DISK WRITE THROUGHPUT"
 
                 RowLayout {
@@ -113,11 +116,10 @@ Item {
 
         // Row 2: Mounted Filesystems (Deduplicated physical devices)
         MetricCard {
+            theme: page.theme
             Layout.fillWidth: true
             Layout.preferredHeight: 110
             Layout.fillHeight: false
-            cardBg: theme.bgCard
-            cardBorder: theme.border
             title: "PHYSICAL STORAGE POOLS & MOUNTPOINTS"
 
             ListView {
@@ -201,10 +203,9 @@ Item {
 
             // Top Disk I/O Processes
             MetricCard {
+                theme: page.theme
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
                 title: "TOP PROCESSES BY LIFETIME DISK I/O"
 
                 ProcessTable {
@@ -227,11 +228,10 @@ Item {
 
             // PSI Status Indicator Card
             MetricCard {
+                theme: page.theme
                 Layout.preferredWidth: 260
                 Layout.minimumWidth: 220
                 Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
                 title: "KERNEL I/O PRESSURE (PSI)"
 
                 ColumnLayout {

@@ -1,10 +1,15 @@
 import QtQuick
 import QtQuick.Layouts
+import ".."
 
 Item {
     id: root
 
-    property var theme
+    Theme {
+        id: fallbackTheme
+    }
+
+    property var theme: fallbackTheme
     property var budget: null
     property int processCount: 0
 

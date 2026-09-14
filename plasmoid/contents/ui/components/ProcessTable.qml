@@ -1,10 +1,15 @@
 import QtQuick
 import QtQuick.Layouts
+import ".."
 
 Rectangle {
     id: root
 
-    property var theme
+    Theme {
+        id: fallbackTheme
+    }
+
+    property var theme: fallbackTheme
     property var model: []
     property string emptyText: "Scanning processes..."
     property var getSecondaryText: null
@@ -15,7 +20,7 @@ Rectangle {
     Layout.fillWidth: true
     Layout.fillHeight: true
     implicitHeight: root.model && root.model.length > 0 ? (root.model.length * 34 + 8) : 280
-    color: theme ? theme.bgCardHighlight : "#16181c"
+    color: theme ? theme.bgCardHighlight : Qt.rgba(1.0, 1.0, 1.0, 0.08)
     radius: 8
     border.color: theme ? theme.borderSubtle : Qt.rgba(1.0, 1.0, 1.0, 0.06)
     border.width: 1

@@ -5,8 +5,12 @@ import org.kde.plasma.plasmoid
 Item {
     id: compact
 
-    readonly property var telemetry: root.telemetry
-    readonly property var theme: root.theme
+    Theme {
+        id: fallbackTheme
+    }
+
+    readonly property var telemetry: (typeof root !== "undefined" && root && root.telemetry) ? root.telemetry : null
+    readonly property var theme: (typeof root !== "undefined" && root && root.theme) ? root.theme : fallbackTheme
 
     implicitWidth: 84
     implicitHeight: 28
