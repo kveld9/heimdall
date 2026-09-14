@@ -6,8 +6,8 @@ MetricCard {
 
     property var weeklyList: []
     property real maxWeekBytes: 1
-    property real colDayWidth: 42
-    property real colDateWidth: 40
+    property real colDayWidth: 74
+    property real colDateWidth: 44
     property real colDownWidth: 54
     property real colUpWidth: 54
     property real colTotalWidth: 80
@@ -35,6 +35,7 @@ MetricCard {
                 font.pixelSize: 10
                 font.bold: true
                 color: theme ? theme.textSecondary : "#d1d5db"
+                elide: Text.ElideRight
             }
 
             Text {
@@ -47,6 +48,7 @@ MetricCard {
                 font.pixelSize: 10
                 font.bold: true
                 color: theme ? theme.textSecondary : "#d1d5db"
+                elide: Text.ElideRight
             }
 
             Text {
@@ -123,6 +125,7 @@ MetricCard {
                     font.pixelSize: 11
                     font.bold: !!(modelData && modelData.is_today)
                     color: (modelData && modelData.is_today) ? (theme ? theme.textPrimary : "#ffffff") : (theme ? theme.textSecondary : "#d1d5db")
+                    elide: Text.ElideRight
                 }
 
                 Text {
@@ -134,6 +137,7 @@ MetricCard {
                     font.family: theme ? theme.mainFont : "sans-serif"
                     font.pixelSize: 10
                     color: theme ? theme.textMuted : "#9ca3af"
+                    elide: Text.ElideRight
                 }
 
                 Item {
