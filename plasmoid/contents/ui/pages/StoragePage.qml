@@ -17,7 +17,6 @@ Item {
     // Helper for PSI status
     readonly property bool isIoStalled: psiIo && (psiIo.full_avg10 > 0.2 || psiIo.some_avg10 > 1.0)
     readonly property bool isIoElevated: psiIo && !isIoStalled && (psiIo.full_avg10 > 0.0 || psiIo.some_avg10 > 0.1)
-
     ColumnLayout {
         anchors.fill: parent
         spacing: 10
@@ -121,81 +120,79 @@ Item {
             cardBorder: theme.border
             title: "PHYSICAL STORAGE POOLS & MOUNTPOINTS"
 
-            ColumnLayout {
+            ListView {
+                id: poolsList
                 anchors.fill: parent
-                spacing: 8
+                clip: true
+                spacing: 6
+                model: page.partitions
+                interactive: contentHeight > height
 
-                Repeater {
-                    model: page.partitions
+                delegate: Rectangle {
+                    width: poolsList.width
+                    height: 44
+                    radius: 6
+                    color: theme.bgCardHighlight
+                    border.color: theme.borderSubtle
 
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        radius: 6
-                        color: theme.bgCardHighlight
-                        border.color: theme.borderSubtle
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 6
+                        spacing: 3
 
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 8
-                            spacing: 4
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                Text {
-                                    text: modelData.mount
-                                    font.family: theme.monoFont
-                                    font.pixelSize: 12
-                                    font.bold: true
-                                    color: theme.textPrimary
-                                }
-                                Item { Layout.fillWidth: true }
-                                Text {
-                                    text: modelData.used_gb + " GB used of " + modelData.total_gb + " GB (" + modelData.free_gb + " GB free)"
-                                    font.family: theme.monoFont
-                                    font.pixelSize: 11
-                                    color: theme.textSecondary
-                                }
-                                Rectangle {
-                                    height: 18
-                                    width: 48
-                                    radius: 3
-                                    color: modelData.used_pct > 90 ? Qt.rgba(1.0, 1.0, 1.0, 0.15) : theme.bgInput
-                                    border.color: theme.border
-
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: modelData.used_pct + "%"
-                                        font.family: theme.monoFont
-                                        font.pixelSize: 10
-                                        font.bold: true
-                                        color: theme.accentWhite
-                                    }
-                                }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Text {
+                                text: modelData.mount
+                                font.family: theme.monoFont
+                                font.pixelSize: 11
+                                font.bold: true
+                                color: theme.textPrimary
                             }
-
-                            // Usage Rail
+                            Item { Layout.fillWidth: true }
+                            Text {
+                                text: modelData.used_gb + " GB used of " + modelData.total_gb + " GB (" + modelData.free_gb + " GB free)"
+                                font.family: theme.monoFont
+                                font.pixelSize: 10
+                                color: theme.textSecondary
+                            }
                             Rectangle {
-                                Layout.fillWidth: true
-                                height: 5
-                                radius: 2.5
-                                color: theme.bgInput
+                                height: 16
+                                width: 44
+                                radius: 3
+                                color: modelData.used_pct > 90 ? (theme ? theme.bgPillStrong : Qt.rgba(1.0, 1.0, 1.0, 0.15)) : theme.bgInput
+                                border.color: theme.border
 
-                                Rectangle {
-                                    anchors.left: parent.left
-                                    anchors.top: parent.top
-                                    anchors.bottom: parent.bottom
-                                    width: parent.width * Math.min(1.0, (modelData.used_pct / 100.0))
-                                    radius: 2.5
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: modelData.used_pct + "%"
+                                    font.family: theme.monoFont
+                                    font.pixelSize: 10
+                                    font.bold: true
                                     color: theme.accentWhite
                                 }
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            height: 4
+                            radius: 2
+                            color: theme.bgInput
+
+                            Rectangle {
+                                anchors.left: parent.left
+                                anchors.top: parent.top
+                                anchors.bottom: parent.bottom
+                                width: parent.width * Math.min(1.0, (modelData.used_pct / 100.0))
+                                radius: 2
+                                color: theme.accentWhite
                             }
                         }
                     }
                 }
             }
         }
-
         // Row 3: Top Disk I/O Consumers & PSI Status
         RowLayout {
             Layout.fillWidth: true
@@ -210,44 +207,28 @@ Item {
                 cardBorder: theme.border
                 title: "TOP PROCESSES BY LIFETIME DISK I/O"
 
-                ColumnLayout {
+                ProcessTable {
                     anchors.fill: parent
-                    spacing: 6
-
-                    Repeater {
-                        model: page.topDiskIo
-
-                        ProcessRow {
-                            theme: page.theme
-                            rank: index + 1
-                            name: modelData.name
-                            instances: modelData.instances
-                            detailText: "R: " + (modelData.read_mb >= 1024 ? (modelData.read_mb / 1024.0).toFixed(1) + " GB" : modelData.read_mb.toFixed(0) + " MB")
-                            badgeText: "W: " + (modelData.write_mb >= 1024 ? (modelData.write_mb / 1024.0).toFixed(1) + " GB" : modelData.write_mb.toFixed(0) + " MB")
-                            detailWidth: 78
-                            badgeWidth: 78
-                            rightMarginVal: 16
-                        }
+                    theme: page.theme
+                    model: page.topDiskIo
+                    secondaryWidth: 72
+                    primaryWidth: 72
+                    emptyText: "Monitoring disk I/O..."
+                    getSecondaryText: function(item) {
+                        if (!item || typeof item.read_mb !== "number") return "";
+                        return "R: " + (page.theme ? page.theme.formatMb(item.read_mb) : (item.read_mb >= 1024 ? (item.read_mb / 1024.0).toFixed(1) + " GB" : item.read_mb.toFixed(0) + " MB"));
                     }
-
-                    Item {
-                        visible: page.topDiskIo.length === 0
-                        Layout.fillHeight: true
-                        Layout.fillWidth: true
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Monitoring disk I/O..."
-                            font.family: theme.monoFont
-                            font.pixelSize: 11
-                            color: theme.textMuted
-                        }
+                    getPrimaryText: function(item) {
+                        if (!item || typeof item.write_mb !== "number") return "";
+                        return page.theme ? page.theme.formatMb(item.write_mb) : (item.write_mb >= 1024 ? (item.write_mb / 1024.0).toFixed(1) + " GB" : item.write_mb.toFixed(0) + " MB");
                     }
                 }
             }
 
             // PSI Status Indicator Card
             MetricCard {
-                Layout.preferredWidth: 310
+                Layout.preferredWidth: 260
+                Layout.minimumWidth: 220
                 Layout.fillHeight: true
                 cardBg: theme.bgCard
                 cardBorder: theme.border
@@ -271,42 +252,39 @@ Item {
                     // Pressure averages breakdown
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 6
-
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Text {
-                                text: "SOME (10s / 60s / 300s):"
-                                font.family: theme.mainFont
-                                font.pixelSize: 10
-                                color: theme.textMuted
-                            }
-                            Item { Layout.fillWidth: true }
-                            Text {
-                                text: psiIo ? (psiIo.some_avg10.toFixed(2) + " / " + psiIo.some_avg60.toFixed(2) + " / " + psiIo.some_avg300.toFixed(2)) : "0.00 / 0.00 / 0.00"
-                                font.family: theme.monoFont
-                                font.pixelSize: 11
-                                font.bold: true
-                                color: theme.textSecondary
-                            }
+                        spacing: 2
+                        Text {
+                            text: "SOME (10s · 60s · 300s)"
+                            font.family: theme.mainFont
+                            font.pixelSize: 9
+                            font.bold: true
+                            color: theme.textMuted
                         }
+                        Text {
+                            text: psiIo ? (psiIo.some_avg10.toFixed(2) + " · " + psiIo.some_avg60.toFixed(2) + " · " + psiIo.some_avg300.toFixed(2)) : "0.00 · 0.00 · 0.00"
+                            font.family: theme.monoFont
+                            font.pixelSize: 11
+                            font.bold: true
+                            color: theme.textSecondary
+                        }
+                    }
 
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Text {
-                                text: "FULL (10s / 60s / 300s):"
-                                font.family: theme.mainFont
-                                font.pixelSize: 10
-                                color: theme.textMuted
-                            }
-                            Item { Layout.fillWidth: true }
-                            Text {
-                                text: psiIo ? (psiIo.full_avg10.toFixed(2) + " / " + psiIo.full_avg60.toFixed(2) + " / " + psiIo.full_avg300.toFixed(2)) : "0.00 / 0.00 / 0.00"
-                                font.family: theme.monoFont
-                                font.pixelSize: 11
-                                font.bold: true
-                                color: page.isIoStalled ? theme.accentWhite : theme.textSecondary
-                            }
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 2
+                        Text {
+                            text: "FULL (10s · 60s · 300s)"
+                            font.family: theme.mainFont
+                            font.pixelSize: 9
+                            font.bold: true
+                            color: theme.textMuted
+                        }
+                        Text {
+                            text: psiIo ? (psiIo.full_avg10.toFixed(2) + " · " + psiIo.full_avg60.toFixed(2) + " · " + psiIo.full_avg300.toFixed(2)) : "0.00 · 0.00 · 0.00"
+                            font.family: theme.monoFont
+                            font.pixelSize: 11
+                            font.bold: true
+                            color: page.isIoStalled ? theme.accentWhite : theme.textSecondary
                         }
                     }
 

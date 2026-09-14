@@ -15,7 +15,7 @@ Item {
     readonly property var sensors: health ? health.thermal_sensors : []
     readonly property var timers: health && health.timers ? health.timers : []
     readonly property var loadavg: health && health.loadavg ? health.loadavg : ["0.00", "0.00", "0.00"]
-    readonly property int cpuCores: health && health.cpu_cores ? health.cpu_cores : 16
+    readonly property int cpuCores: (health && health.cpu_cores > 0) ? health.cpu_cores : 1
     readonly property string uptimeStr: health && health.uptime_str ? health.uptime_str : "0m"
     readonly property int oomCount: health && health.oom_count !== undefined ? health.oom_count : 0
 
@@ -39,7 +39,7 @@ Item {
             // 1. SYSTEM VITALS & KERNEL HEALTH
             MetricCard {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 180
+                Layout.preferredHeight: 210
                 cardBg: theme.bgCard
                 cardBorder: theme.border
                 title: "SYSTEM VITALS & KERNEL HEALTH"
@@ -170,97 +170,10 @@ Item {
                 cardBorder: theme.border
                 title: "SCHEDULED SYSTEMD TIMERS (NEXT RUN)"
 
-                ColumnLayout {
+                SystemdTimersTable {
                     anchors.fill: parent
-                    spacing: 6
-
-                    Repeater {
-                        model: page.timers.slice(0, 4)
-
-                        Rectangle {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            radius: 6
-                            color: theme.bgCardHighlight
-                            border.color: theme.borderSubtle
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 10
-                                anchors.rightMargin: 10
-                                spacing: 8
-
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 4
-
-                                    RowLayout {
-                                        spacing: 6
-                                        Layout.fillWidth: true
-
-                                        Rectangle {
-                                            width: 6
-                                            height: 6
-                                            radius: 3
-                                            color: theme.accentWhite
-                                            Layout.alignment: Qt.AlignVCenter
-                                        }
-
-                                        Text {
-                                            text: modelData.unit.endsWith(".timer") ? modelData.unit : (modelData.unit + ".timer")
-                                            font.family: theme.monoFont
-                                            font.pixelSize: 11
-                                            font.bold: true
-                                            color: theme.textPrimary
-                                            elide: Text.ElideRight
-                                            Layout.fillWidth: true
-                                        }
-                                    }
-
-                                    Text {
-                                        text: "   • " + modelData.activates
-                                        font.family: theme.monoFont
-                                        font.pixelSize: 10
-                                        color: theme.textMuted
-                                        elide: Text.ElideRight
-                                        Layout.fillWidth: true
-                                    }
-                                }
-
-                                Rectangle {
-                                    height: 22
-                                    Layout.preferredWidth: 68
-                                    radius: 4
-                                    color: theme.bgInput
-                                    border.color: theme.border
-                                    Layout.alignment: Qt.AlignRight
-
-                                    Text {
-                                        id: timeText
-                                        anchors.centerIn: parent
-                                        text: modelData.left_str
-                                        font.family: theme.monoFont
-                                        font.pixelSize: 10
-                                        font.bold: true
-                                        color: theme.accentWhite
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Item {
-                        visible: page.timers.length === 0
-                        Layout.fillHeight: true
-                        Layout.fillWidth: true
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Scanning scheduled timers..."
-                            font.family: theme.monoFont
-                            font.pixelSize: 11
-                            color: theme.textMuted
-                        }
-                    }
+                    theme: page.theme
+                    model: page.timers
                 }
             }
         }
@@ -274,112 +187,11 @@ Item {
             spacing: 10
 
             // 1. SYSTEMD SERVICE STATE
-            MetricCard {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 180
-                cardBg: theme.bgCard
-                cardBorder: theme.border
-                title: "SYSTEMD SERVICE STATE"
-
-                ColumnLayout {
-                    anchors.fill: parent
-                    spacing: 8
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 12
-
-                        // Status Badge
-                        Rectangle {
-                            width: 80
-                            height: 54
-                            radius: 6
-                            color: page.failedCount === 0 ? theme.bgCardHighlight : Qt.rgba(1.0, 1.0, 1.0, 0.16)
-                            border.color: page.failedCount === 0 ? theme.border : (theme ? theme.accentWhite : "#ffffff")
-
-                            ColumnLayout {
-                                anchors.centerIn: parent
-                                spacing: 2
-                                Text {
-                                    text: page.failedCount === 0 ? "STATUS" : "FAILED"
-                                    font.family: theme.mainFont
-                                    font.pixelSize: 9
-                                    font.bold: true
-                                    color: page.failedCount === 0 ? theme.textMuted : theme.accentAlert
-                                    Layout.alignment: Qt.AlignHCenter
-                                }
-                                Text {
-                                    text: page.failedCount === 0 ? "OK" : page.failedCount.toString()
-                                    font.family: theme.monoFont
-                                    font.pixelSize: 18
-                                    font.bold: true
-                                    color: theme.accentWhite
-                                    Layout.alignment: Qt.AlignHCenter
-                                }
-                            }
-                        }
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 3
-
-                            Text {
-                                text: page.failedCount === 0 ? "All system daemons normal (0 failed)" : (page.failedCount + " service" + (page.failedCount > 1 ? "s" : "") + " failed:")
-                                font.family: theme.mainFont
-                                font.pixelSize: 11
-                                font.bold: true
-                                color: theme.textPrimary
-                            }
-
-                            Text {
-                                text: "System State: " + (page.health ? page.health.system_state : "running")
-                                font.family: theme.monoFont
-                                font.pixelSize: 10
-                                color: theme.textSecondary
-                            }
-                        }
-                    }
-
-                    Rectangle { Layout.fillWidth: true; height: 1; color: theme.borderSubtle }
-
-                    // Failed units list or Healthy verification
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        spacing: 3
-
-                        Repeater {
-                            model: page.failedUnits
-                            RowLayout {
-                                spacing: 6
-                                Rectangle { width: 6; height: 6; radius: 3; color: theme.accentAlert }
-                                Text {
-                                    text: modelData
-                                    font.family: theme.monoFont
-                                    font.pixelSize: 10
-                                    color: theme.accentAlert
-                                    elide: Text.ElideRight
-                                }
-                            }
-                        }
-
-                        Text {
-                            visible: page.failedCount === 0
-                            text: "[v] Core targets, sockets, and mounts active"
-                            font.family: theme.monoFont
-                            font.pixelSize: 10
-                            color: theme.textMuted
-                        }
-
-                        Text {
-                            visible: page.failedCount === 0
-                            text: "[*] Zero failed units in current systemd transaction"
-                            font.family: theme.monoFont
-                            font.pixelSize: 9
-                            color: theme.textMuted
-                        }
-                    }
-                }
+            SystemdStateCard {
+                theme: page.theme
+                failedCount: page.failedCount
+                failedUnits: page.failedUnits
+                systemState: page.health ? page.health.system_state : "running"
             }
 
             // 2. HARDWARE THERMALS (Expanded Grid)
@@ -390,98 +202,13 @@ Item {
                 cardBorder: theme.border
                 title: "HARDWARE THERMALS (/sys/class/hwmon)"
 
-                ColumnLayout {
+                HardwareThermalsTable {
                     anchors.fill: parent
-                    spacing: 8
-
-                    Repeater {
-                        model: page.sensors
-
-                        Rectangle {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            radius: 6
-                            color: theme.bgCardHighlight
-                            border.color: modelData.celsius >= 80 ? "#e06c75" : (modelData.celsius >= 65 ? "#d19a66" : theme.borderSubtle)
-
-                            ColumnLayout {
-                                anchors.fill: parent
-                                anchors.margins: 8
-                                spacing: 4
-
-                                RowLayout {
-                                    Layout.fillWidth: true
-
-                                    ColumnLayout {
-                                        spacing: 1
-                                        Text {
-                                            text: modelData.label
-                                            font.family: theme.monoFont
-                                            font.pixelSize: 11
-                                            font.bold: true
-                                            color: theme.textPrimary
-                                        }
-                                        Text {
-                                            text: modelData.celsius >= 80 ? "HOT" : (modelData.celsius >= 65 ? "WARM" : "OPTIMAL")
-                                            font.family: theme.mainFont
-                                            font.pixelSize: 9
-                                            font.bold: true
-                                            color: modelData.celsius >= 80 ? "#e06c75" : (modelData.celsius >= 65 ? "#d19a66" : theme.textMuted)
-                                        }
-                                    }
-
-                                    Item { Layout.fillWidth: true }
-
-                                    Rectangle {
-                                        height: 22
-                                        width: 58
-                                        radius: 4
-                                        color: modelData.celsius >= 80 ? Qt.rgba(0.88, 0.42, 0.46, 0.16) : (modelData.celsius >= 65 ? Qt.rgba(0.82, 0.60, 0.40, 0.16) : theme.bgInput)
-                                        border.color: modelData.celsius >= 80 ? "#e06c75" : (modelData.celsius >= 65 ? "#d19a66" : theme.border)
-
-                                        Text {
-                                            anchors.centerIn: parent
-                                            text: modelData.celsius.toFixed(1) + " °C"
-                                            font.family: theme.monoFont
-                                            font.pixelSize: 10
-                                            font.bold: true
-                                            color: modelData.celsius >= 80 ? "#e06c75" : (modelData.celsius >= 65 ? "#d19a66" : theme.accentWhite)
-                                        }
-                                    }
-                                }
-
-                                // Thermal Progress Rail
-                                Rectangle {
-                                    Layout.fillWidth: true
-                                    height: 4
-                                    radius: 2
-                                    color: theme.bgInput
-
-                                    Rectangle {
-                                        anchors.left: parent.left
-                                        anchors.top: parent.top
-                                        anchors.bottom: parent.bottom
-                                        width: parent.width * Math.min(1.0, Math.max(0.05, modelData.celsius / 100.0))
-                                        radius: 2
-                                        color: modelData.celsius >= 80 ? "#e06c75" : (modelData.celsius >= 65 ? "#d19a66" : theme.accentWhite)
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Item {
-                        visible: page.sensors.length === 0
-                        Layout.fillHeight: true
-                        Layout.fillWidth: true
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Scanning thermal sensors..."
-                            font.family: theme.monoFont
-                            font.pixelSize: 11
-                            color: theme.textMuted
-                        }
-                    }
+                    theme: page.theme
+                    model: page.sensors
+                    sparkline: page.health && page.health.sparkline_temp ? page.health.sparkline_temp : []
+                    fans: page.health && page.health.fan_sensors ? page.health.fan_sensors : []
+                    voltages: page.health && page.health.voltage_sensors ? page.health.voltage_sensors : []
                 }
             }
         }
