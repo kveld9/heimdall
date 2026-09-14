@@ -126,24 +126,27 @@ class ComputeCollector(BaseCollector):
         return res
 
     def collect_top_processes(self) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-        """Collect top 3 CPU and top 3 RAM processes aggregated by comm."""
+        """Collect top 8 CPU and top 8 RAM processes aggregated by comm."""
         try:
+            env = dict(os.environ)
+            env["LC_ALL"] = "C"
             res = subprocess.run(
                 ["ps", "-eo", "comm,%cpu,%mem,rss", "--no-headers", "--sort=-%cpu"],
                 capture_output=True,
                 text=True,
                 timeout=0.6,
-                check=False
+                check=False,
+                env=env
             )
             aggregated: Dict[str, Dict[str, Any]] = {}
             for line in res.stdout.splitlines():
                 parts = line.strip().split()
                 if len(parts) >= 4:
-                    comm = parts[0]
                     try:
-                        cpu_pct = float(parts[1])
-                        rss_kb = int(parts[3])
-                    except ValueError:
+                        cpu_pct = float(parts[-3].replace(",", "."))
+                        rss_kb = int(parts[-1])
+                        comm = " ".join(parts[:-3])
+                    except (ValueError, IndexError):
                         continue
 
                     if comm not in aggregated:
@@ -161,8 +164,8 @@ class ComputeCollector(BaseCollector):
                 item["cpu_pct"] = round(item["cpu_pct"], 1)
                 item["rss_mb"] = round(item["rss_mb"], 1)
 
-            sorted_by_cpu = sorted(aggregated.values(), key=lambda x: x["cpu_pct"], reverse=True)[:3]
-            sorted_by_mem = sorted(aggregated.values(), key=lambda x: x["rss_mb"], reverse=True)[:3]
+            sorted_by_cpu = sorted(aggregated.values(), key=lambda x: x["cpu_pct"], reverse=True)[:8]
+            sorted_by_mem = sorted(aggregated.values(), key=lambda x: x["rss_mb"], reverse=True)[:8]
             return sorted_by_cpu, sorted_by_mem
         except Exception:
             return [], []

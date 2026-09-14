@@ -110,7 +110,7 @@ class StorageCollector(BaseCollector):
         return partitions
 
     def collect_top_disk_io(self) -> List[Dict[str, Any]]:
-        """Identify top 3 user processes generating disk I/O."""
+        """Identify top 8 user processes generating disk I/O."""
         aggregated: Dict[str, Dict[str, Any]] = {}
         try:
             for pid_dir in os.listdir("/proc"):
@@ -160,7 +160,7 @@ class StorageCollector(BaseCollector):
                         "instances": item["instances"],
                     })
             results.sort(key=lambda x: x["total_mb"], reverse=True)
-            return results[:3]
+            return results[:8]
         except Exception:
             return []
 

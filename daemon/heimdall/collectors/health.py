@@ -4,9 +4,19 @@ import json
 import os
 import subprocess
 import time
+from collections import deque
 from typing import Any, Dict, List
 
 from .base import BaseCollector
+
+
+def _read_file(path: str, default: str = "") -> str:
+    """Safely read and strip single-line file from filesystem."""
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return f.read().strip()
+    except Exception:
+        return default
 
 
 def _format_countdown(diff_seconds: float) -> str:
@@ -22,9 +32,12 @@ def _format_countdown(diff_seconds: float) -> str:
     return f"{mins}m"
 
 
-
 class HealthCollector(BaseCollector):
     """Collects failed units, upcoming timers, uptime, loadavg, OOM terminations, and thermals."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.sparkline_temp: deque = deque([0.0] * 30, maxlen=30)
 
     def read_systemd_status(self) -> Dict[str, Any]:
         """Query systemctl for degraded or failed units."""
@@ -59,7 +72,7 @@ class HealthCollector(BaseCollector):
 
         return {
             "failed_units_count": failed_count,
-            "failed_units": failed_units[:5],
+            "failed_units": failed_units[:25],
             "system_state": system_state,
         }
 
@@ -93,7 +106,7 @@ class HealthCollector(BaseCollector):
                         "activates": activates,
                     })
                 if timers:
-                    return timers[:4]
+                    return timers[:8]
         except Exception:
             pass
 
@@ -122,7 +135,7 @@ class HealthCollector(BaseCollector):
         except Exception:
             pass
 
-        return timers[:4]
+        return timers[:8]
 
     def read_vitals(self) -> Dict[str, Any]:
         """Read host uptime, load average, logical CPU core count, and kernel OOM kill count."""
@@ -170,57 +183,64 @@ class HealthCollector(BaseCollector):
             "oom_count": oom_count,
         }
 
-    def read_thermals(self) -> List[Dict[str, Any]]:
-        """Read temperature sensors from /sys/class/hwmon."""
-        sensors = []
+    def read_hwmon(self) -> Dict[str, Any]:
+        """Read temperatures, fans, voltages, and maintain temp sparkline from hwmon."""
+        sensors: List[Dict[str, Any]] = []
+        fans: List[Dict[str, Any]] = []
+        voltages: List[Dict[str, Any]] = []
+        max_c = 0.0
         hwmon_dir = "/sys/class/hwmon"
         if os.path.isdir(hwmon_dir):
             try:
                 for entry in sorted(os.listdir(hwmon_dir)):
                     dev_path = os.path.join(hwmon_dir, entry)
-                    name_file = os.path.join(dev_path, "name")
-                    name = "Sensor"
-                    if os.path.isfile(name_file):
-                        try:
-                            with open(name_file, "r", encoding="utf-8") as nf:
-                                name = nf.read().strip()
-                        except Exception:
-                            pass
-
+                    name = _read_file(os.path.join(dev_path, "name"), "Sensor")
                     for sub in sorted(os.listdir(dev_path)):
+                        idx = sub.split("_")[0]
+                        lbl = _read_file(os.path.join(dev_path, f"{idx}_label"))
                         if sub.startswith("temp") and sub.endswith("_input"):
-                            idx = sub.split("_")[0]
-                            label_file = os.path.join(dev_path, f"{idx}_label")
-                            label = name
-                            if os.path.isfile(label_file):
-                                try:
-                                    with open(label_file, "r", encoding="utf-8") as lf:
-                                        label = f"{name} {lf.read().strip()}"
-                                except Exception:
-                                    pass
-
-                            temp_file = os.path.join(dev_path, sub)
-                            try:
-                                with open(temp_file, "r", encoding="utf-8") as tf:
-                                    raw_temp = int(tf.read().strip())
-                                    celsius = raw_temp / 1000.0
-                                    sensors.append({
-                                        "label": label[:16],
-                                        "celsius": round(celsius, 1),
-                                    })
-                            except Exception:
-                                pass
+                            val_str = _read_file(os.path.join(dev_path, sub))
+                            crit_str = _read_file(os.path.join(dev_path, f"{idx}_crit"))
+                            if val_str.lstrip("-").isdigit():
+                                c = int(val_str) / 1000.0
+                                crit = int(crit_str) / 1000.0 if crit_str.isdigit() else 100.0
+                                full_lbl = f"{name} {lbl}".strip() if lbl else name
+                                sensors.append({"label": full_lbl[:16], "celsius": round(c, 1), "crit": round(crit, 1)})
+                                if c > max_c:
+                                    max_c = c
+                        elif sub.startswith("fan") and sub.endswith("_input"):
+                            rpm_str = _read_file(os.path.join(dev_path, sub))
+                            if rpm_str.isdigit():
+                                full_lbl = f"{name} {lbl}".strip() if lbl else f"{name} Fan"
+                                fans.append({"label": full_lbl[:16], "rpm": int(rpm_str)})
+                        elif sub.startswith("in") and sub.endswith("_input"):
+                            mv_str = _read_file(os.path.join(dev_path, sub))
+                            if mv_str.isdigit():
+                                full_lbl = f"{name} {lbl}".strip() if lbl else f"{name} In"
+                                voltages.append({"label": full_lbl[:16], "volts": round(int(mv_str) / 1000.0, 2)})
             except Exception:
                 pass
 
-        return sensors[:6]
+        if max_c > 0:
+            self.sparkline_temp.append(round(max_c, 1))
+        elif sensors:
+            self.sparkline_temp.append(sensors[0]["celsius"])
+        else:
+            self.sparkline_temp.append(0.0)
+
+        return {
+            "sensors": sensors[:6],
+            "fans": fans[:4],
+            "voltages": voltages[:4],
+            "sparkline_temp": list(self.sparkline_temp),
+        }
 
     def collect(self) -> Dict[str, Any]:
         """Collect combined health, scheduler, and hardware thermal metrics."""
         systemd = self.read_systemd_status()
         timers = self.read_systemd_timers()
         vitals = self.read_vitals()
-        thermals = self.read_thermals()
+        hw = self.read_hwmon()
 
         return {
             "failed_units_count": systemd["failed_units_count"],
@@ -231,6 +251,9 @@ class HealthCollector(BaseCollector):
             "loadavg": vitals["loadavg"],
             "cpu_cores": vitals["cpu_cores"],
             "oom_count": vitals["oom_count"],
-            "thermal_sensors": thermals,
+            "thermal_sensors": hw["sensors"],
+            "fan_sensors": hw["fans"],
+            "voltage_sensors": hw["voltages"],
+            "sparkline_temp": hw["sparkline_temp"],
         }
 

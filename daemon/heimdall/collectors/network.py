@@ -49,7 +49,14 @@ class NetworkCollector(BaseCollector):
         except Exception:
             pass
 
-        return "enp7s0"
+        try:
+            devices = [i for i in os.listdir("/sys/class/net") if i != "lo"]
+            if devices:
+                return sorted(devices)[0]
+        except Exception:
+            pass
+
+        return "eth0"
 
     def read_interface_bytes(self, iface: str) -> Tuple[int, int]:
         """Read cumulative rx and tx bytes for iface from /proc/net/dev."""
