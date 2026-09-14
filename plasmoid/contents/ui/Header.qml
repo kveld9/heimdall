@@ -14,7 +14,8 @@ Item {
 
     implicitHeight: 52
 
-    readonly property string iface: (telemetry && telemetry.net) ? telemetry.net.interface : "enp7s0"
+    readonly property bool isWideLayout: root.width >= 680
+    readonly property string iface: (telemetry && telemetry.net && telemetry.net.interface) ? telemetry.net.interface : ""
     readonly property string downStr: (telemetry && telemetry.net) ? theme.formatSpeed(telemetry.net.down_rate_kb) : "0 KB/s"
     readonly property string upStr: (telemetry && telemetry.net) ? theme.formatSpeed(telemetry.net.up_rate_kb) : "0 KB/s"
     property var currentDate: new Date()
@@ -30,11 +31,11 @@ Item {
 
     RowLayout {
         anchors.fill: parent
-        spacing: 16
+        spacing: 8
 
         // Brand & Status
         RowLayout {
-            spacing: 10
+            spacing: 8
 
             // Pulse wave icon / connection state
             Rectangle {
@@ -46,33 +47,37 @@ Item {
 
                 Text {
                     anchors.centerIn: parent
-                    text: root.daemonConnected ? "∿" : "!"
+                    text: root.daemonConnected ? "~" : "!"
                     font.pixelSize: 14
                     font.bold: true
-                    color: root.daemonConnected ? theme.accentGreen : theme.accentPink
+                    color: root.daemonConnected ? theme.accentWhite : theme.accentMuted
                 }
             }
 
             Text {
                 text: "HEIMDALL"
                 font.family: theme.monoFont
-                font.pixelSize: 14
+                font.pixelSize: 13
                 font.bold: true
-                font.letterSpacing: 2.0
+                font.letterSpacing: 1.5
                 color: theme.textPrimary
             }
 
             // Status pill
             RowLayout {
-                spacing: 6
+                spacing: 5
+                visible: root.isWideLayout
+
                 Rectangle {
                     width: 7
                     height: 7
                     radius: 3.5
-                    color: theme.accentGreen
+                    color: root.daemonConnected ? theme.accentGreen : theme.accentMuted
+                    opacity: root.daemonConnected ? 1.0 : 0.4
 
                     // Breathing animation
                     SequentialAnimation on opacity {
+                        running: root.daemonConnected
                         loops: Animation.Infinite
                         PropertyAnimation { to: 0.4; duration: 1200; easing.type: Easing.InOutQuad }
                         PropertyAnimation { to: 1.0; duration: 1200; easing.type: Easing.InOutQuad }
@@ -80,10 +85,10 @@ Item {
                 }
 
                 Text {
-                    text: "watching 24/7 · " + root.iface
+                    text: root.daemonConnected ? (root.iface ? ("watching · " + root.iface) : "watching host") : "daemon offline"
                     font.family: theme.mainFont
-                    font.pixelSize: 11
-                    color: theme.textSecondary
+                    font.pixelSize: 10
+                    color: root.daemonConnected ? theme.textSecondary : theme.textMuted
                 }
             }
         }
@@ -92,7 +97,7 @@ Item {
 
         // Navigation Tabs (4 Pages)
         RowLayout {
-            spacing: 4
+            spacing: 3
 
             Repeater {
                 model: [
@@ -103,7 +108,7 @@ Item {
                 ]
 
                 Rectangle {
-                    width: 82
+                    width: root.isWideLayout ? 70 : 62
                     height: 28
                     radius: 6
                     color: root.currentPage === modelData.index ? theme.bgCardHighlight : "transparent"
@@ -125,8 +130,6 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        Accessible.role: Accessible.Button
-                        Accessible.name: modelData.title
                         onClicked: root.pageSelected(modelData.index)
                     }
                 }
@@ -135,26 +138,26 @@ Item {
 
         Item { Layout.fillWidth: true }
 
-        // Live Rates & Clock
+        // Live Rates, Clock & Collapse
         RowLayout {
-            spacing: 12
+            spacing: 8
 
             // Down & Up badges
             RowLayout {
-                spacing: 8
+                spacing: 6
                 Text {
-                    text: "↓ " + root.downStr
+                    text: "v " + (root.daemonConnected ? root.downStr : "0 KB/s")
                     font.family: theme.monoFont
-                    font.pixelSize: 12
+                    font.pixelSize: 11
                     font.bold: true
-                    color: theme.accentPink
+                    color: root.daemonConnected ? theme.accentSilver : theme.textDim
                 }
                 Text {
-                    text: "↑ " + root.upStr
+                    text: "^ " + (root.daemonConnected ? root.upStr : "0 KB/s")
                     font.family: theme.monoFont
-                    font.pixelSize: 12
+                    font.pixelSize: 11
                     font.bold: true
-                    color: theme.accentGreen
+                    color: root.daemonConnected ? theme.accentWhite : theme.textDim
                 }
             }
 
@@ -162,21 +165,23 @@ Item {
                 width: 1
                 height: 16
                 color: theme.borderSubtle
+                visible: root.isWideLayout
             }
 
             // Date & Clock / Connection state
             ColumnLayout {
                 spacing: 1
+                visible: root.isWideLayout
                 Text {
                     text: root.daemonConnected ? root.dateStr : "OFFLINE"
                     font.family: theme.mainFont
-                    font.pixelSize: 11
+                    font.pixelSize: 10
                     font.bold: true
-                    color: root.daemonConnected ? theme.textPrimary : theme.accentPink
+                    color: root.daemonConnected ? theme.textPrimary : theme.accentAlert
                     Layout.alignment: Qt.AlignRight
                 }
                 Text {
-                    text: root.daemonConnected ? ("refreshed " + root.timeStr) : "daemon unreachable"
+                    text: root.daemonConnected ? ("refreshed " + root.timeStr) : "offline"
                     font.family: theme.mainFont
                     font.pixelSize: 9
                     color: theme.textMuted
@@ -186,7 +191,7 @@ Item {
 
             // Collapse Button
             Rectangle {
-                width: 86
+                width: 76
                 height: 26
                 radius: 6
                 color: theme.bgCardHighlight
@@ -218,8 +223,6 @@ Item {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     hoverEnabled: true
-                    Accessible.role: Accessible.Button
-                    Accessible.name: "Collapse dashboard"
                     onClicked: root.collapseRequested()
                 }
             }

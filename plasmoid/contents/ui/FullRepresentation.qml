@@ -6,15 +6,19 @@ import "pages"
 Item {
     id: fullRoot
 
-    readonly property var theme: root.theme
-    readonly property var telemetry: root.telemetry
-    readonly property bool isCollapsed: root.isCollapsed
-    readonly property bool daemonConnected: root.daemonConnected
+    Theme {
+        id: fallbackTheme
+    }
 
-    implicitWidth: isCollapsed ? 520 : 720
-    implicitHeight: isCollapsed ? 52 : 560
-    Layout.minimumWidth: isCollapsed ? 460 : 620
-    Layout.minimumHeight: isCollapsed ? 52 : 500
+    readonly property var theme: (typeof root !== "undefined" && root && root.theme) ? root.theme : fallbackTheme
+    readonly property var telemetry: (typeof root !== "undefined" && root && root.telemetry) ? root.telemetry : null
+    readonly property bool isCollapsed: (typeof root !== "undefined" && root) ? root.isCollapsed : false
+    readonly property bool daemonConnected: (typeof root !== "undefined" && root) ? root.daemonConnected : false
+
+    implicitWidth: isCollapsed ? theme.capsuleWidth : theme.expandedWidth
+    implicitHeight: isCollapsed ? theme.capsuleHeight : theme.expandedHeight
+    Layout.minimumWidth: isCollapsed ? theme.minCapsuleWidth : theme.minExpandedWidth
+    Layout.minimumHeight: isCollapsed ? theme.capsuleHeight : theme.minExpandedHeight
     Layout.preferredWidth: implicitWidth
     Layout.preferredHeight: implicitHeight
 
@@ -34,8 +38,8 @@ Item {
         clip: true
 
         anchors.centerIn: parent
-        width: fullRoot.isCollapsed ? Math.min(parent.width > 0 ? parent.width : 520, 520) : (parent.width > 0 ? parent.width : 720)
-        height: fullRoot.isCollapsed ? Math.min(parent.height > 0 ? parent.height : 52, 52) : (parent.height > 0 ? parent.height : 560)
+        width: fullRoot.isCollapsed ? Math.min(parent.width > 0 ? parent.width : theme.capsuleWidth, theme.capsuleWidth) : (parent.width > 0 ? parent.width : theme.expandedWidth)
+        height: fullRoot.isCollapsed ? Math.min(parent.height > 0 ? parent.height : theme.capsuleHeight, theme.capsuleHeight) : (parent.height > 0 ? parent.height : theme.expandedHeight)
         radius: fullRoot.isCollapsed ? 26 : 16
 
         Behavior on width {
@@ -175,9 +179,11 @@ Item {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         hoverEnabled: true
-                        Accessible.role: Accessible.Button
-                        Accessible.name: "Expand dashboard"
-                        onClicked: root.isCollapsed = false
+                        onClicked: {
+                            if (typeof root !== "undefined" && root) {
+                                root.isCollapsed = false;
+                            }
+                        }
                     }
                 }
             }
@@ -201,15 +207,17 @@ Item {
             Header {
                 id: header
                 Layout.fillWidth: true
-                theme: root.theme
-                telemetry: root.telemetry
+                theme: fullRoot.theme
+                telemetry: fullRoot.telemetry
                 daemonConnected: fullRoot.daemonConnected
                 currentPage: stack.currentIndex
                 onPageSelected: function(idx) {
                     stack.currentIndex = idx;
                 }
                 onCollapseRequested: {
-                    root.isCollapsed = true;
+                    if (typeof root !== "undefined" && root) {
+                        root.isCollapsed = true;
+                    }
                 }
             }
 
@@ -227,23 +235,23 @@ Item {
                 currentIndex: 0
 
                 NetworkPage {
-                    theme: root.theme
-                    telemetry: root.telemetry
+                    theme: fullRoot.theme
+                    telemetry: fullRoot.telemetry
                 }
 
                 ComputePage {
-                    theme: root.theme
-                    telemetry: root.telemetry
+                    theme: fullRoot.theme
+                    telemetry: fullRoot.telemetry
                 }
 
                 StoragePage {
-                    theme: root.theme
-                    telemetry: root.telemetry
+                    theme: fullRoot.theme
+                    telemetry: fullRoot.telemetry
                 }
 
                 SystemdPage {
-                    theme: root.theme
-                    telemetry: root.telemetry
+                    theme: fullRoot.theme
+                    telemetry: fullRoot.telemetry
                 }
             }
         }

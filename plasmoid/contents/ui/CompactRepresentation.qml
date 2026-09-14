@@ -37,8 +37,6 @@ Item {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        Accessible.role: Accessible.Button
-        Accessible.name: "Toggle Heimdall dashboard"
         onClicked: root.expanded = !root.expanded
     }
 }

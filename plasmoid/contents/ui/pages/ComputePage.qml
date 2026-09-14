@@ -13,8 +13,8 @@ Item {
     readonly property var zram: compute ? compute.zram : null
     readonly property var psiCpu: compute ? compute.psi_cpu : null
     readonly property var psiMem: compute ? compute.psi_mem : null
-    readonly property var topCpu: compute && compute.top_cpu ? compute.top_cpu : []
-    readonly property var topMem: compute && compute.top_mem ? compute.top_mem : []
+    readonly property var topCpu: compute && compute.top_cpu ? compute.top_cpu.slice(0, 8) : []
+    readonly property var topMem: compute && compute.top_mem ? compute.top_mem.slice(0, 8) : []
     readonly property bool isZramIdle: !zram || !zram.has_zram || (zram.orig_size_bytes || 0) < 1048576
 
     ColumnLayout {
@@ -24,7 +24,7 @@ Item {
         // Row 1: CPU & RAM Gauges
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 152
+            Layout.preferredHeight: 138
             Layout.fillHeight: false
             spacing: 10
 
@@ -172,138 +172,12 @@ Item {
         }
 
         // Row 2: ZRAM Compression Card with Capacity Bar
-        MetricCard {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 124
-            Layout.fillHeight: false
-            cardBg: theme.bgCard
-            cardBorder: theme.border
-            title: "ZRAM COMPRESSION ENGINE (/sys/block/zram0)"
-
-            ColumnLayout {
-                anchors.fill: parent
-                spacing: 6
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 16
-
-                    ColumnLayout {
-                        spacing: 1
-                        Text {
-                            text: "RATIO"
-                            font.family: theme.mainFont
-                            font.pixelSize: 9
-                            font.bold: true
-                            color: theme.textMuted
-                        }
-                        Text {
-                            text: page.isZramIdle ? "1.00:1 (Idle)" : (zram && zram.ratio > 0 ? (zram.ratio.toFixed(2) + ":1") : "1.00:1")
-                            font.family: theme.monoFont
-                            font.pixelSize: 15
-                            font.bold: true
-                            color: theme.accentWhite
-                        }
-                    }
-
-                    Rectangle { width: 1; height: 26; color: theme.borderSubtle }
-
-                    ColumnLayout {
-                        spacing: 1
-                        Text {
-                            text: "SAVED RAM"
-                            font.family: theme.mainFont
-                            font.pixelSize: 9
-                            font.bold: true
-                            color: theme.textMuted
-                        }
-                        Text {
-                            text: zram ? (zram.savings_mb.toFixed(1) + " MB") : "0.0 MB"
-                            font.family: theme.monoFont
-                            font.pixelSize: 15
-                            font.bold: true
-                            color: theme.textPrimary
-                        }
-                    }
-
-                    Rectangle { width: 1; height: 26; color: theme.borderSubtle }
-
-                    ColumnLayout {
-                        spacing: 1
-                        Text {
-                            text: "ORIGINAL / IN RAM"
-                            font.family: theme.mainFont
-                            font.pixelSize: 9
-                            font.bold: true
-                            color: theme.textMuted
-                        }
-                        Text {
-                            text: zram ? (theme.formatBytes(zram.orig_size_bytes) + " -> " + theme.formatBytes(zram.compr_size_bytes)) : "0 B -> 0 B"
-                            font.family: theme.monoFont
-                            font.pixelSize: 12
-                            font.bold: true
-                            color: theme.textSecondary
-                        }
-                    }
-
-                    Item { Layout.fillWidth: true }
-
-                    ColumnLayout {
-                        spacing: 1
-                        Text {
-                            text: "POOL ALLOCATION"
-                            font.family: theme.mainFont
-                            font.pixelSize: 9
-                            font.bold: true
-                            color: theme.textMuted
-                            Layout.alignment: Qt.AlignRight
-                        }
-                        Text {
-                            text: zram ? (theme.formatBytes(zram.compr_size_bytes) + " of " + theme.formatBytes(zram.capacity_bytes)) : "0 B / 0 B"
-                            font.family: theme.monoFont
-                            font.pixelSize: 12
-                            font.bold: true
-                            color: theme.textSecondary
-                            Layout.alignment: Qt.AlignRight
-                        }
-                    }
-                }
-
-                // ZRAM Capacity Fill Bar
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 6
-                    radius: 3
-                    color: theme.bgInput
-
-                    Rectangle {
-                        anchors.left: parent.left
-                        anchors.top: parent.top
-                        anchors.bottom: parent.bottom
-                        width: page.isZramIdle ? 8 : parent.width * Math.min(1.0, ((zram && zram.usage_pct) ? (zram.usage_pct / 100.0) : 0.005))
-                        radius: 3
-                        color: page.isZramIdle ? theme.accentGrey : theme.accentWhite
-                    }
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    Text {
-                        text: page.isZramIdle ? ("[*] ZRAM Idle (" + (zram ? theme.formatBytes(zram.orig_size_bytes) : "0 B") + " in use · " + (zram ? theme.formatBytes(zram.capacity_bytes) : "0 B") + " headroom)") : ("[*] Hardware compression active: " + zram.usage_pct.toFixed(2) + "% of total device capacity utilized")
-                        font.family: theme.monoFont
-                        font.pixelSize: 10
-                        color: theme.textMuted
-                    }
-                    Item { Layout.fillWidth: true }
-                    Text {
-                        text: "Mem used: " + (zram ? theme.formatBytes(zram.mem_used_bytes) : "0 B")
-                        font.family: theme.monoFont
-                        font.pixelSize: 10
-                        color: theme.textMuted
-                    }
-                }
-            }
+        ZramCard {
+            theme: page.theme
+            zram: page.zram
+            isZramIdle: page.isZramIdle
         }
+
 
         // Row 3: Top CPU & Top RAM Processes
         RowLayout {
@@ -319,37 +193,20 @@ Item {
                 cardBorder: theme.border
                 title: "TOP PROCESSES BY CPU"
 
-                ColumnLayout {
+                ProcessTable {
                     anchors.fill: parent
-                    spacing: 6
-
-                    Repeater {
-                        model: page.topCpu
-
-                        ProcessRow {
-                            theme: page.theme
-                            rank: index + 1
-                            name: modelData.name
-                            instances: modelData.instances
-                            detailText: modelData.rss_mb.toFixed(0) + " MB"
-                            badgeText: modelData.cpu_pct.toFixed(1) + "%"
-                            detailWidth: 70
-                            badgeWidth: 64
-                            rightMarginVal: 16
-                        }
+                    theme: page.theme
+                    model: page.topCpu
+                    secondaryWidth: 54
+                    primaryWidth: 50
+                    emptyText: "Scanning processes..."
+                    getSecondaryText: function(item) {
+                        if (!item || typeof item.rss_mb !== "number") return "";
+                        return item.rss_mb.toFixed(0) + " MB";
                     }
-
-                    Item {
-                        visible: page.topCpu.length === 0
-                        Layout.fillHeight: true
-                        Layout.fillWidth: true
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Scanning processes..."
-                            font.family: theme.monoFont
-                            font.pixelSize: 11
-                            color: theme.textMuted
-                        }
+                    getPrimaryText: function(item) {
+                        if (!item || typeof item.cpu_pct !== "number") return "";
+                        return item.cpu_pct.toFixed(1) + "%";
                     }
                 }
             }
@@ -362,37 +219,20 @@ Item {
                 cardBorder: theme.border
                 title: "TOP PROCESSES BY RAM (RSS)"
 
-                ColumnLayout {
+                ProcessTable {
                     anchors.fill: parent
-                    spacing: 6
-
-                    Repeater {
-                        model: page.topMem
-
-                        ProcessRow {
-                            theme: page.theme
-                            rank: index + 1
-                            name: modelData.name
-                            instances: modelData.instances
-                            detailText: modelData.cpu_pct.toFixed(1) + "%"
-                            badgeText: modelData.rss_mb >= 1024 ? (modelData.rss_mb / 1024.0).toFixed(1) + " GB" : modelData.rss_mb.toFixed(0) + " MB"
-                            detailWidth: 70
-                            badgeWidth: 64
-                            rightMarginVal: 16
-                        }
+                    theme: page.theme
+                    model: page.topMem
+                    secondaryWidth: 50
+                    primaryWidth: 58
+                    emptyText: "Scanning processes..."
+                    getSecondaryText: function(item) {
+                        if (!item || typeof item.cpu_pct !== "number") return "";
+                        return item.cpu_pct.toFixed(1) + "%";
                     }
-
-                    Item {
-                        visible: page.topMem.length === 0
-                        Layout.fillHeight: true
-                        Layout.fillWidth: true
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Scanning processes..."
-                            font.family: theme.monoFont
-                            font.pixelSize: 11
-                            color: theme.textMuted
-                        }
+                    getPrimaryText: function(item) {
+                        if (!item || typeof item.rss_mb !== "number") return "";
+                        return page.theme ? page.theme.formatMb(item.rss_mb) : (item.rss_mb >= 1024 ? (item.rss_mb / 1024.0).toFixed(1) + " GB" : item.rss_mb.toFixed(0) + " MB");
                     }
                 }
             }

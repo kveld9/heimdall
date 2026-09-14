@@ -6,8 +6,9 @@ Rectangle {
 
     property alias title: titleLabel.text
     property alias headerRight: rightHeaderItem.data
-    property color cardBg: Qt.rgba(1.0, 1.0, 1.0, 0.04)
-    property color cardBorder: Qt.rgba(1.0, 1.0, 1.0, 0.09)
+    property var theme: null
+    property color cardBg: (theme && theme.bgCard) ? theme.bgCard : Qt.rgba(1.0, 1.0, 1.0, 0.04)
+    property color cardBorder: (theme && theme.border) ? theme.border : Qt.rgba(1.0, 1.0, 1.0, 0.09)
     property real radiusVal: 12
 
     color: cardBg
@@ -31,12 +32,12 @@ Rectangle {
             Text {
                 id: titleLabel
                 text: ""
-                font.family: "sans-serif"
+                font.family: (theme && theme.mainFont) ? theme.mainFont : "sans-serif"
                 font.pixelSize: 10
                 font.bold: true
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1.2
-                color: "#9ca3af"
+                color: (theme && theme.textMuted) ? theme.textMuted : "#9ca3af"
                 Layout.alignment: Qt.AlignVCenter
             }
 

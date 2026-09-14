@@ -9,13 +9,17 @@ PlasmoidItem {
 
     Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
 
+    Theme {
+        id: appTheme
+    }
+
     property var telemetry: null
     property var theme: appTheme
     property bool daemonConnected: false
     property bool isCollapsed: false
 
-    implicitWidth: isCollapsed ? 520 : 720
-    implicitHeight: isCollapsed ? 52 : 560
+    implicitWidth: isCollapsed ? theme.capsuleWidth : theme.expandedWidth
+    implicitHeight: isCollapsed ? theme.capsuleHeight : theme.expandedHeight
 
     Behavior on implicitWidth {
         NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
@@ -24,15 +28,16 @@ PlasmoidItem {
         NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
     }
 
-    Theme {
-        id: appTheme
-    }
+
+    property string apiEndpoint: "http://127.0.0.1:9871/api/telemetry"
+    property int pollTimeoutMs: 900
+    property int pollIntervalMs: 1000
 
     // Zero-jank Asynchronous HTTP Fetch
     function fetchTelemetry() {
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", "http://127.0.0.1:9871/api/telemetry", true);
-        xhr.timeout = 900;
+        xhr.open("GET", root.apiEndpoint, true);
+        xhr.timeout = root.pollTimeoutMs;
 
         xhr.onreadystatechange = function() {
             if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -41,7 +46,7 @@ PlasmoidItem {
                         root.telemetry = JSON.parse(xhr.responseText);
                         root.daemonConnected = true;
                     } catch(e) {
-                        // ignore parse error
+                        root.daemonConnected = false;
                     }
                 } else {
                     root.daemonConnected = false;
@@ -64,10 +69,10 @@ PlasmoidItem {
         }
     }
 
-    // Refresh timer (1 Hz)
+    // Refresh timer
     Timer {
         id: pollTimer
-        interval: 1000
+        interval: root.pollIntervalMs
         running: true
         repeat: true
         triggeredOnStart: true

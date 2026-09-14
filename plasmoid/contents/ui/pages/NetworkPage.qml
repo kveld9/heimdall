@@ -13,11 +13,6 @@ Item {
     readonly property var weeklyList: telemetry ? telemetry.weekly : []
     readonly property var procList: telemetry && telemetry.net && telemetry.net.top_processes ? telemetry.net.top_processes : []
     readonly property var netData: telemetry ? telemetry.net : null
-    readonly property real colDayWidth: 70
-    readonly property real colDateWidth: 50
-    readonly property real colDownWidth: 75
-    readonly property real colUpWidth: 75
-    readonly property real colTotalWidth: 100
     readonly property real maxWeekBytes: {
         var m = 1048576;
         if (weeklyList) {
@@ -146,206 +141,17 @@ Item {
             spacing: 10
 
             // THIS WEEK — BY DAY Card
-            MetricCard {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                cardBg: theme.bgCard
-                cardBorder: theme.border
-                title: "THIS WEEK - BY DAY"
-
-                ColumnLayout {
-                    anchors.fill: parent
-                    spacing: 4
-
-                    // Table Header with high contrast
-                    Item {
-                        Layout.fillWidth: true
-                        implicitHeight: 18
-
-                        Text {
-                            id: hDay
-                            x: 6
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: page.colDayWidth
-                            text: "DAY"
-                            font.family: theme.mainFont
-                            font.pixelSize: 10
-                            font.bold: true
-                            color: theme.textSecondary
-                        }
-
-                        Text {
-                            id: hDate
-                            x: hDay.x + page.colDayWidth + 6
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: page.colDateWidth
-                            text: "DATE"
-                            font.family: theme.mainFont
-                            font.pixelSize: 10
-                            font.bold: true
-                            color: theme.textSecondary
-                        }
-
-                        Text {
-                            id: hTotal
-                            anchors.right: parent.right
-                            anchors.rightMargin: 6
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: page.colTotalWidth
-                            text: "TOTAL"
-                            font.family: theme.mainFont
-                            font.pixelSize: 10
-                            font.bold: true
-                            color: theme.textSecondary
-                            horizontalAlignment: Text.AlignRight
-                        }
-
-                        Text {
-                            id: hUp
-                            anchors.right: hTotal.left
-                            anchors.rightMargin: 8
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: page.colUpWidth
-                            text: "^ UP"
-                            font.family: theme.mainFont
-                            font.pixelSize: 10
-                            font.bold: true
-                            color: theme.textSecondary
-                            horizontalAlignment: Text.AlignRight
-                        }
-
-                        Text {
-                            id: hDown
-                            anchors.right: hUp.left
-                            anchors.rightMargin: 8
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: page.colDownWidth
-                            text: "v DOWN"
-                            font.family: theme.mainFont
-                            font.pixelSize: 10
-                            font.bold: true
-                            color: theme.textSecondary
-                            horizontalAlignment: Text.AlignRight
-                        }
-                    }
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 1
-                        color: theme.borderSubtle
-                    }
-
-                    // Table Rows
-                    ListView {
-                        id: weekListView
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        clip: true
-                        model: page.weeklyList
-                        spacing: 2
-
-                        delegate: Rectangle {
-                            width: weekListView.width
-                            height: 20
-                            radius: 4
-                            color: modelData.is_today ? theme.bgCardHighlight : "transparent"
-
-                            Text {
-                                id: dDay
-                                x: 6
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: page.colDayWidth
-                                text: modelData.day
-                                font.family: theme.mainFont
-                                font.pixelSize: 11
-                                font.bold: modelData.is_today
-                                color: modelData.is_today ? theme.textPrimary : theme.textSecondary
-                            }
-
-                            Text {
-                                id: dDate
-                                x: dDay.x + page.colDayWidth + 6
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: page.colDateWidth
-                                text: modelData.date
-                                font.family: theme.mainFont
-                                font.pixelSize: 10
-                                color: theme.textMuted
-                            }
-
-                            Item {
-                                id: dTotal
-                                anchors.right: parent.right
-                                anchors.rightMargin: 6
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: page.colTotalWidth
-                                height: parent.height
-
-                                Text {
-                                    anchors.right: miniBar.left
-                                    anchors.rightMargin: 6
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    text: theme.formatBytes(modelData.total_bytes)
-                                    font.family: theme.monoFont
-                                    font.pixelSize: 11
-                                    font.bold: modelData.is_today
-                                    color: modelData.is_today ? theme.accentWhite : theme.textSecondary
-                                    horizontalAlignment: Text.AlignRight
-                                }
-
-                                Rectangle {
-                                    id: miniBar
-                                    anchors.right: parent.right
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    width: 28
-                                    height: 4
-                                    radius: 2
-                                    color: theme.bgInput
-
-                                    Rectangle {
-                                        anchors.left: parent.left
-                                        anchors.top: parent.top
-                                        anchors.bottom: parent.bottom
-                                        width: Math.min(parent.width, Math.max(2, parent.width * (modelData.total_bytes / page.maxWeekBytes)))
-                                        radius: 2
-                                        color: modelData.is_today ? theme.accentWhite : theme.accentGrey
-                                    }
-                                }
-                            }
-
-                            Text {
-                                id: dUp
-                                anchors.right: dTotal.left
-                                anchors.rightMargin: 8
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: page.colUpWidth
-                                text: theme.formatBytes(modelData.up_bytes)
-                                font.family: theme.monoFont
-                                font.pixelSize: 11
-                                color: theme.textSecondary
-                                horizontalAlignment: Text.AlignRight
-                            }
-
-                            Text {
-                                id: dDown
-                                anchors.right: dUp.left
-                                anchors.rightMargin: 8
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: page.colDownWidth
-                                text: theme.formatBytes(modelData.down_bytes)
-                                font.family: theme.monoFont
-                                font.pixelSize: 11
-                                color: theme.textSecondary
-                                horizontalAlignment: Text.AlignRight
-                            }
-                        }
-                    }
-                }
+            WeeklyHistoryTable {
+                theme: page.theme
+                weeklyList: page.weeklyList
+                maxWeekBytes: page.maxWeekBytes
             }
+
 
             // TODAY SPLIT Card
             MetricCard {
-                Layout.preferredWidth: 260
+                Layout.preferredWidth: 230
+                Layout.minimumWidth: 200
                 Layout.fillHeight: true
                 cardBg: theme.bgCard
                 cardBorder: theme.border
@@ -409,7 +215,7 @@ Item {
                             font.family: theme.monoFont
                             font.pixelSize: 11
                             font.bold: true
-                            color: "#ffffff"
+                            color: theme ? theme.textPrimary : "#ffffff"
                         }
 
                         Text {
@@ -417,7 +223,7 @@ Item {
                             text: "(x" + modelData.instances + ")"
                             font.family: theme.monoFont
                             font.pixelSize: 9
-                            color: "#9ca3af"
+                            color: theme ? theme.textMuted : "#9ca3af"
                         }
 
                         Rectangle {
@@ -434,7 +240,7 @@ Item {
                                 font.family: theme.monoFont
                                 font.pixelSize: 10
                                 font.bold: true
-                                color: "#ffffff"
+                                color: theme ? theme.accentWhite : "#ffffff"
                             }
                         }
                     }
