@@ -6,6 +6,7 @@ REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 PLASMOID_DIR="$REPO_ROOT/plasmoid"
 SYSTEMD_USER_DIR="$HOME/.config/systemd/user"
 APPLET_ID="org.kde.plasma.heimdall"
+APPLET_VERSION=$(grep -oP '"Version":\s*"\K[^"]+' "$PLASMOID_DIR/metadata.json" || echo "1.0.0")
 
 echo "=== [Heimdall] Installing Plasmoid into Plasma 6 ==="
 
@@ -34,7 +35,7 @@ cat <<EOF > "$COMPAT_WATCHCAT_DIR/metadata.json"
     "KPlugin": {
         "Authors": [
             {
-                "Email": "kveld@archlinux.local",
+                "Email": "maintainer@heimdall.local",
                 "Name": "Kveld & Antigravity"
             }
         ],
@@ -44,7 +45,7 @@ cat <<EOF > "$COMPAT_WATCHCAT_DIR/metadata.json"
         "Id": "org.kde.plasma.watchcat",
         "License": "GPL-3.0+",
         "Name": "Heimdall",
-        "Version": "1.1.0"
+        "Version": "$APPLET_VERSION"
     },
     "X-Plasma-API-Minimum-Version": "6.0"
 }
@@ -90,8 +91,9 @@ StandardError=journal
 WantedBy=default.target
 EOF
 
-systemctl --user daemon-reload
-systemctl --user enable --now heimdall.service
+systemctl --user daemon-reload 2>/dev/null || true
+systemctl --user enable --now heimdall.service 2>/dev/null || true
+systemctl --user restart heimdall.service 2>/dev/null || true
 
 echo "[+] Heimdall Telemetry Daemon enabled and started via systemd user session."
 

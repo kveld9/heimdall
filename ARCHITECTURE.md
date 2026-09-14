@@ -77,8 +77,8 @@ Every metric is collected without requiring root (`sudo`) privileges:
      - `mem_used_total`: Total memory consumed including allocator overhead.
      - `usage_pct`: Percentage of total allocated ZRAM pool capacity in use (`(compr_data_size / disksize) * 100`).
      - Calculates compression ratio (`orig / compr`) and memory saved in MB.
-  4. **Top CPU and Memory Consumers**: Executes `ps -eo comm,%cpu,%mem,rss --no-headers --sort=-%cpu` to extract active processes. Aggregates multi-instance binaries by name and extracts the top 3 processes by `%CPU` and top 3 processes by `RSS` memory.
-- **Rationale**: Displays real CPU and memory hogs directly inside the Compute panel without leaving dead space. Showing ZRAM compressed size against its allocated pool capacity provides clear context on remaining swap headroom. The page balances vertical proportions (`Row 1: 152px`, `Row 2: 124px`, `Row 3: fillHeight`) ensuring comfortable padding and zero clipping across status lines and capacity rails.
+   4. **Top CPU and Memory Consumers**: Executes `ps -eo comm,%cpu,%mem,rss --no-headers --sort=-%cpu` to extract active processes. Aggregates multi-instance binaries by name and extracts the top 8 processes by `%CPU` and top 8 processes by `RSS` memory.
+- **Rationale**: Displays real CPU and memory hogs directly inside the Compute panel without leaving dead space. Showing ZRAM compressed size against its allocated pool capacity provides clear context on remaining swap headroom. The page balances vertical proportions ensuring comfortable padding and zero clipping across status lines, capacity rails, and the compact 8-row process table that fills the lower panel height precisely.
 
 ### 2.4 Pressure Stall Information (PSI)
 - **Sources**: `/proc/pressure/cpu`, `/proc/pressure/memory`, `/proc/pressure/io`.
@@ -90,7 +90,7 @@ Every metric is collected without requiring root (`sudo`) privileges:
 - **Mechanism**:
   1. `/proc/diskstats` tracks cumulative sectors read and written for primary block devices (`nvme0n1`, `sda`). Multiplied by 512 bytes and divided by delta time to determine MB/s throughput.
   2. **Mount Deduplication & Filtering**: When `/` and `/home` share the same physical filesystem partition (e.g. Btrfs subvolumes or unified root), checking `os.stat(mount).st_dev` detects identical device numbers and merges them into a single entry (`Root & Home (/)`). Boot partitions under 5 GB (such as `/boot` and `/boot/efi`) are intentionally pruned to eliminate clutter and prioritize active user storage pools (`/`, `/home`, `/mnt/*`, `/media/*`).
-  3. **Top Lifetime Disk I/O Consumers**: Samples `/proc/<pid>/io` across running user processes, aggregates by binary name, and presents the top 3 disk consumers labeled explicitly as cumulative lifetime read and write I/O.
+  3. **Top Lifetime Disk I/O Consumers**: Samples `/proc/<pid>/io` across running user processes, aggregates by binary name, and presents the top 5 disk consumers labeled explicitly as cumulative lifetime read and write I/O.
   4. **PSI Status Formatter**: Evaluates `psi_io` averages to classify disk pipeline status into `OPTIMAL`, `ELEVATED`, or `STALLED`.
 - **Rationale**: Eliminates non-actionable boot partition bars and gives clear distinction between instantaneous throughput and lifetime process I/O.
 
@@ -146,23 +146,34 @@ Every metric is collected without requiring root (`sudo`) privileges:
      - Monochromatic baseline: crisp white tracks and frosted elevated glass (`Qt.rgba(1.0, 1.0, 1.0, 0.16)`). Strict repository invariant prohibits chromatic drift; any user request to introduce arbitrary colors requires mandatory secondary confirmation. Hardware thermal levels and PSI stalls retain subdued functional alerts only where strictly necessary.
   5. **Desktop Placement & Dynamic Sizing**:
      - Collapsed Capsule: `520x52px` pill with real-time status and a `[v] EXPAND` button. The visual card constrains its own width, height, and border-radius (`radius: 26`) while keeping the outer canvas transparent, eliminating any dark background container bloat on the desktop. The inner row is padded with 18px horizontal margins and dynamic button sizing to ensure zero text clipping or edge overflow.
-     - Expanded Dashboard: `720x560px` 4-page stack with an `[^] COLLAPSE` button.
-     - Symmetrical Transitions: `main.qml` and `FullRepresentation.qml` animate `width`, `height`, and `radius` with `Easing.OutCubic` (250ms). Visual card avoids anchor overrides (`anchors.fill`) by maintaining persistent center alignment (`anchors.centerIn: parent`), allowing properties to drive identical fluid transitions on both expansion and contraction. Capsule and dashboard views smoothly cross-fade via opacity transitions.
+      - Expanded Dashboard: `720x730px` 4-page stack with an `[^] COLLAPSE` button. Sized to precisely host the 8-row compact process tables across Compute and Storage without lower dead space or clipping.
+      - Symmetrical Transitions: `main.qml` and `FullRepresentation.qml` animate `width`, `height`, and `radius` with `Easing.OutCubic` (250ms). Visual card avoids anchor overrides (`anchors.fill`) by maintaining persistent center alignment (`anchors.centerIn: parent`), allowing properties to drive identical fluid transitions on both expansion and contraction. Capsule and dashboard views smoothly cross-fade via opacity transitions.
   6. **Desktop Accessibility (AT-SPI / Orca Integration)**:
      - Interactive controls, navigation tabs, and collapse/expand toggles expose explicit `Accessible.role` (e.g. `Accessible.PageTab`, `Accessible.Button`) and `Accessible.name` metadata, ensuring compliance with desktop assistive technologies.
 
 ### 4.3 Modular UI Component Library
 Recurring visual patterns are encapsulated into reusable components under `plasmoid/contents/ui/components/`:
-- `ProcessRow.qml`: Standardized process ranking row with fixed tabular column alignment. Process name and instance pill (`xN`) expand flexibly on the left, while secondary metrics (`detailText`, width: 70px) and highlight badges (`badge`, width: 64px) are rigidly right-anchored (`rightMargin: 16`) for terminal-grade tabular precision.
+- `ProcessTable.qml`: Unified compact tabular container (`ListView` with 34px fixed-height rows and 1px subtle row dividers from `theme.bgTableSeparator`) replacing individual floating process cards across Compute and Storage views. Lists Top 8 processes for CPU %, Memory RSS, and Lifetime Disk I/O (Read/Write MB). Enforces a rigid 5-column grid:
+  1. Index (fixed width: 24px, dimmed rank).
+  2. Process Name (`Layout.fillWidth: true`, right-elided).
+  3. Thread/Instance Badge (fixed width: 36px, centered subtle `xN` badge when instances > 1).
+  4. Secondary Metric (configurable width, strict right-alignment for RAM RSS or Disk Read MB).
+  5. Primary Metric (configurable width, soft accent pill with bold text, strict right-alignment for CPU % or Disk Write MB).
+- `SystemdTimersTable.qml`: Dedicated compact tabular container for scheduled systemd timers (34px fixed-height rows, full timer unit name anchored left with `Layout.fillWidth: true`, and remaining countdown pill anchored right, eliminating redundant target service columns).
+- `HardwareThermalsTable.qml`: Dedicated modular container for hwmon thermal sensors and hardware telemetry. Features 46px sensor cards with relative temperature gauge rails (`celsius / crit`), an integrated rolling 30-sample temperature `Sparkline` trend, and hardware telemetry badges for fan RPM and voltages.
+- `SystemdStateCard.qml`: Standalone card presenting overall systemd daemon transaction status, failed unit count badge, and a scrollable list of failed units (`ListView` with `interactive: contentHeight > height`).
+- `ZramCard.qml`: Dedicated modular container for ZRAM compression engine telemetry (`/sys/block/zram0`), displaying compression ratio, saved RAM, original vs. compressed pool allocation, capacity fill bar, and memory overhead.
+- `WeeklyHistoryTable.qml`: Extracted modular 7-day network traffic history container implementing compact column widths (`colDayWidth: 42`, `colDateWidth: 40`, `colDownWidth: 54`, `colUpWidth: 54`, `colTotalWidth: 80`) with anchor-based alignment across both header and delegates, guaranteeing terminal-grade tabular alignment across all resolutions down to 620px.
+- `ProcessRow.qml`: Standardized process ranking row retained for backward compatibility.
 - `StatusBadge.qml`: Status pill with an indicator dot, high-contrast title, and muted explanatory description (used for PSI bottlenecks and system health). Standardized with explicit `implicitHeight: 48`, vertical centering, and bounded text layout to prevent descender clipping or card overflow.
 - `MetricCard.qml`: Frosted glass container with translucent borders, uppercase header label, and slot for auxiliary controls.
 - `Sparkline.qml`: Zero-jank Canvas renderer drawing continuous 30-to-60 point telemetry histories with single-pass direct `moveTo` and `lineTo` path calculation. Eliminates cyclical JavaScript `{x, y}` object and array allocations on every 1-second tick, preventing garbage collection pauses in the QML V4 engine.
 - `BudgetSlider.qml`: Daily network traffic overview component. Visualizes total daily bytes transferred with a proportional dual-segment download vs. upload track, eliminating artificial quota caps and over-budget warnings for home Ethernet/broadband workflows.
 - `DonutChart.qml`: Split circular arc visualization for download versus upload ratios.
-- Weekly History Table (`NetworkPage.qml`): Implements rigid column width properties (`colDayWidth: 70`, `colDateWidth: 50`, `colDownWidth: 75`, `colUpWidth: 75`, `colTotalWidth: 100`) with anchor-based alignment across both header and delegates, guaranteeing terminal-grade tabular alignment across all resolutions.
 - Top Network Applications: Horizontal scrollable strip with `Flickable.HorizontalFlick`, 16px escape margin footer, and mouse wheel propagation to prevent boundary collisions on desktop.
 - Header System Synchronization & Navigation (`Header.qml`): Real-time 1-second system timer dynamically rendering local date (`ddd, d MMM`) and time (`hh:mm`) without static fallbacks. Navigation tabs (`NETWORK`, `COMPUTE`, `STORAGE`, `DAEMONS`) and toggle buttons (`COLLAPSE`, `EXPAND`) are consistently styled in bold uppercase (`font.bold: true`, `font.capitalization: Font.AllUppercase`) across active and inactive states for clean visual hierarchy and strong interface contrast.
-- Systemd Timers (`SystemdPage.qml`): Multi-line timer items with separated bullet indicators (`• `), expanded 4px vertical interline spacing, and 68px fixed-width right-anchored countdown badges.
+- Systemd Timers (`SystemdPage.qml`): Unified tabular container showing upcoming scheduled timers (up to 8 timers) with full unit names and right-anchored countdown pills.
+- Hardware Thermals (`SystemdPage.qml`): Multi-sensor monitor rendering index, sensor label, thermal status tags (`OPTIMAL`, `WARM`, `HOT`), relative temperature gauge rails, rolling thermal sparkline history, and fan/voltage telemetry adhering to the strict monochromatic theme.
 - Systemd Service State (`SystemdPage.qml`): Unambiguous `STATUS: OK` badge indicator when zero units have failed, switching to `FAILED: <count>` with high-contrast alert highlighting only during active service failures.
 
 ---
